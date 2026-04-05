@@ -56,6 +56,8 @@ builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<ICacheService, CacheService>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineCourses.Data;
 using OnlineCourses.Data.Repositories.Interfaces;
+using OnlineCourses.Models.DTOs;
 using OnlineCourses.Models.Entities;
 
 namespace OnlineCourses.Data.Repositories.Implementations;
@@ -34,7 +35,7 @@ public class CourseRepository : ICourseRepository
             query = query.Where(c => c.Status == "published");
         }
         
-        return await query.ToListAsync();
+        return await query.OrderByDescending(c => c.CreatedAt).ToListAsync();
     }
     
     public async Task<IEnumerable<Course>> GetByAuthorIdAsync(int authorId)
@@ -42,7 +43,81 @@ public class CourseRepository : ICourseRepository
         return await _context.Courses
             .Include(c => c.Category)
             .Where(c => c.AuthorId == authorId)
+            .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
+    }
+    
+    public async Task<IEnumerable<Course>> GetPublishedCoursesAsync()
+    {
+        return await _context.Courses
+            .Include(c => c.Author)
+            .Include(c => c.Category)
+            .Where(c => c.Status == "published")
+            .OrderByDescending(c => c.CreatedAt)
+            .ToListAsync();
+    }
+    
+    public async Task<(IEnumerable<Course> Items, int TotalCount)> GetFilteredAsync(CourseFilterParams filter)
+    {
+        var query = _context.Courses
+            .Include(c => c.Author)
+            .Include(c => c.Category)
+            .AsQueryable();
+
+        // Фильтрация по статусу (только опубликованные для всех, если не запрошены все)
+        if (!filter.All)
+        {
+            query = query.Where(c => c.Status == "published");
+        }
+
+        // Фильтр по уровню
+        if (!string.IsNullOrEmpty(filter.Level))
+        {
+            query = query.Where(c => c.Level == filter.Level);
+        }
+
+        // Фильтр по категории
+        if (filter.CategoryId.HasValue && filter.CategoryId > 0)
+        {
+            query = query.Where(c => c.CategoryId == filter.CategoryId);
+        }
+
+        // Поиск по названию или описанию
+        if (!string.IsNullOrEmpty(filter.Search))
+        {
+            query = query.Where(c => 
+                c.Title.ToLower().Contains(filter.Search.ToLower()) || 
+                c.Description.ToLower().Contains(filter.Search.ToLower()));
+        }
+
+        // Фильтр по цене
+        if (filter.MinPrice.HasValue)
+        {
+            query = query.Where(c => c.Price >= filter.MinPrice);
+        }
+        if (filter.MaxPrice.HasValue)
+        {
+            query = query.Where(c => c.Price <= filter.MaxPrice);
+        }
+
+        // Сортировка
+        query = filter.SortBy?.ToLower() switch
+        {
+            "title" => filter.SortOrder?.ToLower() == "desc" ? query.OrderByDescending(c => c.Title) : query.OrderBy(c => c.Title),
+            "price" => filter.SortOrder?.ToLower() == "desc" ? query.OrderByDescending(c => c.Price) : query.OrderBy(c => c.Price),
+            "rating" => filter.SortOrder?.ToLower() == "desc" ? query.OrderByDescending(c => c.AvgRating) : query.OrderBy(c => c.AvgRating),
+            "createdat" => filter.SortOrder?.ToLower() == "desc" ? query.OrderByDescending(c => c.CreatedAt) : query.OrderBy(c => c.CreatedAt),
+            _ => query.OrderByDescending(c => c.CreatedAt)
+        };
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .Skip((filter.PageNumber - 1) * filter.PageSize)
+            .Take(filter.PageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
     }
     
     public async Task<Course> CreateAsync(Course course)
@@ -74,6 +149,13 @@ public class CourseRepository : ICourseRepository
     public async Task<int> GetStudentsCountAsync(int courseId)
     {
         return await _context.Enrollments
-            .CountAsync(e => e.CourseId == courseId);
+            .CountAsync(e => e.CourseId == courseId && e.Status == "active");
+    }
+    
+    public async Task<IEnumerable<object>> GetCategoriesAsync()
+    {
+        return await _context.Categories
+            .Select(c => new { c.CategoryId, c.Name, c.ParentCategoryId })
+            .ToListAsync();
     }
 }

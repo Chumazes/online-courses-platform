@@ -23,26 +23,35 @@ public class CoursesController : ControllerBase
         _cacheService = cacheService;
     }
     
-    // GET: api/courses
+    // GET: api/courses?page=1&pageSize=10&level=beginner&categoryId=1&search=python&minPrice=0&maxPrice=10000&sortBy=rating&sortOrder=desc
     [HttpGet]
-    public async Task<IActionResult> GetAllCourses([FromQuery] bool all = false)
+    public async Task<IActionResult> GetAllCourses([FromQuery] CourseFilterParams filter)
     {
-        var cacheKey = $"courses_all_{all}";
-        var cachedCourses = _cacheService.Get<List<CourseResponseDto>>(cacheKey);
+        var cacheKey = $"courses_filtered_{filter.PageNumber}_{filter.PageSize}_{filter.Level}_{filter.CategoryId}_{filter.Search}_{filter.MinPrice}_{filter.MaxPrice}_{filter.SortBy}_{filter.SortOrder}_{filter.All}";
+        var cachedResult = _cacheService.Get<PaginatedResponse<CourseResponseDto>>(cacheKey);
         
-        if (cachedCourses != null)
+        if (cachedResult != null)
         {
-            return Ok(cachedCourses);
+            return Ok(cachedResult);
         }
         
-        var courses = await _courseRepository.GetAllAsync(all);
-        var response = new List<CourseResponseDto>();
+        var (courses, totalCount) = await _courseRepository.GetFilteredAsync(filter);
         
+        var items = new List<CourseResponseDto>();
         foreach (var course in courses)
         {
             var studentCount = await _courseRepository.GetStudentsCountAsync(course.CourseId);
-            response.Add(MapToResponseDto(course, studentCount));
+            items.Add(MapToResponseDto(course, studentCount));
         }
+        
+        var response = new PaginatedResponse<CourseResponseDto>
+        {
+            PageNumber = filter.PageNumber,
+            PageSize = filter.PageSize,
+            TotalCount = totalCount,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)filter.PageSize),
+            Items = items
+        };
         
         _cacheService.Set(cacheKey, response, TimeSpan.FromMinutes(5));
         
@@ -102,6 +111,7 @@ public class CoursesController : ControllerBase
         var created = await _courseRepository.CreateAsync(course);
         
         // Очищаем кэш списков курсов
+        _cacheService.RemoveByPrefix("courses_filtered_");
         _cacheService.RemoveByPrefix("courses_all_");
         
         return CreatedAtAction(nameof(GetCourseById), new { id = created.CourseId }, created);
@@ -145,6 +155,7 @@ public class CoursesController : ControllerBase
         
         // Очищаем кэш
         _cacheService.Remove($"course_{id}");
+        _cacheService.RemoveByPrefix("courses_filtered_");
         _cacheService.RemoveByPrefix("courses_all_");
         
         return Ok(new { message = "Course updated successfully" });
@@ -180,6 +191,7 @@ public class CoursesController : ControllerBase
         
         // Очищаем кэш
         _cacheService.Remove($"course_{id}");
+        _cacheService.RemoveByPrefix("courses_filtered_");
         _cacheService.RemoveByPrefix("courses_all_");
         
         return Ok(new { message = "Course deleted successfully" });
@@ -227,6 +239,24 @@ public class CoursesController : ControllerBase
         _cacheService.Set(cacheKey, response, TimeSpan.FromMinutes(5));
         
         return Ok(response);
+    }
+    
+    // GET: api/courses/categories
+    [HttpGet("categories")]
+    public async Task<IActionResult> GetCategories()
+    {
+        var cacheKey = "categories_list";
+        var cachedCategories = _cacheService.Get<List<object>>(cacheKey);
+        
+        if (cachedCategories != null)
+        {
+            return Ok(cachedCategories);
+        }
+        
+        var categories = await _courseRepository.GetCategoriesAsync();
+        _cacheService.Set(cacheKey, categories, TimeSpan.FromMinutes(30));
+        
+        return Ok(categories);
     }
     
     // Вспомогательный метод для маппинга
