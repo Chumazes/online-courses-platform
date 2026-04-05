@@ -14,13 +14,16 @@ public class LessonsController : ControllerBase
 {
     private readonly ILessonRepository _lessonRepository;
     private readonly ISectionRepository _sectionRepository;
+    private readonly ILogger<LessonsController> _logger;
     
     public LessonsController(
         ILessonRepository lessonRepository,
-        ISectionRepository sectionRepository)
+        ISectionRepository sectionRepository,
+        ILogger<LessonsController> logger)
     {
         _lessonRepository = lessonRepository;
         _sectionRepository = sectionRepository;
+        _logger = logger;
     }
     
     // GET: api/sections/{sectionId}/lessons
@@ -28,9 +31,12 @@ public class LessonsController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetLessonsBySectionId(int sectionId)
     {
+        _logger.LogInformation("Getting lessons for section: {SectionId}", sectionId);
+        
         var section = await _sectionRepository.GetByIdAsync(sectionId);
         if (section == null)
         {
+            _logger.LogWarning("Section not found: {SectionId}", sectionId);
             return NotFound(new { message = "Section not found" });
         }
         
@@ -51,6 +57,8 @@ public class LessonsController : ControllerBase
             CreatedAt = l.CreatedAt
         });
         
+        _logger.LogInformation("Found {Count} lessons for section {SectionId}", response.Count(), sectionId);
+        
         return Ok(response);
     }
     
@@ -59,15 +67,19 @@ public class LessonsController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetLessonById(int sectionId, int lessonId)
     {
+        _logger.LogInformation("Getting lesson {LessonId} from section {SectionId}", lessonId, sectionId);
+        
         var section = await _sectionRepository.GetByIdAsync(sectionId);
         if (section == null)
         {
+            _logger.LogWarning("Section not found: {SectionId}", sectionId);
             return NotFound(new { message = "Section not found" });
         }
         
         var lesson = await _lessonRepository.GetByIdAsync(lessonId);
         if (lesson == null || lesson.SectionId != sectionId)
         {
+            _logger.LogWarning("Lesson {LessonId} not found in section {SectionId}", lessonId, sectionId);
             return NotFound(new { message = "Lesson not found" });
         }
         
@@ -98,18 +110,23 @@ public class LessonsController : ControllerBase
         
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
+            _logger.LogWarning("CreateLesson - unauthorized access attempt");
             return Unauthorized();
         }
+        
+        _logger.LogInformation("User {UserId} creating lesson in section {SectionId}: {Title}", userId, sectionId, createDto.Title);
         
         var section = await _sectionRepository.GetByIdAsync(sectionId);
         if (section == null)
         {
+            _logger.LogWarning("Section not found for lesson creation: {SectionId}", sectionId);
             return NotFound(new { message = "Section not found" });
         }
         
         // Check authorization (course author or admin)
         if (!await _sectionRepository.IsAuthorizedAsync(sectionId, userId, userRole ?? ""))
         {
+            _logger.LogWarning("User {UserId} not authorized to create lesson in section {SectionId}", userId, sectionId);
             return Forbid();
         }
         
@@ -127,6 +144,8 @@ public class LessonsController : ControllerBase
         
         var created = await _lessonRepository.CreateAsync(lesson);
         
+        _logger.LogInformation("Lesson created successfully: {LessonId} in section {SectionId}", created.LessonId, sectionId);
+        
         return CreatedAtAction(nameof(GetLessonById), 
             new { sectionId = sectionId, lessonId = created.LessonId }, 
             created);
@@ -141,18 +160,23 @@ public class LessonsController : ControllerBase
         
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
+            _logger.LogWarning("UpdateLesson - unauthorized access attempt");
             return Unauthorized();
         }
+        
+        _logger.LogInformation("User {UserId} updating lesson {LessonId} in section {SectionId}", userId, lessonId, sectionId);
         
         var lesson = await _lessonRepository.GetByIdAsync(lessonId);
         if (lesson == null || lesson.SectionId != sectionId)
         {
+            _logger.LogWarning("Lesson {LessonId} not found in section {SectionId}", lessonId, sectionId);
             return NotFound(new { message = "Lesson not found" });
         }
         
         // Check authorization
         if (!await _lessonRepository.IsAuthorizedAsync(lessonId, userId, userRole ?? ""))
         {
+            _logger.LogWarning("User {UserId} not authorized to update lesson {LessonId}", userId, lessonId);
             return Forbid();
         }
         
@@ -166,6 +190,8 @@ public class LessonsController : ControllerBase
         
         await _lessonRepository.UpdateAsync(lesson);
         
+        _logger.LogInformation("Lesson {LessonId} updated successfully", lessonId);
+        
         return Ok(new { message = "Lesson updated successfully" });
     }
     
@@ -178,22 +204,29 @@ public class LessonsController : ControllerBase
         
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
+            _logger.LogWarning("DeleteLesson - unauthorized access attempt");
             return Unauthorized();
         }
+        
+        _logger.LogInformation("User {UserId} deleting lesson {LessonId} from section {SectionId}", userId, lessonId, sectionId);
         
         var lesson = await _lessonRepository.GetByIdAsync(lessonId);
         if (lesson == null || lesson.SectionId != sectionId)
         {
+            _logger.LogWarning("Lesson {LessonId} not found in section {SectionId}", lessonId, sectionId);
             return NotFound(new { message = "Lesson not found" });
         }
         
         // Check authorization
         if (!await _lessonRepository.IsAuthorizedAsync(lessonId, userId, userRole ?? ""))
         {
+            _logger.LogWarning("User {UserId} not authorized to delete lesson {LessonId}", userId, lessonId);
             return Forbid();
         }
         
         await _lessonRepository.DeleteAsync(lesson);
+        
+        _logger.LogInformation("Lesson {LessonId} deleted successfully", lessonId);
         
         return Ok(new { message = "Lesson deleted successfully" });
     }

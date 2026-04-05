@@ -15,15 +15,18 @@ public class ReviewsController : ControllerBase
     private readonly IReviewRepository _reviewRepository;
     private readonly ICourseRepository _courseRepository;
     private readonly ICacheService _cacheService;
+    private readonly ILogger<ReviewsController> _logger;
     
     public ReviewsController(
         IReviewRepository reviewRepository,
         ICourseRepository courseRepository,
-        ICacheService cacheService)
+        ICacheService cacheService,
+        ILogger<ReviewsController> logger)
     {
         _reviewRepository = reviewRepository;
         _courseRepository = courseRepository;
         _cacheService = cacheService;
+        _logger = logger;
     }
     
     // GET: api/reviews/course/{courseId}
@@ -31,9 +34,12 @@ public class ReviewsController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetCourseReviews(int courseId, [FromQuery] bool all = false)
     {
+        _logger.LogInformation("Getting reviews for course {CourseId}, all={All}", courseId, all);
+        
         var course = await _courseRepository.GetByIdAsync(courseId);
         if (course == null)
         {
+            _logger.LogWarning("Course not found for reviews: {CourseId}", courseId);
             return NotFound(new { message = "Course not found" });
         }
         
@@ -42,6 +48,7 @@ public class ReviewsController : ControllerBase
         
         if (cachedReviews != null)
         {
+            _logger.LogDebug("Returning cached reviews for course {CourseId}", courseId);
             return Ok(cachedReviews);
         }
         
@@ -49,6 +56,8 @@ public class ReviewsController : ControllerBase
         var response = reviews.Select(r => MapToResponseDto(r)).ToList();
         
         _cacheService.Set(cacheKey, response, TimeSpan.FromMinutes(5));
+        
+        _logger.LogInformation("Found {Count} reviews for course {CourseId}", response.Count, courseId);
         
         return Ok(response);
     }
@@ -58,9 +67,12 @@ public class ReviewsController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetCourseRating(int courseId)
     {
+        _logger.LogInformation("Getting rating for course {CourseId}", courseId);
+        
         var course = await _courseRepository.GetByIdAsync(courseId);
         if (course == null)
         {
+            _logger.LogWarning("Course not found for rating: {CourseId}", courseId);
             return NotFound(new { message = "Course not found" });
         }
         
@@ -69,6 +81,7 @@ public class ReviewsController : ControllerBase
         
         if (cachedRating != null)
         {
+            _logger.LogDebug("Returning cached rating for course {CourseId}", courseId);
             return Ok(cachedRating);
         }
         
@@ -87,6 +100,9 @@ public class ReviewsController : ControllerBase
         
         _cacheService.Set(cacheKey, response, TimeSpan.FromMinutes(10));
         
+        _logger.LogInformation("Course {CourseId} rating: {AvgRating} from {TotalReviews} reviews", 
+            courseId, response.AverageRating, totalReviews);
+        
         return Ok(response);
     }
     
@@ -98,8 +114,11 @@ public class ReviewsController : ControllerBase
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
+            _logger.LogWarning("GetMyReviews - unauthorized access attempt");
             return Unauthorized();
         }
+        
+        _logger.LogInformation("Getting reviews for user {UserId}", userId);
         
         var reviews = await _reviewRepository.GetByUserIdAsync(userId);
         var response = reviews.Select(r => new ReviewResponseDto
@@ -115,6 +134,8 @@ public class ReviewsController : ControllerBase
             IsApproved = r.IsApproved
         });
         
+        _logger.LogInformation("Found {Count} reviews for user {UserId}", response.Count(), userId);
+        
         return Ok(response);
     }
     
@@ -126,19 +147,25 @@ public class ReviewsController : ControllerBase
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
+            _logger.LogWarning("CreateReview - unauthorized access attempt");
             return Unauthorized();
         }
+        
+        _logger.LogInformation("User {UserId} creating review for course {CourseId}, Rating: {Rating}", 
+            userId, courseId, createDto.Rating);
         
         var course = await _courseRepository.GetByIdAsync(courseId);
         if (course == null)
         {
+            _logger.LogWarning("Course not found for review: {CourseId}", courseId);
             return NotFound(new { message = "Course not found" });
         }
         
-        // Проверяем, не оставлял ли пользователь уже отзыв
+        // Check if user already reviewed
         var existingReview = await _reviewRepository.GetByUserAndCourseAsync(userId, courseId);
         if (existingReview != null)
         {
+            _logger.LogWarning("User {UserId} already reviewed course {CourseId}", userId, courseId);
             return BadRequest(new { message = "You have already reviewed this course" });
         }
         
@@ -148,17 +175,19 @@ public class ReviewsController : ControllerBase
             CourseId = courseId,
             Rating = createDto.Rating,
             Comment = createDto.Comment,
-            IsApproved = false // Требует модерации
+            IsApproved = false
         };
         
         await _reviewRepository.CreateAsync(review);
         
-        // Очищаем кэш
+        _logger.LogInformation("Review created for course {CourseId} by user {UserId}, waiting for moderation", courseId, userId);
+        
+        // Clear cache
         _cacheService.Remove($"course_reviews_{courseId}_false");
         _cacheService.Remove($"course_reviews_{courseId}_true");
         _cacheService.Remove($"course_rating_{courseId}");
         _cacheService.Remove($"course_{courseId}");
-        _cacheService.RemoveByPrefix("courses_all_");
+        _cacheService.RemoveByPrefix("courses_filtered_");
         
         return Ok(new { message = "Review submitted successfully. Waiting for moderation." });
     }
@@ -173,18 +202,23 @@ public class ReviewsController : ControllerBase
         
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
+            _logger.LogWarning("UpdateReview - unauthorized access attempt");
             return Unauthorized();
         }
+        
+        _logger.LogInformation("User {UserId} updating review {ReviewId}", userId, id);
         
         var review = await _reviewRepository.GetByIdAsync(id);
         if (review == null)
         {
+            _logger.LogWarning("Review not found: {ReviewId}", id);
             return NotFound(new { message = "Review not found" });
         }
         
         // Only author or admin can update
         if (review.UserId != userId && userRole != "admin")
         {
+            _logger.LogWarning("User {UserId} not authorized to update review {ReviewId}", userId, id);
             return Forbid();
         }
         
@@ -198,11 +232,13 @@ public class ReviewsController : ControllerBase
             review.Comment = updateDto.Comment;
         }
         
-        review.IsApproved = false; // После изменений снова на модерацию
+        review.IsApproved = false;
         
         await _reviewRepository.UpdateAsync(review);
         
-        // Очищаем кэш
+        _logger.LogInformation("Review {ReviewId} updated by user {UserId}", id, userId);
+        
+        // Clear cache
         _cacheService.Remove($"course_reviews_{review.CourseId}_false");
         _cacheService.Remove($"course_reviews_{review.CourseId}_true");
         _cacheService.Remove($"course_rating_{review.CourseId}");
@@ -221,49 +257,61 @@ public class ReviewsController : ControllerBase
         
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
+            _logger.LogWarning("DeleteReview - unauthorized access attempt");
             return Unauthorized();
         }
+        
+        _logger.LogInformation("User {UserId} deleting review {ReviewId}", userId, id);
         
         var review = await _reviewRepository.GetByIdAsync(id);
         if (review == null)
         {
+            _logger.LogWarning("Review not found: {ReviewId}", id);
             return NotFound(new { message = "Review not found" });
         }
         
         // Only author or admin can delete
         if (review.UserId != userId && userRole != "admin")
         {
+            _logger.LogWarning("User {UserId} not authorized to delete review {ReviewId}", userId, id);
             return Forbid();
         }
         
         var courseId = review.CourseId;
         await _reviewRepository.DeleteAsync(review);
         
-        // Очищаем кэш
+        _logger.LogInformation("Review {ReviewId} deleted by user {UserId}", id, userId);
+        
+        // Clear cache
         _cacheService.Remove($"course_reviews_{courseId}_false");
         _cacheService.Remove($"course_reviews_{courseId}_true");
         _cacheService.Remove($"course_rating_{courseId}");
         _cacheService.Remove($"course_{courseId}");
-        _cacheService.RemoveByPrefix("courses_all_");
+        _cacheService.RemoveByPrefix("courses_filtered_");
         
         return Ok(new { message = "Review deleted successfully" });
     }
     
-    // PUT: api/reviews/{id}/approve (только для админа)
+    // PUT: api/reviews/{id}/approve
     [HttpPut("{id}/approve")]
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> ApproveReview(int id, [FromQuery] bool approve = true)
     {
+        _logger.LogInformation("Admin approving/rejecting review {ReviewId}, Approve={Approve}", id, approve);
+        
         var review = await _reviewRepository.GetByIdAsync(id);
         if (review == null)
         {
+            _logger.LogWarning("Review not found: {ReviewId}", id);
             return NotFound(new { message = "Review not found" });
         }
         
         review.IsApproved = approve;
         await _reviewRepository.UpdateAsync(review);
         
-        // Очищаем кэш
+        _logger.LogInformation("Review {ReviewId} set to IsApproved={Approve}", id, approve);
+        
+        // Clear cache
         _cacheService.Remove($"course_reviews_{review.CourseId}_false");
         _cacheService.Remove($"course_reviews_{review.CourseId}_true");
         _cacheService.Remove($"course_rating_{review.CourseId}");

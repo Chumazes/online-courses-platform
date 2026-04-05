@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineCourses.Data.Repositories.Interfaces;
 using OnlineCourses.Models.DTOs;
-using OnlineCourses.Models.Entities;
 using System.Security.Claims;
 
 namespace OnlineCourses.API.Controllers;
@@ -15,15 +14,18 @@ public class ProgressController : ControllerBase
     private readonly IProgressRepository _progressRepository;
     private readonly IEnrollmentRepository _enrollmentRepository;
     private readonly ILessonRepository _lessonRepository;
+    private readonly ILogger<ProgressController> _logger;
     
     public ProgressController(
         IProgressRepository progressRepository,
         IEnrollmentRepository enrollmentRepository,
-        ILessonRepository lessonRepository)
+        ILessonRepository lessonRepository,
+        ILogger<ProgressController> logger)
     {
         _progressRepository = progressRepository;
         _enrollmentRepository = enrollmentRepository;
         _lessonRepository = lessonRepository;
+        _logger = logger;
     }
     
     // POST: api/progress/update
@@ -33,22 +35,29 @@ public class ProgressController : ControllerBase
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
+            _logger.LogWarning("UpdateProgress - unauthorized access attempt");
             return Unauthorized();
         }
+        
+        _logger.LogInformation("User {UserId} updating progress for lesson {LessonId}. Completed: {IsCompleted}, WatchTime: {WatchTime}s", 
+            userId, updateDto.LessonId, updateDto.IsCompleted, updateDto.WatchTime);
         
         var lesson = await _lessonRepository.GetByIdAsync(updateDto.LessonId);
         if (lesson == null)
         {
+            _logger.LogWarning("UpdateProgress - lesson not found: {LessonId}", updateDto.LessonId);
             return NotFound(new { message = "Lesson not found" });
         }
         
         var enrollment = await _enrollmentRepository.GetByUserAndCourseAsync(userId, lesson.Section.CourseId);
         if (enrollment == null)
         {
+            _logger.LogWarning("User {UserId} not enrolled in course {CourseId} for lesson {LessonId}", 
+                userId, lesson.Section.CourseId, updateDto.LessonId);
             return BadRequest(new { message = "You are not enrolled in this course" });
         }
         
-        var progress = new LessonProgress
+        var progress = new OnlineCourses.Models.Entities.LessonProgress
         {
             EnrollmentId = enrollment.EnrollmentId,
             LessonId = updateDto.LessonId,
@@ -58,6 +67,8 @@ public class ProgressController : ControllerBase
         
         await _progressRepository.CreateOrUpdateProgressAsync(progress);
         await _progressRepository.UpdateEnrollmentProgressAsync(enrollment.EnrollmentId);
+        
+        _logger.LogInformation("Progress updated successfully for user {UserId}, lesson {LessonId}", userId, updateDto.LessonId);
         
         return Ok(new { message = "Progress updated successfully" });
     }
@@ -69,16 +80,19 @@ public class ProgressController : ControllerBase
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
+            _logger.LogWarning("GetCourseProgress - unauthorized access attempt");
             return Unauthorized();
         }
+        
+        _logger.LogInformation("Getting course progress for user {UserId}, course {CourseId}", userId, courseId);
         
         var enrollment = await _enrollmentRepository.GetByUserAndCourseAsync(userId, courseId);
         if (enrollment == null)
         {
+            _logger.LogWarning("User {UserId} not enrolled in course {CourseId}", userId, courseId);
             return BadRequest(new { message = "You are not enrolled in this course" });
         }
         
-        var progressList = await _progressRepository.GetProgressByEnrollmentAsync(enrollment.EnrollmentId);
         var totalLessons = await _progressRepository.GetTotalLessonsCountAsync(courseId);
         var completedLessons = await _progressRepository.GetCompletedLessonsCountAsync(enrollment.EnrollmentId);
         
@@ -93,6 +107,9 @@ public class ProgressController : ControllerBase
             CompletedAt = enrollment.CompletedAt
         };
         
+        _logger.LogInformation("Course progress for user {UserId}, course {CourseId}: {Progress}% completed", 
+            userId, courseId, response.OverallProgress);
+        
         return Ok(response);
     }
     
@@ -103,18 +120,23 @@ public class ProgressController : ControllerBase
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
+            _logger.LogWarning("GetLessonProgress - unauthorized access attempt");
             return Unauthorized();
         }
+        
+        _logger.LogInformation("Getting lesson progress for user {UserId}, lesson {LessonId}", userId, lessonId);
         
         var lesson = await _lessonRepository.GetByIdAsync(lessonId);
         if (lesson == null)
         {
+            _logger.LogWarning("GetLessonProgress - lesson not found: {LessonId}", lessonId);
             return NotFound(new { message = "Lesson not found" });
         }
         
         var enrollment = await _enrollmentRepository.GetByUserAndCourseAsync(userId, lesson.Section.CourseId);
         if (enrollment == null)
         {
+            _logger.LogWarning("User {UserId} not enrolled in course for lesson {LessonId}", userId, lessonId);
             return BadRequest(new { message = "You are not enrolled in this course" });
         }
         
@@ -150,8 +172,11 @@ public class ProgressController : ControllerBase
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
+            _logger.LogWarning("GetAllMyProgress - unauthorized access attempt");
             return Unauthorized();
         }
+        
+        _logger.LogInformation("Getting all progress for user {UserId}", userId);
         
         var enrollments = await _enrollmentRepository.GetByUserIdAsync(userId);
         var result = new List<CourseProgressResponseDto>();
@@ -172,6 +197,8 @@ public class ProgressController : ControllerBase
                 CompletedAt = enrollment.CompletedAt
             });
         }
+        
+        _logger.LogInformation("Found {Count} courses with progress for user {UserId}", result.Count, userId);
         
         return Ok(result);
     }

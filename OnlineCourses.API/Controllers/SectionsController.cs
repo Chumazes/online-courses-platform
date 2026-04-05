@@ -14,13 +14,16 @@ public class SectionsController : ControllerBase
 {
     private readonly ISectionRepository _sectionRepository;
     private readonly ICourseRepository _courseRepository;
+    private readonly ILogger<SectionsController> _logger;
     
     public SectionsController(
         ISectionRepository sectionRepository,
-        ICourseRepository courseRepository)
+        ICourseRepository courseRepository,
+        ILogger<SectionsController> logger)
     {
         _sectionRepository = sectionRepository;
         _courseRepository = courseRepository;
+        _logger = logger;
     }
     
     // GET: api/courses/{courseId}/sections
@@ -28,9 +31,12 @@ public class SectionsController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetSectionsByCourseId(int courseId)
     {
+        _logger.LogInformation("Getting sections for course: {CourseId}", courseId);
+        
         var course = await _courseRepository.GetByIdAsync(courseId);
         if (course == null)
         {
+            _logger.LogWarning("Course not found for sections: {CourseId}", courseId);
             return NotFound(new { message = "Course not found" });
         }
         
@@ -53,6 +59,8 @@ public class SectionsController : ControllerBase
             });
         }
         
+        _logger.LogInformation("Found {Count} sections for course {CourseId}", response.Count, courseId);
+        
         return Ok(response);
     }
     
@@ -61,15 +69,19 @@ public class SectionsController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetSectionById(int courseId, int sectionId)
     {
+        _logger.LogInformation("Getting section {SectionId} for course {CourseId}", sectionId, courseId);
+        
         var course = await _courseRepository.GetByIdAsync(courseId);
         if (course == null)
         {
+            _logger.LogWarning("Course not found: {CourseId}", courseId);
             return NotFound(new { message = "Course not found" });
         }
         
         var section = await _sectionRepository.GetByIdAsync(sectionId);
         if (section == null || section.CourseId != courseId)
         {
+            _logger.LogWarning("Section {SectionId} not found in course {CourseId}", sectionId, courseId);
             return NotFound(new { message = "Section not found" });
         }
         
@@ -99,18 +111,23 @@ public class SectionsController : ControllerBase
         
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
+            _logger.LogWarning("CreateSection - unauthorized access attempt");
             return Unauthorized();
         }
+        
+        _logger.LogInformation("User {UserId} creating section in course {CourseId}: {Title}", userId, courseId, createDto.Title);
         
         var course = await _courseRepository.GetByIdAsync(courseId);
         if (course == null)
         {
+            _logger.LogWarning("Course not found for section creation: {CourseId}", courseId);
             return NotFound(new { message = "Course not found" });
         }
         
         // Only author or admin can add sections
         if (course.AuthorId != userId && userRole != "admin")
         {
+            _logger.LogWarning("User {UserId} not authorized to create section in course {CourseId}", userId, courseId);
             return Forbid();
         }
         
@@ -123,6 +140,8 @@ public class SectionsController : ControllerBase
         };
         
         var created = await _sectionRepository.CreateAsync(section);
+        
+        _logger.LogInformation("Section created successfully: {SectionId} in course {CourseId}", created.SectionId, courseId);
         
         return CreatedAtAction(nameof(GetSectionById), 
             new { courseId = courseId, sectionId = created.SectionId }, 
@@ -138,18 +157,23 @@ public class SectionsController : ControllerBase
         
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
+            _logger.LogWarning("UpdateSection - unauthorized access attempt");
             return Unauthorized();
         }
+        
+        _logger.LogInformation("User {UserId} updating section {SectionId} in course {CourseId}", userId, sectionId, courseId);
         
         var section = await _sectionRepository.GetByIdAsync(sectionId);
         if (section == null || section.CourseId != courseId)
         {
+            _logger.LogWarning("Section {SectionId} not found in course {CourseId}", sectionId, courseId);
             return NotFound(new { message = "Section not found" });
         }
         
         // Check authorization
         if (!await _sectionRepository.IsAuthorizedAsync(sectionId, userId, userRole ?? ""))
         {
+            _logger.LogWarning("User {UserId} not authorized to update section {SectionId}", userId, sectionId);
             return Forbid();
         }
         
@@ -158,6 +182,8 @@ public class SectionsController : ControllerBase
         section.SectionOrder = updateDto.SectionOrder;
         
         await _sectionRepository.UpdateAsync(section);
+        
+        _logger.LogInformation("Section {SectionId} updated successfully", sectionId);
         
         return Ok(new { message = "Section updated successfully" });
     }
@@ -171,22 +197,29 @@ public class SectionsController : ControllerBase
         
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
         {
+            _logger.LogWarning("DeleteSection - unauthorized access attempt");
             return Unauthorized();
         }
+        
+        _logger.LogInformation("User {UserId} deleting section {SectionId} from course {CourseId}", userId, sectionId, courseId);
         
         var section = await _sectionRepository.GetByIdAsync(sectionId);
         if (section == null || section.CourseId != courseId)
         {
+            _logger.LogWarning("Section {SectionId} not found in course {CourseId}", sectionId, courseId);
             return NotFound(new { message = "Section not found" });
         }
         
         // Check authorization
         if (!await _sectionRepository.IsAuthorizedAsync(sectionId, userId, userRole ?? ""))
         {
+            _logger.LogWarning("User {UserId} not authorized to delete section {SectionId}", userId, sectionId);
             return Forbid();
         }
         
         await _sectionRepository.DeleteAsync(section);
+        
+        _logger.LogInformation("Section {SectionId} deleted successfully", sectionId);
         
         return Ok(new { message = "Section deleted successfully" });
     }
