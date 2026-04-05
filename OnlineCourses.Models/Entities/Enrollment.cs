@@ -11,6 +11,11 @@ public class Enrollment
     public DateTime? CompletedAt { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+    
+    // Navigation properties
     public User User { get; set; } = null!;
     public Course Course { get; set; } = null!;
+    
+
+    public ICollection<LessonProgress> LessonProgresses { get; set; } = new List<LessonProgress>();
 }

@@ -52,6 +52,7 @@ builder.Services.AddCors();
 builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>(); 
 builder.Services.AddScoped<ISectionRepository, SectionRepository>(); 
 builder.Services.AddScoped<ILessonRepository, LessonRepository>();
+builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
 
 var app = builder.Build();
 

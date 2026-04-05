@@ -17,6 +17,7 @@ public class AppDbContext : DbContext
     public DbSet<Enrollment> Enrollments { get; set; }
     public DbSet<Review> Reviews { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<LessonProgress> LessonProgresses { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -39,7 +40,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<CourseTag>()
             .HasKey(ct => new { ct.CourseId, ct.TagId });
         
-        // Связи
+        // Связи для Course
         modelBuilder.Entity<Course>()
             .HasOne(c => c.Category)
             .WithMany(cat => cat.Courses)
@@ -51,5 +52,19 @@ public class AppDbContext : DbContext
             .WithMany(u => u.AuthoredCourses)
             .HasForeignKey(c => c.AuthorId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        // Настройки для RefreshToken
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(rt => rt.Id);
+            entity.HasIndex(rt => rt.Token).IsUnique();
+            entity.Property(rt => rt.Token).IsRequired();
+            entity.Property(rt => rt.IsRevoked).HasDefaultValue(false);
+            
+            entity.HasOne(rt => rt.User)
+                  .WithMany(u => u.RefreshTokens)
+                  .HasForeignKey(rt => rt.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }
