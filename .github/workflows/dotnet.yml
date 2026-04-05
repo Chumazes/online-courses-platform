@@ -18,14 +18,19 @@ jobs:
       with:
         dotnet-version: 8.0.x
     
-    - name: Restore dependencies
-      run: dotnet restore
-    
-    - name: Build API and Data projects (skip Windows Desktop)
+    - name: Restore API only
       run: |
-        dotnet build OnlineCourses.API/OnlineCourses.API.csproj --configuration Release --no-restore
-        dotnet build OnlineCourses.Data/OnlineCourses.Data.csproj --configuration Release --no-restore
-        dotnet build OnlineCourses.Models/OnlineCourses.Models.csproj --configuration Release --no-restore
+        dotnet restore OnlineCourses.API/OnlineCourses.API.csproj
+        dotnet restore OnlineCourses.Data/OnlineCourses.Data.csproj
+        dotnet restore OnlineCourses.Models/OnlineCourses.Models.csproj
+        dotnet restore OnlineCourses.Tests/OnlineCourses.Tests.csproj
+    
+    - name: Build API only
+      run: |
+        dotnet build OnlineCourses.API/OnlineCourses.API.csproj -c Release --no-restore
+        dotnet build OnlineCourses.Data/OnlineCourses.Data.csproj -c Release --no-restore
+        dotnet build OnlineCourses.Models/OnlineCourses.Models.csproj -c Release --no-restore
+        dotnet build OnlineCourses.Tests/OnlineCourses.Tests.csproj -c Release --no-restore
     
     - name: Test
-      run: dotnet test OnlineCourses.Tests/OnlineCourses.Tests.csproj --configuration Release --verbosity normal
+      run: dotnet test OnlineCourses.Tests/OnlineCourses.Tests.csproj -c Release --no-build --verbosity normal
