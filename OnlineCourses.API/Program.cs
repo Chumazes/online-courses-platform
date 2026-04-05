@@ -51,6 +51,7 @@ builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddCors();
 builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>(); 
 builder.Services.AddScoped<ISectionRepository, SectionRepository>(); 
+builder.Services.AddScoped<ILessonRepository, LessonRepository>();
 
 var app = builder.Build();
 
