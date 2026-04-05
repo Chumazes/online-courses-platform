@@ -8,4 +8,9 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OnlineCourses.Client\OnlineCourses.Client.csproj" />
+    <ProjectReference Include="..\OnlineCourses.Models\OnlineCourses.Models.csproj" />
+  </ItemGroup>
+
 </Project>
