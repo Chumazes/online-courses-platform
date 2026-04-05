@@ -19,7 +19,6 @@
     <ProjectReference Include="..\OnlineCourses.API\OnlineCourses.API.csproj" />
     <ProjectReference Include="..\OnlineCourses.Client\OnlineCourses.Client.csproj" />
     <ProjectReference Include="..\OnlineCourses.Data\OnlineCourses.Data.csproj" />
-    <ProjectReference Include="..\OnlineCourses.Desktop\OnlineCourses.Desktop.csproj" />
     <ProjectReference Include="..\OnlineCourses.Models\OnlineCourses.Models.csproj" />
   </ItemGroup>
 
