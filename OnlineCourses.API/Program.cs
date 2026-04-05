@@ -47,7 +47,7 @@ builder.Services.AddAuthentication(options =>
 // Dependency Injection
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddCors();
 
 var app = builder.Build();
