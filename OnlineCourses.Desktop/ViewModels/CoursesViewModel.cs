@@ -1,27 +1,37 @@
 using System.Collections.ObjectModel;
+using System.Net.Http;
 using System.Windows.Input;
+using OnlineCourses.Client.Api;
 using OnlineCourses.Desktop.Infrastructure;
+using OnlineCourses.Models.DTOs;
 
 namespace OnlineCourses.Desktop.ViewModels;
 
 public sealed class CoursesViewModel : ViewModelBase
 {
+    private readonly CoursesClient _coursesClient;
     private readonly Action<CourseCardViewModel> _openCourse;
-    private readonly Func<Task> _logout;
+    private readonly RelayCommand _openCourseCommand;
+    private readonly AsyncRelayCommand _logoutCommand;
     private CourseCardViewModel? _selectedCourse;
+    private bool _isLoading;
+    private string? _errorMessage;
 
-    public CoursesViewModel(Action<CourseCardViewModel> openCourse, Func<Task> logout)
+    public CoursesViewModel(CoursesClient coursesClient, Action<CourseCardViewModel> openCourse, Func<Task> logout)
     {
+        _coursesClient = coursesClient;
         _openCourse = openCourse;
-        _logout = logout;
 
-        OpenCourseCommand = new RelayCommand(
+        _openCourseCommand = new RelayCommand(
             _ => OpenSelectedCourse(),
-            _ => SelectedCourse is not null);
+            _ => SelectedCourse is not null && !IsLoading);
 
-        LogoutCommand = new AsyncRelayCommand(_logout);
+        _logoutCommand = new AsyncRelayCommand(logout, () => !IsLoading);
 
-        Courses = new ObservableCollection<CourseCardViewModel>(BuildDemoCourses());
+        OpenCourseCommand = _openCourseCommand;
+        LogoutCommand = _logoutCommand;
+
+        Courses = new ObservableCollection<CourseCardViewModel>();
     }
 
     public ObservableCollection<CourseCardViewModel> Courses { get; }
@@ -33,13 +43,72 @@ public sealed class CoursesViewModel : ViewModelBase
         {
             if (SetProperty(ref _selectedCourse, value))
             {
-                ((RelayCommand)OpenCourseCommand).RaiseCanExecuteChanged();
+                _openCourseCommand.RaiseCanExecuteChanged();
             }
         }
     }
 
+    public bool IsLoading
+    {
+        get => _isLoading;
+        private set
+        {
+            if (SetProperty(ref _isLoading, value))
+            {
+                _openCourseCommand.RaiseCanExecuteChanged();
+                _logoutCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    public string? ErrorMessage
+    {
+        get => _errorMessage;
+        private set => SetProperty(ref _errorMessage, value);
+    }
+
     public ICommand OpenCourseCommand { get; }
     public ICommand LogoutCommand { get; }
+
+    public async Task LoadCoursesAsync()
+    {
+        IsLoading = true;
+        ErrorMessage = null;
+        Courses.Clear();
+
+        try
+        {
+            IReadOnlyList<CourseResponseDto> dtoList = await _coursesClient.GetAllAsync();
+
+            foreach (var dto in dtoList)
+            {
+                Courses.Add(new CourseCardViewModel
+                {
+                    Id = dto.CourseId,
+                    Title = dto.Title,
+                    Description = dto.Description,
+                    Level = dto.Level,
+                    Price = dto.Price
+                });
+            }
+        }
+        catch (ApiException ex)
+        {
+            ErrorMessage = ex.ResponseBody ?? ex.Message;
+        }
+        catch (HttpRequestException)
+        {
+            ErrorMessage = "Не удалось подключиться к API.";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
 
     private void OpenSelectedCourse()
     {
@@ -47,36 +116,5 @@ public sealed class CoursesViewModel : ViewModelBase
         {
             _openCourse(SelectedCourse);
         }
-    }
-
-    private static IReadOnlyList<CourseCardViewModel> BuildDemoCourses()
-    {
-        return
-        [
-            new CourseCardViewModel
-            {
-                Id = 1,
-                Title = "C# Fundamentals",
-                Description = "Основы языка, коллекции, LINQ и ООП.",
-                Level = "beginner",
-                Price = 0
-            },
-            new CourseCardViewModel
-            {
-                Id = 2,
-                Title = "ASP.NET Core API",
-                Description = "Контроллеры, JWT, EF Core и практический backend.",
-                Level = "intermediate",
-                Price = 1490
-            },
-            new CourseCardViewModel
-            {
-                Id = 3,
-                Title = "WPF Desktop Basics",
-                Description = "MVVM-подход, команда, биндинги, навигация.",
-                Level = "beginner",
-                Price = 990
-            }
-        ];
     }
 }

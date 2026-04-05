@@ -1,13 +1,25 @@
+using System.Windows;
 using System.Windows.Controls;
+using OnlineCourses.Client.Api;
 using OnlineCourses.Desktop.ViewModels;
 
 namespace OnlineCourses.Desktop.Pages;
 
 public partial class CoursesPage : Page
 {
-    public CoursesPage(Action<CourseCardViewModel> openCourse, Func<Task> logout)
+    private readonly CoursesViewModel _viewModel;
+
+    public CoursesPage(CoursesClient coursesClient, Action<CourseCardViewModel> openCourse, Func<Task> logout)
     {
         InitializeComponent();
-        DataContext = new CoursesViewModel(openCourse, logout);
+        _viewModel = new CoursesViewModel(coursesClient, openCourse, logout);
+        DataContext = _viewModel;
+        Loaded += Page_Loaded;
+    }
+
+    private async void Page_Loaded(object sender, RoutedEventArgs e)
+    {
+        Loaded -= Page_Loaded;
+        await _viewModel.LoadCoursesAsync();
     }
 }

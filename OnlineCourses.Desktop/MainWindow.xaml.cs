@@ -11,6 +11,7 @@ namespace OnlineCourses.Desktop;
 public partial class MainWindow : Window
 {
     private readonly AuthClient _authClient;
+    private readonly CoursesClient _coursesClient;
 
     public MainWindow()
     {
@@ -24,6 +25,7 @@ public partial class MainWindow : Window
 
         var tokenStore = new FileTokenStore(sessionFilePath);
         _authClient = new AuthClient(httpClient, tokenStore);
+        _coursesClient = new CoursesClient(httpClient, tokenStore);
 
         NavigateToLogin();
     }
@@ -39,6 +41,7 @@ public partial class MainWindow : Window
     private void NavigateToCourses()
     {
         var page = new CoursesPage(
+            _coursesClient,
             openCourse: NavigateToCourseDetails,
             logout: PerformLogoutAsync);
 
