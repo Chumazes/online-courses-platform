@@ -53,6 +53,8 @@ builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
 builder.Services.AddScoped<ISectionRepository, SectionRepository>(); 
 builder.Services.AddScoped<ILessonRepository, LessonRepository>();
 builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<ICacheService, CacheService>();
 
 var app = builder.Build();
 
@@ -64,8 +66,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-app.UseAuthentication();  // 👈 ВАЖНО: сначала Authentication
-app.UseAuthorization();   // 👈 потом Authorization
+app.UseAuthentication();  
+app.UseAuthorization();   
 app.MapControllers();
 
 app.Run();

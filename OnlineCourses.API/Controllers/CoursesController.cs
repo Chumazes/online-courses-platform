@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OnlineCourses.API.Services.Interfaces;
 using OnlineCourses.Data.Repositories.Interfaces;
 using OnlineCourses.Models.DTOs;
 using OnlineCourses.Models.Entities;
@@ -12,40 +13,38 @@ namespace OnlineCourses.API.Controllers;
 public class CoursesController : ControllerBase
 {
     private readonly ICourseRepository _courseRepository;
+    private readonly ICacheService _cacheService;
     
-    public CoursesController(ICourseRepository courseRepository)
+    public CoursesController(
+        ICourseRepository courseRepository,
+        ICacheService cacheService)
     {
         _courseRepository = courseRepository;
+        _cacheService = cacheService;
     }
     
     // GET: api/courses
     [HttpGet]
     public async Task<IActionResult> GetAllCourses([FromQuery] bool all = false)
     {
-        var courses = await _courseRepository.GetAllAsync(all);
+        var cacheKey = $"courses_all_{all}";
+        var cachedCourses = _cacheService.Get<List<CourseResponseDto>>(cacheKey);
         
+        if (cachedCourses != null)
+        {
+            return Ok(cachedCourses);
+        }
+        
+        var courses = await _courseRepository.GetAllAsync(all);
         var response = new List<CourseResponseDto>();
+        
         foreach (var course in courses)
         {
             var studentCount = await _courseRepository.GetStudentsCountAsync(course.CourseId);
-            response.Add(new CourseResponseDto
-            {
-                CourseId = course.CourseId,
-                Title = course.Title,
-                Description = course.Description,
-                Price = course.Price,
-                Level = course.Level,
-                Status = course.Status,
-                CoverImageUrl = course.CoverImageUrl,
-                AvgRating = course.AvgRating,
-                CategoryId = course.CategoryId,
-                CategoryName = course.Category?.Name,
-                AuthorId = course.AuthorId,
-                AuthorName = course.Author?.FullName ?? "Unknown",
-                CreatedAt = course.CreatedAt,
-                TotalStudents = studentCount
-            });
+            response.Add(MapToResponseDto(course, studentCount));
         }
+        
+        _cacheService.Set(cacheKey, response, TimeSpan.FromMinutes(5));
         
         return Ok(response);
     }
@@ -54,6 +53,14 @@ public class CoursesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCourseById(int id)
     {
+        var cacheKey = $"course_{id}";
+        var cachedCourse = _cacheService.Get<CourseResponseDto>(cacheKey);
+        
+        if (cachedCourse != null)
+        {
+            return Ok(cachedCourse);
+        }
+        
         var course = await _courseRepository.GetByIdAsync(id);
         
         if (course == null)
@@ -62,23 +69,9 @@ public class CoursesController : ControllerBase
         }
         
         var studentCount = await _courseRepository.GetStudentsCountAsync(course.CourseId);
-        var response = new CourseResponseDto
-        {
-            CourseId = course.CourseId,
-            Title = course.Title,
-            Description = course.Description,
-            Price = course.Price,
-            Level = course.Level,
-            Status = course.Status,
-            CoverImageUrl = course.CoverImageUrl,
-            AvgRating = course.AvgRating,
-            CategoryId = course.CategoryId,
-            CategoryName = course.Category?.Name,
-            AuthorId = course.AuthorId,
-            AuthorName = course.Author?.FullName ?? "Unknown",
-            CreatedAt = course.CreatedAt,
-            TotalStudents = studentCount
-        };
+        var response = MapToResponseDto(course, studentCount);
+        
+        _cacheService.Set(cacheKey, response, TimeSpan.FromMinutes(5));
         
         return Ok(response);
     }
@@ -107,6 +100,9 @@ public class CoursesController : ControllerBase
         };
         
         var created = await _courseRepository.CreateAsync(course);
+        
+        // Очищаем кэш списков курсов
+        _cacheService.RemoveByPrefix("courses_all_");
         
         return CreatedAtAction(nameof(GetCourseById), new { id = created.CourseId }, created);
     }
@@ -147,6 +143,10 @@ public class CoursesController : ControllerBase
         
         await _courseRepository.UpdateAsync(course);
         
+        // Очищаем кэш
+        _cacheService.Remove($"course_{id}");
+        _cacheService.RemoveByPrefix("courses_all_");
+        
         return Ok(new { message = "Course updated successfully" });
     }
     
@@ -178,6 +178,10 @@ public class CoursesController : ControllerBase
         
         await _courseRepository.DeleteAsync(course);
         
+        // Очищаем кэш
+        _cacheService.Remove($"course_{id}");
+        _cacheService.RemoveByPrefix("courses_all_");
+        
         return Ok(new { message = "Course deleted successfully" });
     }
     
@@ -192,9 +196,43 @@ public class CoursesController : ControllerBase
             return Unauthorized();
         }
         
+        var cacheKey = $"my_courses_{userId}";
+        var cachedCourses = _cacheService.Get<List<CourseResponseDto>>(cacheKey);
+        
+        if (cachedCourses != null)
+        {
+            return Ok(cachedCourses);
+        }
+        
         var courses = await _courseRepository.GetByAuthorIdAsync(userId);
         
-        var response = courses.Select(course => new CourseResponseDto
+        var response = new List<CourseResponseDto>();
+        foreach (var course in courses)
+        {
+            var studentCount = await _courseRepository.GetStudentsCountAsync(course.CourseId);
+            response.Add(new CourseResponseDto
+            {
+                CourseId = course.CourseId,
+                Title = course.Title,
+                Description = course.Description,
+                Price = course.Price,
+                Level = course.Level,
+                Status = course.Status,
+                CoverImageUrl = course.CoverImageUrl,
+                CreatedAt = course.CreatedAt,
+                TotalStudents = studentCount
+            });
+        }
+        
+        _cacheService.Set(cacheKey, response, TimeSpan.FromMinutes(5));
+        
+        return Ok(response);
+    }
+    
+    // Вспомогательный метод для маппинга
+    private CourseResponseDto MapToResponseDto(Course course, int studentCount)
+    {
+        return new CourseResponseDto
         {
             CourseId = course.CourseId,
             Title = course.Title,
@@ -203,9 +241,13 @@ public class CoursesController : ControllerBase
             Level = course.Level,
             Status = course.Status,
             CoverImageUrl = course.CoverImageUrl,
-            CreatedAt = course.CreatedAt
-        });
-        
-        return Ok(response);
+            AvgRating = course.AvgRating,
+            CategoryId = course.CategoryId,
+            CategoryName = course.Category?.Name,
+            AuthorId = course.AuthorId,
+            AuthorName = course.Author?.FullName ?? "Unknown",
+            CreatedAt = course.CreatedAt,
+            TotalStudents = studentCount
+        };
     }
 }
