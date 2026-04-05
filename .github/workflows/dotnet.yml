@@ -21,8 +21,11 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     
-    - name: Build
-      run: dotnet build --no-restore --configuration Release
+    - name: Build API and Data projects (skip Windows Desktop)
+      run: |
+        dotnet build OnlineCourses.API/OnlineCourses.API.csproj --configuration Release --no-restore
+        dotnet build OnlineCourses.Data/OnlineCourses.Data.csproj --configuration Release --no-restore
+        dotnet build OnlineCourses.Models/OnlineCourses.Models.csproj --configuration Release --no-restore
     
     - name: Test
-      run: dotnet test --no-build --configuration Release --verbosity normal
+      run: dotnet test OnlineCourses.Tests/OnlineCourses.Tests.csproj --configuration Release --verbosity normal
