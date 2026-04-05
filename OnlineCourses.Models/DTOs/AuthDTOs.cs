@@ -42,3 +42,10 @@ public class AuthResponseDto
     public string Role { get; set; } = string.Empty;
     public DateTime ExpiresAt { get; set; }
 }
+
+// Добавьте этот класс
+public class RefreshTokenRequest
+{
+    [Required]
+    public string RefreshToken { get; set; } = string.Empty;
+}
