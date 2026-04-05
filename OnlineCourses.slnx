@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="OnlineCourses.API/OnlineCourses.API.csproj" />
+  <Project Path="OnlineCourses.Data/OnlineCourses.Data.csproj" />
+  <Project Path="OnlineCourses.Models/OnlineCourses.Models.csproj" />
+</Solution>
