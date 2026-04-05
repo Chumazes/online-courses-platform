@@ -1,7 +1,7 @@
 <Solution>
   <Project Path="OnlineCourses.API/OnlineCourses.API.csproj" />
-  <Project Path="OnlineCourses.Client/OnlineCourses.Client.csproj" Id="0c08839c-5809-4b64-8a9a-2c1094b26826" />
+  <Project Path="OnlineCourses.Client/OnlineCourses.Client.csproj" />
   <Project Path="OnlineCourses.Data/OnlineCourses.Data.csproj" />
-  <Project Path="OnlineCourses.Desktop/OnlineCourses.Desktop.csproj" Id="08c979e8-20c7-4132-b486-6c506f622bee" />
+  <Project Path="OnlineCourses.Desktop/OnlineCourses.Desktop.csproj" />
   <Project Path="OnlineCourses.Models/OnlineCourses.Models.csproj" />
 </Solution>
