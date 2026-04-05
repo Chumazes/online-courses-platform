@@ -14,4 +14,5 @@ public class Lesson
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
     public Section Section { get; set; } = null!;
+    public ICollection<LessonProgress> LessonProgresses { get; set; } = new List<LessonProgress>();
 }

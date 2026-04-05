@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OnlineCourses.Data;
@@ -11,9 +12,11 @@ using OnlineCourses.Data;
 namespace OnlineCourses.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260405152228_AddRefreshTokenConfiguration")]
+    partial class AddRefreshTokenConfiguration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -205,47 +208,6 @@ namespace OnlineCourses.Data.Migrations
                     b.HasIndex("SectionId");
 
                     b.ToTable("Lessons");
-                });
-
-            modelBuilder.Entity("OnlineCourses.Models.Entities.LessonProgress", b =>
-                {
-                    b.Property<int>("ProgressId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ProgressId"));
-
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("EnrollmentId")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("LastAccessed")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("LessonId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("WatchTime")
-                        .HasColumnType("integer");
-
-                    b.HasKey("ProgressId");
-
-                    b.HasIndex("EnrollmentId");
-
-                    b.HasIndex("LessonId");
-
-                    b.ToTable("LessonProgresses");
                 });
 
             modelBuilder.Entity("OnlineCourses.Models.Entities.RefreshToken", b =>
@@ -499,25 +461,6 @@ namespace OnlineCourses.Data.Migrations
                     b.Navigation("Section");
                 });
 
-            modelBuilder.Entity("OnlineCourses.Models.Entities.LessonProgress", b =>
-                {
-                    b.HasOne("OnlineCourses.Models.Entities.Enrollment", "Enrollment")
-                        .WithMany("LessonProgresses")
-                        .HasForeignKey("EnrollmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("OnlineCourses.Models.Entities.Lesson", "Lesson")
-                        .WithMany("LessonProgresses")
-                        .HasForeignKey("LessonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Enrollment");
-
-                    b.Navigation("Lesson");
-                });
-
             modelBuilder.Entity("OnlineCourses.Models.Entities.RefreshToken", b =>
                 {
                     b.HasOne("OnlineCourses.Models.Entities.User", "User")
@@ -573,16 +516,6 @@ namespace OnlineCourses.Data.Migrations
                     b.Navigation("Reviews");
 
                     b.Navigation("Sections");
-                });
-
-            modelBuilder.Entity("OnlineCourses.Models.Entities.Enrollment", b =>
-                {
-                    b.Navigation("LessonProgresses");
-                });
-
-            modelBuilder.Entity("OnlineCourses.Models.Entities.Lesson", b =>
-                {
-                    b.Navigation("LessonProgresses");
                 });
 
             modelBuilder.Entity("OnlineCourses.Models.Entities.Section", b =>
