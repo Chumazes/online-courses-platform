@@ -1,4 +1,4 @@
-name: .NET CI/CD
+name: .NET CI
 
 on:
   push:
@@ -9,28 +9,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: online_courses_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
     
@@ -40,14 +24,5 @@ jobs:
     - name: Build
       run: dotnet build --no-restore --configuration Release
     
-    - name: Run tests
+    - name: Test
       run: dotnet test --no-build --configuration Release --verbosity normal
-      
-    - name: Publish API
-      run: dotnet publish OnlineCourses.API/OnlineCourses.API.csproj -c Release -o ./publish
-    
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: api-artifacts
-        path: ./publish
