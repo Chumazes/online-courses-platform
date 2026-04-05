@@ -7,4 +7,5 @@ public class Category
     public string? Description { get; set; }
     public int? ParentCategoryId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public ICollection<Course> Courses { get; set; } = new List<Course>();
 }

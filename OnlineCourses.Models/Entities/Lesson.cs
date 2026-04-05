@@ -13,4 +13,5 @@ public class Lesson
     public bool IsFree { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+    public Section Section { get; set; } = null!;
 }

@@ -16,4 +16,10 @@ public class Course
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+    public Category? Category { get; set; }
+    public User Author { get; set; } = null!;
+    public ICollection<Section> Sections { get; set; } = new List<Section>();
+    public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+    public ICollection<Review> Reviews { get; set; } = new List<Review>();
+    public ICollection<CourseTag> CourseTags { get; set; } = new List<CourseTag>();
 }

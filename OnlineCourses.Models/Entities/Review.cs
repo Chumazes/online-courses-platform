@@ -11,4 +11,6 @@ public class Review
     public bool IsApproved { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+    public User User { get; set; } = null!;
+    public Course Course { get; set; } = null!;
 }

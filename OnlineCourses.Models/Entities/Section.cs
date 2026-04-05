@@ -9,4 +9,6 @@ public class Section
     public int SectionOrder { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+    public Course Course { get; set; } = null!;
+    public ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
 }
