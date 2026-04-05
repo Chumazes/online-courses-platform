@@ -4,8 +4,6 @@ using OnlineCourses.Data.Repositories.Interfaces;
 using OnlineCourses.Models.DTOs;
 using OnlineCourses.Models.Entities;
 using System.Security.Claims;
-using OnlineCourses.Models.DTOs;
-using OnlineCourses.Data.Repositories.Interfaces;
 
 namespace OnlineCourses.API.Controllers;
 

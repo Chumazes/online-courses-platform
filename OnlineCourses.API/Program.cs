@@ -49,7 +49,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddCors();
-builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();  
+builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>(); 
+builder.Services.AddScoped<ISectionRepository, SectionRepository>(); 
 
 var app = builder.Build();
 
