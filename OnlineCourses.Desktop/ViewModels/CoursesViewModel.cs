@@ -78,9 +78,9 @@ public sealed class CoursesViewModel : ViewModelBase
 
         try
         {
-            IReadOnlyList<CourseResponseDto> dtoList = await _coursesClient.GetAllAsync();
+            var response = await _coursesClient.GetAllAsync(pageNumber: 1, pageSize: 20, all: false);
 
-            foreach (var dto in dtoList)
+            foreach (var dto in response.Items)
             {
                 Courses.Add(new CourseCardViewModel
                 {

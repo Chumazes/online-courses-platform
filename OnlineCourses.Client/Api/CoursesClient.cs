@@ -10,16 +10,18 @@ public sealed class CoursesClient : ApiClientBase
     {
     }
 
-    public async Task<IReadOnlyList<CourseResponseDto>> GetAllAsync(
+    public async Task<PaginatedResponse<CourseResponseDto>> GetAllAsync(
+        int pageNumber = 1,
+        int pageSize = 20,
         bool all = false,
         CancellationToken cancellationToken = default)
     {
-        var url = all ? "api/courses?all=true" : "api/courses";
+        var url = $"api/courses?pageNumber={pageNumber}&pageSize={pageSize}&all={all.ToString().ToLower()}";
         using var request = await CreateRequestAsync(
             HttpMethod.Get,
             url,
             cancellationToken: cancellationToken);
 
-        return await SendAsync<List<CourseResponseDto>>(request, cancellationToken);
+        return await SendAsync<PaginatedResponse<CourseResponseDto>>(request, cancellationToken);
     }
 }
