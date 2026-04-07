@@ -43,7 +43,15 @@ public class AuthResponseDto
     public DateTime ExpiresAt { get; set; }
 }
 
-// Добавьте этот класс
+public class UpdateProfileDto
+{
+    [MaxLength(100)]
+    public string? FullName { get; set; }
+
+    [MaxLength(1000)]
+    public string? Bio { get; set; }
+}
+
 public class RefreshTokenRequest
 {
     [Required]

@@ -133,6 +133,48 @@ public class AuthController : ControllerBase
             user.AvatarUrl
         });
     }
+
+    [HttpPut("me")]
+    [Authorize]
+    public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateProfileDto request)
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+        {
+            _logger.LogWarning("UpdateCurrentUser failed - invalid user ID claim");
+            return Unauthorized();
+        }
+
+        var user = await _userRepository.GetUserByIdAsync(userId);
+        if (user == null)
+        {
+            _logger.LogWarning("UpdateCurrentUser failed - user not found: {UserId}", userId);
+            return NotFound();
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.FullName))
+        {
+            user.FullName = request.FullName.Trim();
+        }
+
+        user.Bio = string.IsNullOrWhiteSpace(request.Bio)
+            ? null
+            : request.Bio.Trim();
+
+        await _userRepository.UpdateUserAsync(user);
+
+        _logger.LogInformation("User profile updated successfully: {UserId}", userId);
+
+        return Ok(new
+        {
+            user.UserId,
+            user.Email,
+            user.FullName,
+            user.Role,
+            user.Bio,
+            user.AvatarUrl
+        });
+    }
     
     [HttpPost("refresh")]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
