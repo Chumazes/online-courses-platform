@@ -13,6 +13,7 @@ public sealed class ProfileViewModel : ViewModelBase
     private readonly FilesClient _filesClient;
     private readonly Action<CurrentUserDto> _onProfileSaved;
     private readonly AsyncRelayCommand _saveCommand;
+    private readonly string _apiBaseUrl;
     private string _fullName;
     private string _email;
     private string _role;
@@ -27,10 +28,12 @@ public sealed class ProfileViewModel : ViewModelBase
         CurrentUserDto user,
         AuthClient authClient,
         FilesClient filesClient,
+        string apiBaseUrl,
         Action<CurrentUserDto> onProfileSaved)
     {
         _authClient = authClient;
         _filesClient = filesClient;
+        _apiBaseUrl = apiBaseUrl;
         _onProfileSaved = onProfileSaved;
 
         _fullName = "Имя не указано";
@@ -42,6 +45,8 @@ public sealed class ProfileViewModel : ViewModelBase
         _saveCommand = new AsyncRelayCommand(SaveAsync, () => !IsSaving);
         ApplyUser(user);
     }
+
+    public string ApiBaseUrl => _apiBaseUrl;
 
     public string FullName
     {

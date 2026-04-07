@@ -12,10 +12,11 @@ public partial class ProfilePage : Page
         CurrentUserDto user,
         AuthClient authClient,
         FilesClient filesClient,
+        string apiBaseUrl,
         Action<CurrentUserDto> onProfileSaved)
     {
         InitializeComponent();
-        DataContext = new ProfileViewModel(user, authClient, filesClient, onProfileSaved);
+        DataContext = new ProfileViewModel(user, authClient, filesClient, apiBaseUrl, onProfileSaved);
     }
 
     private async void UploadAvatarButton_OnClick(object sender, System.Windows.RoutedEventArgs e)

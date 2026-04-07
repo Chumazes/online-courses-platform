@@ -106,6 +106,22 @@
                         <TextBlock Grid.Column="0"
                                    FontWeight="SemiBold"
                                    Foreground="#374151"
+                                   Text="API URL" />
+                        <TextBlock Grid.Column="1"
+                                   Foreground="#111827"
+                                   Text="{Binding ApiBaseUrl}"
+                                   TextWrapping="Wrap" />
+                    </Grid>
+
+                    <Grid Margin="0,18,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="220" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                   FontWeight="SemiBold"
+                                   Foreground="#374151"
                                    Text="О пользователе" />
                         <TextBox Grid.Column="1"
                                  MinHeight="120"

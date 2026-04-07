@@ -20,6 +20,7 @@ public partial class MainWindow : Window
     private readonly SectionsClient _sectionsClient;
     private readonly LessonsClient _lessonsClient;
     private readonly FilesClient _filesClient;
+    private readonly string _apiBaseUrl;
     private CurrentUserDto? _currentUser;
 
     public MainWindow()
@@ -28,6 +29,7 @@ public partial class MainWindow : Window
 
         var settings = DesktopSettingsLoader.Load();
         var baseUrl = settings.ApiBaseUrl;
+        _apiBaseUrl = baseUrl;
         var httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
 
         var appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -107,7 +109,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        MainFrame.Navigate(new ProfilePage(user, _authClient, _filesClient, OnProfileSaved));
+        MainFrame.Navigate(new ProfilePage(user, _authClient, _filesClient, _apiBaseUrl, OnProfileSaved));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
