@@ -57,13 +57,20 @@ public partial class MainWindow : Window
     {
         var page = new CoursesPage(
             _coursesClient,
-            openCourse: NavigateToCourseDetails);
+            openCourse: NavigateToCourseDetails,
+            openMyCourses: NavigateToMyCourses);
 
         MainFrame.Navigate(page);
         ClearBackStack();
         SetProfileLoadingState();
         UpdateHeader(loggedIn: true, canGoBack: false);
         _ = LoadCurrentUserAsync();
+    }
+
+    private void NavigateToMyCourses()
+    {
+        MainFrame.Navigate(new MyCoursesPage(_enrollmentsClient, NavigateToCourseDetails));
+        UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
     private void NavigateToCourseDetails(CourseCardViewModel course)

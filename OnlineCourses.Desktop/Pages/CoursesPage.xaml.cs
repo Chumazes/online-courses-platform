@@ -9,11 +9,16 @@ namespace OnlineCourses.Desktop.Pages;
 public partial class CoursesPage : Page
 {
     private readonly CoursesViewModel _viewModel;
+    private readonly Action _openMyCourses;
 
-    public CoursesPage(CoursesClient coursesClient, Action<CourseCardViewModel> openCourse)
+    public CoursesPage(
+        CoursesClient coursesClient,
+        Action<CourseCardViewModel> openCourse,
+        Action openMyCourses)
     {
         InitializeComponent();
         _viewModel = new CoursesViewModel(coursesClient, openCourse);
+        _openMyCourses = openMyCourses;
         DataContext = _viewModel;
         Loaded += Page_Loaded;
     }
@@ -35,5 +40,10 @@ public partial class CoursesPage : Page
         {
             _viewModel.OpenCourseCommand.Execute(null);
         }
+    }
+
+    private void MyCoursesButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        _openMyCourses();
     }
 }

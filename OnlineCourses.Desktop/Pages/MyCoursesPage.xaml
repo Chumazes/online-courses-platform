@@ -1,10 +1,10 @@
-<Page x:Class="OnlineCourses.Desktop.Pages.CoursesPage"
+<Page x:Class="OnlineCourses.Desktop.Pages.MyCoursesPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
-      Title="CoursesPage">
+      Title="MyCoursesPage">
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Page.Resources>
@@ -13,92 +13,63 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0"
+                   FontSize="26"
+                   FontWeight="SemiBold"
+                   Text="Мои курсы" />
 
-            <TextBlock Grid.Column="0"
-                       FontSize="26"
-                       FontWeight="SemiBold"
-                       Text="Доступные курсы" />
-
-            <Button Grid.Column="1"
-                    Width="150"
-                    Height="38"
-                    Background="#E5E7EB"
-                    BorderBrush="#D1D5DB"
-                    BorderThickness="1"
-                    Click="MyCoursesButton_OnClick"
-                    Content="Мои курсы" />
-        </Grid>
-
-        <Grid Grid.Row="1"
-              Margin="0,14,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <TextBox Height="38"
-                     Padding="12,8"
-                     VerticalContentAlignment="Center"
-                     Background="White"
-                     BorderBrush="#D1D5DB"
-                     BorderThickness="1"
-                     Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}" />
-
-            <Button Grid.Column="1"
-                    Width="120"
-                    Height="38"
-                    Margin="12,0,0,0"
-                    Background="#E5E7EB"
-                    BorderBrush="#D1D5DB"
-                    BorderThickness="1"
-                    Command="{Binding ClearSearchCommand}"
-                    Content="Очистить" />
-        </Grid>
-
-        <TextBlock Grid.Row="2"
-                   Margin="0,10,0,0"
-                   Foreground="Red"
+        <TextBlock Grid.Row="1"
+                   Margin="0,12,0,0"
+                   Foreground="#B91C1C"
                    Text="{Binding ErrorMessage}"
                    TextWrapping="Wrap" />
 
-        <Grid Grid.Row="3"
-              Margin="0,14,0,14">
-            <ListBox x:Name="CoursesList"
+        <Grid Grid.Row="2"
+              Margin="0,16,0,14">
+            <ListBox x:Name="MyCoursesList"
                      ItemsSource="{Binding Courses}"
-                     MouseDoubleClick="CoursesList_OnMouseDoubleClick"
+                     MouseDoubleClick="MyCoursesList_OnMouseDoubleClick"
                      SelectedItem="{Binding SelectedCourse}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border Padding="14"
+                        <Border Padding="16"
                                 Margin="0,0,0,10"
                                 Background="White"
                                 BorderBrush="#E5E7EB"
                                 BorderThickness="1"
                                 CornerRadius="10">
                             <StackPanel>
-                                <TextBlock FontSize="18"
-                                           FontWeight="SemiBold"
-                                           Text="{Binding Title}" />
+                                <DockPanel LastChildFill="False">
+                                    <TextBlock DockPanel.Dock="Left"
+                                               FontSize="18"
+                                               FontWeight="SemiBold"
+                                               Text="{Binding Title}" />
+                                    <Border DockPanel.Dock="Right"
+                                            Padding="8,3"
+                                            Background="#EFF6FF"
+                                            CornerRadius="12">
+                                        <TextBlock Foreground="#1D4ED8"
+                                                   Text="{Binding StatusText}" />
+                                    </Border>
+                                </DockPanel>
+
+                                <TextBlock Margin="0,10,0,0"
+                                           Foreground="#6B7280"
+                                           Text="{Binding EnrollmentCaption}" />
+
+                                <ProgressBar Height="10"
+                                             Margin="0,14,0,0"
+                                             Minimum="0"
+                                             Maximum="100"
+                                             Value="{Binding OverallProgress, Mode=OneWay}" />
+
                                 <TextBlock Margin="0,8,0,0"
                                            Foreground="#374151"
-                                           Text="{Binding Description}"
-                                           TextWrapping="Wrap" />
-                                <StackPanel Margin="0,8,0,0" Orientation="Horizontal">
-                                    <TextBlock Foreground="#6B7280" Text="{Binding Level}" />
-                                    <TextBlock Margin="12,0,0,0"
-                                               Foreground="#111827"
-                                               Text="{Binding Price, StringFormat={}{0} ₽}" />
-                                </StackPanel>
+                                           Text="{Binding ProgressCaption}" />
                             </StackPanel>
                         </Border>
                     </DataTemplate>
@@ -115,7 +86,7 @@
                            VerticalAlignment="Center"
                            FontSize="16"
                            Foreground="#4B5563"
-                           Text="{Binding EmptyStateMessage}"
+                           Text="Вы пока не записаны ни на один курс."
                            TextAlignment="Center"
                            TextWrapping="Wrap" />
             </Border>
@@ -130,13 +101,13 @@
                            VerticalAlignment="Center"
                            FontSize="16"
                            Foreground="#4B5563"
-                           Text="Загружаем курсы..."
+                           Text="Загружаем ваши курсы..."
                            TextAlignment="Center"
                            TextWrapping="Wrap" />
             </Border>
         </Grid>
 
-        <Button Grid.Row="4"
+        <Button Grid.Row="3"
                 Width="170"
                 Height="38"
                 HorizontalAlignment="Right"
