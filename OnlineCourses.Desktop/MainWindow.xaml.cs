@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Windows;
 using OnlineCourses.Client.Api;
 using OnlineCourses.Client.Infrastructure;
+using OnlineCourses.Client.Models;
 using OnlineCourses.Desktop.Pages;
 using OnlineCourses.Desktop.ViewModels;
 
@@ -39,6 +40,7 @@ public partial class MainWindow : Window
         var page = new LoginPage(_authClient, NavigateToCourses);
         MainFrame.Navigate(page);
         ClearBackStack();
+        ClearProfileHeader();
         UpdateHeader(loggedIn: false, canGoBack: false);
     }
 
@@ -51,7 +53,9 @@ public partial class MainWindow : Window
 
         MainFrame.Navigate(page);
         ClearBackStack();
+        SetProfileLoadingState();
         UpdateHeader(loggedIn: true, canGoBack: false);
+        _ = LoadCurrentUserAsync();
     }
 
     private void NavigateToCourseDetails(CourseCardViewModel course)
@@ -93,5 +97,87 @@ public partial class MainWindow : Window
     {
         LogoutButton.Visibility = loggedIn ? Visibility.Visible : Visibility.Collapsed;
         BackButton.Visibility = canGoBack ? Visibility.Visible : Visibility.Collapsed;
+        ProfileBadge.Visibility = loggedIn ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private async Task LoadCurrentUserAsync()
+    {
+        try
+        {
+            var user = await _authClient.GetCurrentUserAsync();
+            ApplyProfileHeader(user);
+        }
+        catch (ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            var refreshed = await _authClient.TryRefreshAsync();
+            if (refreshed)
+            {
+                try
+                {
+                    var user = await _authClient.GetCurrentUserAsync();
+                    ApplyProfileHeader(user);
+                    return;
+                }
+                catch
+                {
+                }
+            }
+
+            await PerformLogoutAsync();
+        }
+        catch
+        {
+            UserNameText.Text = "Профиль недоступен";
+            UserRoleText.Text = "Не удалось загрузить";
+            UserInitialsText.Text = "!";
+        }
+    }
+
+    private void SetProfileLoadingState()
+    {
+        UserNameText.Text = "Загружаем профиль...";
+        UserRoleText.Text = "Проверяем сессию";
+        UserInitialsText.Text = "...";
+    }
+
+    private void ClearProfileHeader()
+    {
+        UserNameText.Text = "Профиль";
+        UserRoleText.Text = "Не загружен";
+        UserInitialsText.Text = "?";
+    }
+
+    private void ApplyProfileHeader(CurrentUserDto user)
+    {
+        var displayName = string.IsNullOrWhiteSpace(user.FullName) ? user.Email : user.FullName;
+        UserNameText.Text = displayName;
+        UserRoleText.Text = FormatRole(user.Role);
+        UserInitialsText.Text = GetInitials(displayName);
+    }
+
+    private static string FormatRole(string role) =>
+        role.ToLowerInvariant() switch
+        {
+            "student" => "Студент",
+            "teacher" => "Преподаватель",
+            "admin" => "Администратор",
+            _ => role
+        };
+
+    private static string GetInitials(string value)
+    {
+        var parts = value
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(part => !string.IsNullOrWhiteSpace(part))
+            .Take(2)
+            .Select(part => char.ToUpperInvariant(part[0]))
+            .ToArray();
+
+        if (parts.Length == 0)
+        {
+            return "?";
+        }
+
+        return new string(parts);
     }
 }
