@@ -173,20 +173,6 @@ public partial class MainWindow : Window
         }
         catch (ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
-            var refreshed = await _authClient.TryRefreshAsync();
-            if (refreshed)
-            {
-                try
-                {
-                    var user = await _authClient.GetCurrentUserAsync();
-                    ApplyProfileHeader(user);
-                    return user;
-                }
-                catch
-                {
-                }
-            }
-
             await PerformLogoutAsync();
             return null;
         }
