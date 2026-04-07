@@ -1,0 +1,63 @@
+<Page x:Class="OnlineCourses.Desktop.Pages.LessonDetailsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Title="LessonDetailsPage">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="24">
+            <Border Padding="22"
+                    Background="White"
+                    BorderBrush="#E5E7EB"
+                    BorderThickness="1"
+                    CornerRadius="12">
+                <StackPanel>
+                    <TextBlock Foreground="#6B7280"
+                               Text="{Binding SectionTitle, StringFormat=Раздел: {0}}" />
+
+                    <TextBlock Margin="0,12,0,0"
+                               FontSize="28"
+                               FontWeight="SemiBold"
+                               Text="{Binding Title}"
+                               TextWrapping="Wrap" />
+
+                    <WrapPanel Margin="0,18,0,0">
+                        <Border Padding="10,4"
+                                Margin="0,0,10,0"
+                                Background="#EFF6FF"
+                                CornerRadius="14">
+                            <TextBlock Foreground="#1D4ED8"
+                                       Text="{Binding MetaText}" />
+                        </Border>
+
+                        <Border Padding="10,4"
+                                Background="#ECFDF5"
+                                CornerRadius="14">
+                            <TextBlock Foreground="#047857"
+                                       Text="{Binding AccessText}" />
+                        </Border>
+                    </WrapPanel>
+
+                    <TextBlock Margin="0,24,0,0"
+                               FontSize="20"
+                               FontWeight="SemiBold"
+                               Text="Содержимое урока" />
+
+                    <Border Margin="0,12,0,0"
+                            Padding="18"
+                            Background="#F9FAFB"
+                            BorderBrush="#E5E7EB"
+                            BorderThickness="1"
+                            CornerRadius="10">
+                        <TextBlock Foreground="#374151"
+                                   FontSize="15"
+                                   LineHeight="24"
+                                   Text="{Binding Content}"
+                                   TextWrapping="Wrap" />
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>

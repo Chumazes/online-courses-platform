@@ -12,12 +12,11 @@ public sealed class CoursesViewModel : ViewModelBase
     private readonly CoursesClient _coursesClient;
     private readonly Action<CourseCardViewModel> _openCourse;
     private readonly RelayCommand _openCourseCommand;
-    private readonly AsyncRelayCommand _logoutCommand;
     private CourseCardViewModel? _selectedCourse;
     private bool _isLoading;
     private string? _errorMessage;
 
-    public CoursesViewModel(CoursesClient coursesClient, Action<CourseCardViewModel> openCourse, Func<Task> logout)
+    public CoursesViewModel(CoursesClient coursesClient, Action<CourseCardViewModel> openCourse)
     {
         _coursesClient = coursesClient;
         _openCourse = openCourse;
@@ -26,10 +25,7 @@ public sealed class CoursesViewModel : ViewModelBase
             _ => OpenSelectedCourse(),
             _ => SelectedCourse is not null && !IsLoading);
 
-        _logoutCommand = new AsyncRelayCommand(logout, () => !IsLoading);
-
         OpenCourseCommand = _openCourseCommand;
-        LogoutCommand = _logoutCommand;
 
         Courses = new ObservableCollection<CourseCardViewModel>();
     }
@@ -56,7 +52,6 @@ public sealed class CoursesViewModel : ViewModelBase
             if (SetProperty(ref _isLoading, value))
             {
                 _openCourseCommand.RaiseCanExecuteChanged();
-                _logoutCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -68,7 +63,6 @@ public sealed class CoursesViewModel : ViewModelBase
     }
 
     public ICommand OpenCourseCommand { get; }
-    public ICommand LogoutCommand { get; }
 
     public async Task LoadCoursesAsync()
     {

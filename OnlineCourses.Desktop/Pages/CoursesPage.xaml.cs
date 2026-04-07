@@ -9,10 +9,10 @@ public partial class CoursesPage : Page
 {
     private readonly CoursesViewModel _viewModel;
 
-    public CoursesPage(CoursesClient coursesClient, Action<CourseCardViewModel> openCourse, Func<Task> logout)
+    public CoursesPage(CoursesClient coursesClient, Action<CourseCardViewModel> openCourse)
     {
         InitializeComponent();
-        _viewModel = new CoursesViewModel(coursesClient, openCourse, logout);
+        _viewModel = new CoursesViewModel(coursesClient, openCourse);
         DataContext = _viewModel;
         Loaded += Page_Loaded;
     }

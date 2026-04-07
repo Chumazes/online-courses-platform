@@ -31,6 +31,7 @@ public partial class MainWindow : Window
         _coursesClient = new CoursesClient(httpClient, tokenStore);
         _sectionsClient = new SectionsClient(httpClient, tokenStore);
         _lessonsClient = new LessonsClient(httpClient, tokenStore);
+        MainFrame.Navigated += MainFrame_OnNavigated;
 
         NavigateToLogin();
     }
@@ -48,8 +49,7 @@ public partial class MainWindow : Window
     {
         var page = new CoursesPage(
             _coursesClient,
-            openCourse: NavigateToCourseDetails,
-            logout: PerformLogoutAsync);
+            openCourse: NavigateToCourseDetails);
 
         MainFrame.Navigate(page);
         ClearBackStack();
@@ -60,7 +60,18 @@ public partial class MainWindow : Window
 
     private void NavigateToCourseDetails(CourseCardViewModel course)
     {
-        MainFrame.Navigate(new CourseDetailsPage(course, _coursesClient, _sectionsClient, _lessonsClient));
+        MainFrame.Navigate(new CourseDetailsPage(
+            course,
+            _coursesClient,
+            _sectionsClient,
+            _lessonsClient,
+            NavigateToLessonDetails));
+        UpdateHeader(loggedIn: true, canGoBack: true);
+    }
+
+    private void NavigateToLessonDetails(CourseLessonViewModel lesson)
+    {
+        MainFrame.Navigate(new LessonDetailsPage(lesson));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
@@ -81,8 +92,6 @@ public partial class MainWindow : Window
         {
             MainFrame.GoBack();
         }
-
-        UpdateHeader(loggedIn: true, canGoBack: MainFrame.CanGoBack);
     }
 
     private void ClearBackStack()
@@ -98,6 +107,13 @@ public partial class MainWindow : Window
         LogoutButton.Visibility = loggedIn ? Visibility.Visible : Visibility.Collapsed;
         BackButton.Visibility = canGoBack ? Visibility.Visible : Visibility.Collapsed;
         ProfileBadge.Visibility = loggedIn ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void MainFrame_OnNavigated(object? sender, System.Windows.Navigation.NavigationEventArgs e)
+    {
+        var loggedIn = MainFrame.Content is not LoginPage;
+        var canGoBack = loggedIn && MainFrame.Content is not CoursesPage && MainFrame.CanGoBack;
+        UpdateHeader(loggedIn, canGoBack);
     }
 
     private async Task LoadCurrentUserAsync()

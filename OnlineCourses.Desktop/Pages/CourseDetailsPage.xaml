@@ -135,24 +135,38 @@
                                                       ItemsSource="{Binding Lessons}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border Margin="0,0,0,10"
-                                                            Padding="12"
-                                                            Background="White"
-                                                            BorderBrush="#E5E7EB"
-                                                            BorderThickness="1"
-                                                            CornerRadius="8">
-                                                        <StackPanel>
-                                                            <TextBlock FontWeight="SemiBold"
-                                                                       Text="{Binding Title}" />
-                                                            <TextBlock Margin="0,6,0,0"
-                                                                       Foreground="#6B7280"
-                                                                       Text="{Binding MetaText}" />
-                                                            <TextBlock Margin="0,6,0,0"
-                                                                       Foreground="#4B5563"
-                                                                       Text="{Binding Content}"
-                                                                       TextWrapping="Wrap" />
-                                                        </StackPanel>
-                                                    </Border>
+                                                    <Button Margin="0,0,0,10"
+                                                            Padding="0"
+                                                            Background="Transparent"
+                                                            BorderBrush="Transparent"
+                                                            Click="LessonButton_OnClick"
+                                                            Cursor="Hand"
+                                                            HorizontalContentAlignment="Stretch"
+                                                            Tag="{Binding}">
+                                                        <Border Padding="12"
+                                                                Background="White"
+                                                                BorderBrush="#E5E7EB"
+                                                                BorderThickness="1"
+                                                                CornerRadius="8">
+                                                            <StackPanel>
+                                                                <DockPanel LastChildFill="False">
+                                                                    <TextBlock DockPanel.Dock="Left"
+                                                                               FontWeight="SemiBold"
+                                                                               Text="{Binding Title}" />
+                                                                    <TextBlock DockPanel.Dock="Right"
+                                                                               Foreground="#2563EB"
+                                                                               Text="Открыть" />
+                                                                </DockPanel>
+                                                                <TextBlock Margin="0,6,0,0"
+                                                                           Foreground="#6B7280"
+                                                                           Text="{Binding MetaText}" />
+                                                                <TextBlock Margin="0,6,0,0"
+                                                                           Foreground="#4B5563"
+                                                                           Text="{Binding Content}"
+                                                                           TextWrapping="Wrap" />
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </Button>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>

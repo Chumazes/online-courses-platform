@@ -134,6 +134,7 @@ public sealed class CourseDetailsViewModel : ViewModelBase
                     {
                         LessonId = lesson.LessonId,
                         LessonOrder = lesson.LessonOrder,
+                        SectionTitle = section.Title,
                         Title = lesson.Title,
                         LessonType = NormalizeLessonType(lesson.LessonType),
                         IsFree = lesson.IsFree,

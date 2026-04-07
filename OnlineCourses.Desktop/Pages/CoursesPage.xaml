@@ -56,18 +56,13 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Width="170"
-                    Height="38"
-                    Margin="0,0,8,0"
-                    Background="#111827"
-                    Foreground="White"
-                    Command="{Binding OpenCourseCommand}"
-                    Content="Открыть курс" />
-            <Button Width="150"
-                    Height="38"
-                    Command="{Binding LogoutCommand}"
-                    Content="Выйти из аккаунта" />
-        </StackPanel>
+        <Button Grid.Row="3"
+                Width="170"
+                Height="38"
+                HorizontalAlignment="Right"
+                Background="#111827"
+                Foreground="White"
+                Command="{Binding OpenCourseCommand}"
+                Content="Открыть курс" />
     </Grid>
 </Page>

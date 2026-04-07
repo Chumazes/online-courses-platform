@@ -4,6 +4,7 @@ public sealed class CourseLessonViewModel
 {
     public int LessonId { get; init; }
     public int LessonOrder { get; init; }
+    public string SectionTitle { get; init; } = string.Empty;
     public string Title { get; init; } = string.Empty;
     public string LessonType { get; init; } = string.Empty;
     public bool IsFree { get; init; }
@@ -19,4 +20,6 @@ public sealed class CourseLessonViewModel
             return $"{LessonType} • {duration} • {access}";
         }
     }
+
+    public string AccessText => IsFree ? "Открытый урок" : "Урок для записанных студентов";
 }
