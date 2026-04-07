@@ -5,6 +5,7 @@ using System.Windows.Media.Imaging;
 using OnlineCourses.Client.Api;
 using OnlineCourses.Client.Infrastructure;
 using OnlineCourses.Client.Models;
+using OnlineCourses.Desktop.Infrastructure;
 using OnlineCourses.Desktop.Pages;
 using OnlineCourses.Desktop.ViewModels;
 
@@ -25,7 +26,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        var baseUrl = "http://localhost:5064/";
+        var settings = DesktopSettingsLoader.Load();
+        var baseUrl = settings.ApiBaseUrl;
         var httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
 
         var appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);

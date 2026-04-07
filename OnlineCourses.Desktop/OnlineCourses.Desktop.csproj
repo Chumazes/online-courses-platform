@@ -13,4 +13,10 @@
     <ProjectReference Include="..\OnlineCourses.Models\OnlineCourses.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="desktopsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
