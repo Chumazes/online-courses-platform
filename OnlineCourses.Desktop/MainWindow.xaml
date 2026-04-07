@@ -35,40 +35,46 @@
                             Click="BackButton_OnClick"
                             Content="Назад"
                             Visibility="Collapsed" />
-                    <Border x:Name="ProfileBadge"
+                    <Button x:Name="ProfileBadge"
                             Margin="0,0,8,0"
-                            Padding="12,6"
-                            Background="#1F2937"
-                            BorderBrush="#374151"
-                            BorderThickness="1"
-                            CornerRadius="12"
+                            Padding="0"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Click="ProfileBadge_OnClick"
+                            Cursor="Hand"
                             Visibility="Collapsed">
-                        <StackPanel Orientation="Horizontal">
-                            <Border Width="34"
-                                    Height="34"
-                                    Margin="0,0,10,0"
-                                    Background="#2563EB"
-                                    CornerRadius="17">
-                                <TextBlock x:Name="UserInitialsText"
-                                           VerticalAlignment="Center"
-                                           HorizontalAlignment="Center"
-                                           FontWeight="SemiBold"
-                                           Foreground="White"
-                                           Text="?" />
-                            </Border>
+                        <Border Padding="12,6"
+                                Background="#1F2937"
+                                BorderBrush="#374151"
+                                BorderThickness="1"
+                                CornerRadius="12">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="34"
+                                        Height="34"
+                                        Margin="0,0,10,0"
+                                        Background="#2563EB"
+                                        CornerRadius="17">
+                                    <TextBlock x:Name="UserInitialsText"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"
+                                               FontWeight="SemiBold"
+                                               Foreground="White"
+                                               Text="?" />
+                                </Border>
 
-                            <StackPanel>
-                                <TextBlock x:Name="UserNameText"
-                                           FontWeight="SemiBold"
-                                           Foreground="White"
-                                           Text="Профиль" />
-                                <TextBlock x:Name="UserRoleText"
-                                           FontSize="12"
-                                           Foreground="#9CA3AF"
-                                           Text="Не загружен" />
+                                <StackPanel>
+                                    <TextBlock x:Name="UserNameText"
+                                               FontWeight="SemiBold"
+                                               Foreground="White"
+                                               Text="Профиль" />
+                                    <TextBlock x:Name="UserRoleText"
+                                               FontSize="12"
+                                               Foreground="#9CA3AF"
+                                               Text="Не загружен" />
+                                </StackPanel>
                             </StackPanel>
-                        </StackPanel>
-                    </Border>
+                        </Border>
+                    </Button>
                     <Button x:Name="LogoutButton"
                             Width="120"
                             Click="LogoutButton_OnClick"

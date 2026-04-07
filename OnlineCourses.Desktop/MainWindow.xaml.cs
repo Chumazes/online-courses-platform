@@ -15,6 +15,7 @@ public partial class MainWindow : Window
     private readonly CoursesClient _coursesClient;
     private readonly SectionsClient _sectionsClient;
     private readonly LessonsClient _lessonsClient;
+    private CurrentUserDto? _currentUser;
 
     public MainWindow()
     {
@@ -75,6 +76,23 @@ public partial class MainWindow : Window
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
+    private async void ProfileBadge_OnClick(object sender, RoutedEventArgs e)
+    {
+        var user = _currentUser ?? await EnsureCurrentUserAsync();
+        if (user is null)
+        {
+            MessageBox.Show(
+                "Не удалось загрузить профиль. Проверь, доступен ли API и действительна ли сессия.",
+                "Профиль недоступен",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        MainFrame.Navigate(new ProfilePage(user));
+        UpdateHeader(loggedIn: true, canGoBack: true);
+    }
+
     private async Task PerformLogoutAsync()
     {
         await _authClient.LogoutAsync();
@@ -118,10 +136,22 @@ public partial class MainWindow : Window
 
     private async Task LoadCurrentUserAsync()
     {
+        var user = await EnsureCurrentUserAsync();
+        if (user is null)
+        {
+            UserNameText.Text = "Профиль недоступен";
+            UserRoleText.Text = "Не удалось загрузить";
+            UserInitialsText.Text = "!";
+        }
+    }
+
+    private async Task<CurrentUserDto?> EnsureCurrentUserAsync()
+    {
         try
         {
             var user = await _authClient.GetCurrentUserAsync();
             ApplyProfileHeader(user);
+            return user;
         }
         catch (ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
@@ -132,7 +162,7 @@ public partial class MainWindow : Window
                 {
                     var user = await _authClient.GetCurrentUserAsync();
                     ApplyProfileHeader(user);
-                    return;
+                    return user;
                 }
                 catch
                 {
@@ -140,12 +170,11 @@ public partial class MainWindow : Window
             }
 
             await PerformLogoutAsync();
+            return null;
         }
         catch
         {
-            UserNameText.Text = "Профиль недоступен";
-            UserRoleText.Text = "Не удалось загрузить";
-            UserInitialsText.Text = "!";
+            return null;
         }
     }
 
@@ -158,6 +187,7 @@ public partial class MainWindow : Window
 
     private void ClearProfileHeader()
     {
+        _currentUser = null;
         UserNameText.Text = "Профиль";
         UserRoleText.Text = "Не загружен";
         UserInitialsText.Text = "?";
@@ -165,6 +195,7 @@ public partial class MainWindow : Window
 
     private void ApplyProfileHeader(CurrentUserDto user)
     {
+        _currentUser = user;
         var displayName = string.IsNullOrWhiteSpace(user.FullName) ? user.Email : user.FullName;
         UserNameText.Text = displayName;
         UserRoleText.Text = FormatRole(user.Role);
