@@ -59,6 +59,20 @@ public sealed class AuthClient : ApiClientBase
         return await SendAsync<CurrentUserDto>(httpRequest, cancellationToken);
     }
 
+    public async Task<CurrentUserDto> UpdateProfileAsync(
+        UpdateProfileDto request,
+        CancellationToken cancellationToken = default)
+    {
+        using var httpRequest = await CreateRequestAsync(
+            HttpMethod.Put,
+            "api/auth/me",
+            request,
+            withBearerToken: true,
+            cancellationToken: cancellationToken);
+
+        return await SendAsync<CurrentUserDto>(httpRequest, cancellationToken);
+    }
+
     public async Task<bool> TryRefreshAsync(CancellationToken cancellationToken = default)
     {
         var session = await _tokenStore.GetAsync(cancellationToken);
