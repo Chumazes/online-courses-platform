@@ -12,6 +12,8 @@ public partial class MainWindow : Window
 {
     private readonly AuthClient _authClient;
     private readonly CoursesClient _coursesClient;
+    private readonly SectionsClient _sectionsClient;
+    private readonly LessonsClient _lessonsClient;
 
     public MainWindow()
     {
@@ -26,6 +28,8 @@ public partial class MainWindow : Window
         var tokenStore = new FileTokenStore(sessionFilePath);
         _authClient = new AuthClient(httpClient, tokenStore);
         _coursesClient = new CoursesClient(httpClient, tokenStore);
+        _sectionsClient = new SectionsClient(httpClient, tokenStore);
+        _lessonsClient = new LessonsClient(httpClient, tokenStore);
 
         NavigateToLogin();
     }
@@ -52,7 +56,7 @@ public partial class MainWindow : Window
 
     private void NavigateToCourseDetails(CourseCardViewModel course)
     {
-        MainFrame.Navigate(new CourseDetailsPage(course));
+        MainFrame.Navigate(new CourseDetailsPage(course, _coursesClient, _sectionsClient, _lessonsClient));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
