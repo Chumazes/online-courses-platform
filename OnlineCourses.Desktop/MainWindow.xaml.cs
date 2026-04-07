@@ -14,6 +14,7 @@ public partial class MainWindow : Window
 {
     private readonly AuthClient _authClient;
     private readonly CoursesClient _coursesClient;
+    private readonly EnrollmentsClient _enrollmentsClient;
     private readonly SectionsClient _sectionsClient;
     private readonly LessonsClient _lessonsClient;
     private readonly FilesClient _filesClient;
@@ -32,6 +33,7 @@ public partial class MainWindow : Window
         var tokenStore = new FileTokenStore(sessionFilePath);
         _authClient = new AuthClient(httpClient, tokenStore);
         _coursesClient = new CoursesClient(httpClient, tokenStore);
+        _enrollmentsClient = new EnrollmentsClient(httpClient, tokenStore);
         _sectionsClient = new SectionsClient(httpClient, tokenStore);
         _lessonsClient = new LessonsClient(httpClient, tokenStore);
         _filesClient = new FilesClient(httpClient, tokenStore);
@@ -67,6 +69,7 @@ public partial class MainWindow : Window
         MainFrame.Navigate(new CourseDetailsPage(
             course,
             _coursesClient,
+            _enrollmentsClient,
             _sectionsClient,
             _lessonsClient,
             NavigateToLessonDetails));

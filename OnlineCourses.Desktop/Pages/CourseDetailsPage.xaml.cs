@@ -13,12 +13,13 @@ public partial class CourseDetailsPage : Page
     public CourseDetailsPage(
         CourseCardViewModel course,
         CoursesClient coursesClient,
+        EnrollmentsClient enrollmentsClient,
         SectionsClient sectionsClient,
         LessonsClient lessonsClient,
         Action<CourseLessonViewModel> openLesson)
     {
         InitializeComponent();
-        _viewModel = new CourseDetailsViewModel(course, coursesClient, sectionsClient, lessonsClient);
+        _viewModel = new CourseDetailsViewModel(course, coursesClient, enrollmentsClient, sectionsClient, lessonsClient);
         _openLesson = openLesson;
         DataContext = _viewModel;
         Loaded += Page_Loaded;
