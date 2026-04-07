@@ -101,6 +101,21 @@
                            TextAlignment="Center"
                            TextWrapping="Wrap" />
             </Border>
+
+            <Border Padding="24"
+                    Background="#F9FAFB"
+                    BorderBrush="#E5E7EB"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBlock HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontSize="16"
+                           Foreground="#4B5563"
+                           Text="Загружаем курсы..."
+                           TextAlignment="Center"
+                           TextWrapping="Wrap" />
+            </Border>
         </Grid>
 
         <Button Grid.Row="4"
