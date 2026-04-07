@@ -95,9 +95,12 @@ public sealed class ProfileViewModel : ViewModelBase
             if (SetProperty(ref _isSaving, value))
             {
                 _saveCommand.RaiseCanExecuteChanged();
+                RaisePropertyChanged(nameof(SaveButtonText));
             }
         }
     }
+
+    public string SaveButtonText => IsSaving ? "Сохраняем..." : "Сохранить bio";
 
     public string? StatusMessage
     {

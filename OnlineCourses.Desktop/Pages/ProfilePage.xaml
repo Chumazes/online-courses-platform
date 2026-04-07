@@ -66,7 +66,18 @@
                                     Background="#2563EB"
                                     Foreground="White"
                                     Click="UploadAvatarButton_OnClick"
-                                    Content="Загрузить аватар" />
+                                    Content="Загрузить аватар">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="IsEnabled" Value="True" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSaving}" Value="True">
+                                                <Setter Property="IsEnabled" Value="False" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
                         </StackPanel>
                     </StackPanel>
 
@@ -105,7 +116,18 @@
                                  AcceptsReturn="True"
                                  Text="{Binding Bio, UpdateSourceTrigger=PropertyChanged}"
                                  TextWrapping="Wrap"
-                                 VerticalScrollBarVisibility="Auto" />
+                                 VerticalScrollBarVisibility="Auto">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="IsEnabled" Value="True" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSaving}" Value="True">
+                                            <Setter Property="IsEnabled" Value="False" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
                     </Grid>
 
                     <TextBlock Margin="0,18,0,0"
@@ -125,8 +147,7 @@
                             Background="#111827"
                             Foreground="White"
                             Command="{Binding SaveCommand}"
-                            Content="Сохранить bio" />
-
+                            Content="{Binding SaveButtonText}" />
                 </StackPanel>
             </Border>
         </Grid>
