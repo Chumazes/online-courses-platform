@@ -54,12 +54,17 @@
                                         Margin="0,0,10,0"
                                         Background="#2563EB"
                                         CornerRadius="17">
-                                    <TextBlock x:Name="UserInitialsText"
-                                               VerticalAlignment="Center"
-                                               HorizontalAlignment="Center"
-                                               FontWeight="SemiBold"
-                                               Foreground="White"
-                                               Text="?" />
+                                    <Grid ClipToBounds="True">
+                                        <Image x:Name="UserAvatarImage"
+                                               Stretch="UniformToFill"
+                                               Visibility="Collapsed" />
+                                        <TextBlock x:Name="UserInitialsText"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="White"
+                                                   Text="?" />
+                                    </Grid>
                                 </Border>
 
                                 <StackPanel>

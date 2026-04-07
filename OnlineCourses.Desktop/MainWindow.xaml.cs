@@ -1,6 +1,7 @@
 using System.IO;
 using System.Net.Http;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using OnlineCourses.Client.Api;
 using OnlineCourses.Client.Infrastructure;
 using OnlineCourses.Client.Models;
@@ -15,6 +16,7 @@ public partial class MainWindow : Window
     private readonly CoursesClient _coursesClient;
     private readonly SectionsClient _sectionsClient;
     private readonly LessonsClient _lessonsClient;
+    private readonly FilesClient _filesClient;
     private CurrentUserDto? _currentUser;
 
     public MainWindow()
@@ -32,6 +34,7 @@ public partial class MainWindow : Window
         _coursesClient = new CoursesClient(httpClient, tokenStore);
         _sectionsClient = new SectionsClient(httpClient, tokenStore);
         _lessonsClient = new LessonsClient(httpClient, tokenStore);
+        _filesClient = new FilesClient(httpClient, tokenStore);
         MainFrame.Navigated += MainFrame_OnNavigated;
 
         NavigateToLogin();
@@ -89,7 +92,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        MainFrame.Navigate(new ProfilePage(user));
+        MainFrame.Navigate(new ProfilePage(user, _authClient, _filesClient, OnProfileSaved));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
@@ -191,6 +194,9 @@ public partial class MainWindow : Window
         UserNameText.Text = "Профиль";
         UserRoleText.Text = "Не загружен";
         UserInitialsText.Text = "?";
+        UserAvatarImage.Source = null;
+        UserAvatarImage.Visibility = Visibility.Collapsed;
+        UserInitialsText.Visibility = Visibility.Visible;
     }
 
     private void ApplyProfileHeader(CurrentUserDto user)
@@ -200,6 +206,12 @@ public partial class MainWindow : Window
         UserNameText.Text = displayName;
         UserRoleText.Text = FormatRole(user.Role);
         UserInitialsText.Text = GetInitials(displayName);
+        ApplyHeaderAvatar(user.AvatarUrl);
+    }
+
+    private void OnProfileSaved(CurrentUserDto user)
+    {
+        ApplyProfileHeader(user);
     }
 
     private static string FormatRole(string role) =>
@@ -226,5 +238,30 @@ public partial class MainWindow : Window
         }
 
         return new string(parts);
+    }
+
+    private void ApplyHeaderAvatar(string? avatarUrl)
+    {
+        var avatarSource = _filesClient.BuildDownloadUrl(avatarUrl);
+        if (string.IsNullOrWhiteSpace(avatarSource))
+        {
+            UserAvatarImage.Source = null;
+            UserAvatarImage.Visibility = Visibility.Collapsed;
+            UserInitialsText.Visibility = Visibility.Visible;
+            return;
+        }
+
+        try
+        {
+            UserAvatarImage.Source = new BitmapImage(new Uri(avatarSource));
+            UserAvatarImage.Visibility = Visibility.Visible;
+            UserInitialsText.Visibility = Visibility.Collapsed;
+        }
+        catch
+        {
+            UserAvatarImage.Source = null;
+            UserAvatarImage.Visibility = Visibility.Collapsed;
+            UserInitialsText.Visibility = Visibility.Visible;
+        }
     }
 }

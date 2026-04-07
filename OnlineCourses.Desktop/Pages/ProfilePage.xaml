@@ -5,6 +5,10 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
       Title="ProfilePage">
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Page.Resources>
+
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Margin="24">
             <Border Padding="24"
@@ -23,12 +27,28 @@
                                 Height="78"
                                 Background="#2563EB"
                                 CornerRadius="39">
-                            <TextBlock VerticalAlignment="Center"
-                                       HorizontalAlignment="Center"
-                                       FontSize="24"
-                                       FontWeight="SemiBold"
-                                       Foreground="White"
-                                       Text="{Binding Initials}" />
+                            <Grid ClipToBounds="True">
+                                <Image Source="{Binding AvatarDisplayUrl}"
+                                       Stretch="UniformToFill"
+                                       Visibility="{Binding HasAvatar, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                <TextBlock VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           FontSize="24"
+                                           FontWeight="SemiBold"
+                                           Foreground="White"
+                                           Text="{Binding Initials}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasAvatar}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
                         </Border>
 
                         <StackPanel Margin="18,0,0,0"
@@ -39,6 +59,14 @@
                             <TextBlock Margin="0,6,0,0"
                                        Foreground="#6B7280"
                                        Text="{Binding Role}" />
+                            <Button Width="170"
+                                    Height="34"
+                                    Margin="0,12,0,0"
+                                    HorizontalAlignment="Left"
+                                    Background="#2563EB"
+                                    Foreground="White"
+                                    Click="UploadAvatarButton_OnClick"
+                                    Content="Загрузить аватар" />
                         </StackPanel>
                     </StackPanel>
 
@@ -68,22 +96,40 @@
                                    FontWeight="SemiBold"
                                    Foreground="#374151"
                                    Text="О пользователе" />
-                        <Border Grid.Column="1"
-                                Padding="16"
-                                Background="#F9FAFB"
-                                BorderBrush="#E5E7EB"
-                                BorderThickness="1"
-                                CornerRadius="10">
-                            <TextBlock Foreground="#374151"
-                                       LineHeight="24"
-                                       Text="{Binding Bio}"
-                                       TextWrapping="Wrap" />
-                        </Border>
+                        <TextBox Grid.Column="1"
+                                 MinHeight="120"
+                                 Padding="16"
+                                 Background="#F9FAFB"
+                                 BorderBrush="#E5E7EB"
+                                 BorderThickness="1"
+                                 AcceptsReturn="True"
+                                 Text="{Binding Bio, UpdateSourceTrigger=PropertyChanged}"
+                                 TextWrapping="Wrap"
+                                 VerticalScrollBarVisibility="Auto" />
                     </Grid>
 
-                    <TextBlock Margin="0,24,0,0"
+                    <TextBlock Margin="0,18,0,0"
+                               Foreground="#047857"
+                               Text="{Binding StatusMessage}"
+                               TextWrapping="Wrap" />
+
+                    <TextBlock Margin="0,8,0,0"
+                               Foreground="#B91C1C"
+                               Text="{Binding ErrorMessage}"
+                               TextWrapping="Wrap" />
+
+                    <Button Width="170"
+                            Height="40"
+                            Margin="0,18,0,0"
+                            HorizontalAlignment="Left"
+                            Background="#111827"
+                            Foreground="White"
+                            Command="{Binding SaveCommand}"
+                            Content="Сохранить bio" />
+
+                    <TextBlock Margin="0,20,0,0"
                                Foreground="#6B7280"
-                               Text="Редактирование профиля и аватар добавим следующим небольшим шагом."
+                               Text="Пока редактируем только bio. Аватар и остальное добавим следующим небольшим шагом."
                                TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
