@@ -24,4 +24,16 @@ public sealed class CoursesClient : ApiClientBase
 
         return await SendAsync<PaginatedResponse<CourseResponseDto>>(request, cancellationToken);
     }
+
+    public async Task<CourseResponseDto> GetByIdAsync(
+        int courseId,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateRequestAsync(
+            HttpMethod.Get,
+            $"api/courses/{courseId}",
+            cancellationToken: cancellationToken);
+
+        return await SendAsync<CourseResponseDto>(request, cancellationToken);
+    }
 }
