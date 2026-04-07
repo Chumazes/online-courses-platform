@@ -127,10 +127,6 @@
                             Command="{Binding SaveCommand}"
                             Content="Сохранить bio" />
 
-                    <TextBlock Margin="0,20,0,0"
-                               Foreground="#6B7280"
-                               Text="Пока редактируем только bio. Аватар и остальное добавим следующим небольшим шагом."
-                               TextWrapping="Wrap" />
                 </StackPanel>
             </Border>
         </Grid>
