@@ -135,7 +135,8 @@
                                                       ItemsSource="{Binding Lessons}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Button Margin="0,0,0,10"
+                                                    <Button x:Name="LessonButton"
+                                                            Margin="0,0,0,10"
                                                             Padding="0"
                                                             Background="Transparent"
                                                             BorderBrush="Transparent"
@@ -143,7 +144,8 @@
                                                             Cursor="Hand"
                                                             HorizontalContentAlignment="Stretch"
                                                             Tag="{Binding}">
-                                                        <Border Padding="12"
+                                                        <Border x:Name="LessonCardBorder"
+                                                                Padding="12"
                                                                 Background="White"
                                                                 BorderBrush="#E5E7EB"
                                                                 BorderThickness="1"
@@ -167,6 +169,16 @@
                                                             </StackPanel>
                                                         </Border>
                                                     </Button>
+                                                    <DataTemplate.Triggers>
+                                                        <Trigger SourceName="LessonButton" Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="LessonCardBorder" Property="Background" Value="#F8FBFF" />
+                                                            <Setter TargetName="LessonCardBorder" Property="BorderBrush" Value="#93C5FD" />
+                                                        </Trigger>
+                                                        <Trigger SourceName="LessonButton" Property="IsPressed" Value="True">
+                                                            <Setter TargetName="LessonCardBorder" Property="Background" Value="#EFF6FF" />
+                                                            <Setter TargetName="LessonCardBorder" Property="BorderBrush" Value="#60A5FA" />
+                                                        </Trigger>
+                                                    </DataTemplate.Triggers>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
