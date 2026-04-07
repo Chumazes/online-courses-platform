@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using OnlineCourses.Client.Api;
 using OnlineCourses.Desktop.ViewModels;
 
@@ -21,5 +22,18 @@ public partial class CoursesPage : Page
     {
         Loaded -= Page_Loaded;
         await _viewModel.LoadCoursesAsync();
+    }
+
+    private void CoursesList_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (ItemsControl.ContainerFromElement(CoursesList, e.OriginalSource as DependencyObject) is not ListBoxItem)
+        {
+            return;
+        }
+
+        if (_viewModel.OpenCourseCommand.CanExecute(null))
+        {
+            _viewModel.OpenCourseCommand.Execute(null);
+        }
     }
 }

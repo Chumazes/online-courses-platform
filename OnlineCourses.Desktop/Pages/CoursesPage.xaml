@@ -57,7 +57,9 @@
 
         <Grid Grid.Row="3"
               Margin="0,14,0,14">
-            <ListBox ItemsSource="{Binding Courses}"
+            <ListBox x:Name="CoursesList"
+                     ItemsSource="{Binding Courses}"
+                     MouseDoubleClick="CoursesList_OnMouseDoubleClick"
                      SelectedItem="{Binding SelectedCourse}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
