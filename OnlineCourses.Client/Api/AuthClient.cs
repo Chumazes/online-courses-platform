@@ -1,4 +1,3 @@
-using System.Net;
 using OnlineCourses.Client.Abstractions;
 using OnlineCourses.Client.Models;
 using OnlineCourses.Models.DTOs;
@@ -75,37 +74,7 @@ public sealed class AuthClient : ApiClientBase
 
     public async Task<bool> TryRefreshAsync(CancellationToken cancellationToken = default)
     {
-        var session = await _tokenStore.GetAsync(cancellationToken);
-        if (session is null || string.IsNullOrWhiteSpace(session.RefreshToken))
-        {
-            return false;
-        }
-
-        try
-        {
-            using var httpRequest = await CreateRequestAsync(
-                HttpMethod.Post,
-                "api/auth/refresh",
-                new RefreshTokenDto { RefreshToken = session.RefreshToken },
-                cancellationToken: cancellationToken);
-
-            var authResponse = await SendAsync<AuthResponseDto>(httpRequest, cancellationToken);
-            await _tokenStore.SaveAsync(
-                new StoredSession
-                {
-                    AccessToken = authResponse.AccessToken,
-                    RefreshToken = authResponse.RefreshToken,
-                    ExpiresAt = authResponse.ExpiresAt
-                },
-                cancellationToken);
-
-            return true;
-        }
-        catch (ApiException ex) when (
-            ex.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.MethodNotAllowed or HttpStatusCode.Unauthorized)
-        {
-            return false;
-        }
+        return await TryRefreshSessionAsync(cancellationToken);
     }
 
     public Task LogoutAsync(CancellationToken cancellationToken = default)
