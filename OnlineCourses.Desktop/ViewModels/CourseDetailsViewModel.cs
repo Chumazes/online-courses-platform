@@ -12,12 +12,16 @@ public sealed class CourseDetailsViewModel : ViewModelBase
     private readonly int _courseId;
     private readonly CoursesClient _coursesClient;
     private readonly EnrollmentsClient _enrollmentsClient;
+    private readonly ProgressClient _progressClient;
     private readonly SectionsClient _sectionsClient;
     private readonly LessonsClient _lessonsClient;
     private readonly AsyncRelayCommand _enrollCommand;
     private bool _isLoading;
     private bool _isEnrolling;
     private bool _isEnrolled;
+    private int _totalLessons;
+    private int _completedLessons;
+    private int _overallProgress;
     private string? _errorMessage;
     private string? _enrollmentStatusMessage;
     private string? _enrollmentErrorMessage;
@@ -32,12 +36,14 @@ public sealed class CourseDetailsViewModel : ViewModelBase
         CourseCardViewModel course,
         CoursesClient coursesClient,
         EnrollmentsClient enrollmentsClient,
+        ProgressClient progressClient,
         SectionsClient sectionsClient,
         LessonsClient lessonsClient)
     {
         _courseId = course.Id;
         _coursesClient = coursesClient;
         _enrollmentsClient = enrollmentsClient;
+        _progressClient = progressClient;
         _sectionsClient = sectionsClient;
         _lessonsClient = lessonsClient;
         _title = course.Title;
@@ -122,9 +128,40 @@ public sealed class CourseDetailsViewModel : ViewModelBase
             if (SetProperty(ref _isEnrolled, value))
             {
                 RaisePropertyChanged(nameof(EnrollButtonText));
+                RaisePropertyChanged(nameof(ShowCourseProgress));
                 _enrollCommand.RaiseCanExecuteChanged();
             }
         }
+    }
+
+    public int TotalLessons
+    {
+        get => _totalLessons;
+        private set
+        {
+            if (SetProperty(ref _totalLessons, value))
+            {
+                RaisePropertyChanged(nameof(CourseProgressCaption));
+            }
+        }
+    }
+
+    public int CompletedLessons
+    {
+        get => _completedLessons;
+        private set
+        {
+            if (SetProperty(ref _completedLessons, value))
+            {
+                RaisePropertyChanged(nameof(CourseProgressCaption));
+            }
+        }
+    }
+
+    public int OverallProgress
+    {
+        get => _overallProgress;
+        private set => SetProperty(ref _overallProgress, value);
     }
 
     public string? ErrorMessage
@@ -153,6 +190,10 @@ public sealed class CourseDetailsViewModel : ViewModelBase
 
     public string EnrollButtonText =>
         IsEnrolled ? "Вы записаны" : IsEnrolling ? "Записываем..." : "Записаться на курс";
+
+    public string CourseProgressCaption => $"{CompletedLessons} из {TotalLessons} уроков завершено";
+
+    public bool ShowCourseProgress => IsEnrolled && TotalLessons > 0;
 
     public AsyncRelayCommand EnrollCommand => _enrollCommand;
 
@@ -235,11 +276,16 @@ public sealed class CourseDetailsViewModel : ViewModelBase
             if (IsEnrolled)
             {
                 EnrollmentStatusMessage = "Вы уже записаны на этот курс.";
+                await LoadCourseProgressAsync();
+            }
+            else
+            {
+                ResetProgress();
             }
         }
         catch
         {
-            // Не ломаем страницу курса, если статус записи сейчас не удалось проверить.
+            ResetProgress();
         }
     }
 
@@ -254,6 +300,7 @@ public sealed class CourseDetailsViewModel : ViewModelBase
             await _enrollmentsClient.EnrollAsync(_courseId);
             IsEnrolled = true;
             EnrollmentStatusMessage = "Вы успешно записались на курс.";
+            await LoadCourseProgressAsync();
         }
         catch (ApiException ex) when (
             ex.StatusCode == HttpStatusCode.BadRequest &&
@@ -261,6 +308,7 @@ public sealed class CourseDetailsViewModel : ViewModelBase
         {
             IsEnrolled = true;
             EnrollmentStatusMessage = "Вы уже записаны на этот курс.";
+            await LoadCourseProgressAsync();
         }
         catch (ApiException ex)
         {
@@ -278,6 +326,28 @@ public sealed class CourseDetailsViewModel : ViewModelBase
         {
             IsEnrolling = false;
         }
+    }
+
+    private async Task LoadCourseProgressAsync()
+    {
+        try
+        {
+            var progress = await _progressClient.GetCourseProgressAsync(_courseId);
+            TotalLessons = progress.TotalLessons;
+            CompletedLessons = progress.CompletedLessons;
+            OverallProgress = progress.OverallProgress;
+        }
+        catch
+        {
+            ResetProgress();
+        }
+    }
+
+    private void ResetProgress()
+    {
+        TotalLessons = 0;
+        CompletedLessons = 0;
+        OverallProgress = 0;
     }
 
     private void ApplyCourseDetails(CourseResponseDto course)

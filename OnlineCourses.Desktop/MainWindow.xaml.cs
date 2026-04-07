@@ -15,6 +15,7 @@ public partial class MainWindow : Window
     private readonly AuthClient _authClient;
     private readonly CoursesClient _coursesClient;
     private readonly EnrollmentsClient _enrollmentsClient;
+    private readonly ProgressClient _progressClient;
     private readonly SectionsClient _sectionsClient;
     private readonly LessonsClient _lessonsClient;
     private readonly FilesClient _filesClient;
@@ -34,6 +35,7 @@ public partial class MainWindow : Window
         _authClient = new AuthClient(httpClient, tokenStore);
         _coursesClient = new CoursesClient(httpClient, tokenStore);
         _enrollmentsClient = new EnrollmentsClient(httpClient, tokenStore);
+        _progressClient = new ProgressClient(httpClient, tokenStore);
         _sectionsClient = new SectionsClient(httpClient, tokenStore);
         _lessonsClient = new LessonsClient(httpClient, tokenStore);
         _filesClient = new FilesClient(httpClient, tokenStore);
@@ -70,6 +72,7 @@ public partial class MainWindow : Window
             course,
             _coursesClient,
             _enrollmentsClient,
+            _progressClient,
             _sectionsClient,
             _lessonsClient,
             NavigateToLessonDetails));
@@ -78,7 +81,7 @@ public partial class MainWindow : Window
 
     private void NavigateToLessonDetails(CourseLessonViewModel lesson)
     {
-        MainFrame.Navigate(new LessonDetailsPage(lesson));
+        MainFrame.Navigate(new LessonDetailsPage(lesson, _progressClient));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 

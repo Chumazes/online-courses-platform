@@ -84,6 +84,30 @@
                                    Text="{Binding EnrollmentErrorMessage}"
                                    TextWrapping="Wrap" />
                     </StackPanel>
+
+                    <Border Margin="0,18,0,0"
+                            Padding="14"
+                            Background="#F9FAFB"
+                            BorderBrush="#E5E7EB"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Visibility="{Binding ShowCourseProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel>
+                            <TextBlock FontWeight="SemiBold"
+                                       Foreground="#111827"
+                                       Text="{Binding CourseProgressCaption}" />
+
+                            <ProgressBar Height="10"
+                                         Margin="0,12,0,0"
+                                         Minimum="0"
+                                         Maximum="100"
+                                         Value="{Binding OverallProgress, Mode=OneWay}" />
+
+                            <TextBlock Margin="0,8,0,0"
+                                       Foreground="#4B5563"
+                                       Text="{Binding OverallProgress, StringFormat=Общий прогресс: {0}%}" />
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </Border>
 

@@ -14,12 +14,13 @@ public partial class CourseDetailsPage : Page
         CourseCardViewModel course,
         CoursesClient coursesClient,
         EnrollmentsClient enrollmentsClient,
+        ProgressClient progressClient,
         SectionsClient sectionsClient,
         LessonsClient lessonsClient,
         Action<CourseLessonViewModel> openLesson)
     {
         InitializeComponent();
-        _viewModel = new CourseDetailsViewModel(course, coursesClient, enrollmentsClient, sectionsClient, lessonsClient);
+        _viewModel = new CourseDetailsViewModel(course, coursesClient, enrollmentsClient, progressClient, sectionsClient, lessonsClient);
         _openLesson = openLesson;
         DataContext = _viewModel;
         Loaded += Page_Loaded;
@@ -27,7 +28,6 @@ public partial class CourseDetailsPage : Page
 
     private async void Page_Loaded(object sender, RoutedEventArgs e)
     {
-        Loaded -= Page_Loaded;
         await _viewModel.LoadAsync();
     }
 
