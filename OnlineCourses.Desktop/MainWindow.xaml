@@ -4,99 +4,160 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Online Courses Platform"
+        Title="Low-Level to Top"
         Width="1100"
         Height="700"
-        MinWidth="900"
-        MinHeight="600"
-        WindowStartupLocation="CenterScreen">
-    <Grid Background="#F3F4F6">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+        MinWidth="760"
+        MinHeight="520"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource LltShellBrush}">
+    <Grid Background="{StaticResource LltShellBrush}">
+        <Border Margin="16"
+                Background="{StaticResource LltSceneBrush}"
+                BorderBrush="#341048"
+                BorderThickness="1"
+                CornerRadius="28">
+            <Grid>
+                <Ellipse Width="860"
+                         Height="500"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Fill="{StaticResource LltGlowBrush}"
+                         IsHitTestVisible="False"
+                         Opacity="0.8" />
 
-        <Border Grid.Row="0"
-                Padding="16"
-                Background="#111827">
-            <DockPanel LastChildFill="False">
-                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-                    <TextBlock VerticalAlignment="Center"
-                               FontSize="20"
-                               FontWeight="SemiBold"
-                               Foreground="White"
-                               Text="Online Courses" />
-                </StackPanel>
+                <Grid Margin="18">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
 
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                    <Button x:Name="BackButton"
-                            Width="90"
-                            Margin="0,0,8,0"
-                            Click="BackButton_OnClick"
-                            Content="Назад"
-                            Visibility="Collapsed" />
-                    <Button x:Name="ManageCoursesButton"
-                            Width="140"
-                            Margin="0,0,8,0"
-                            Click="ManageCoursesButton_OnClick"
-                            Content="Управление"
-                            Visibility="Collapsed" />
-                    <Button x:Name="ProfileBadge"
-                            Margin="0,0,8,0"
-                            Padding="0"
-                            Background="Transparent"
-                            BorderBrush="Transparent"
-                            Click="ProfileBadge_OnClick"
-                            Cursor="Hand"
-                            Visibility="Collapsed">
-                        <Border Padding="12,6"
-                                Background="#1F2937"
-                                BorderBrush="#374151"
-                                BorderThickness="1"
-                                CornerRadius="12">
-                            <StackPanel Orientation="Horizontal">
-                                <Border Width="34"
-                                        Height="34"
-                                        Margin="0,0,10,0"
-                                        Background="#2563EB"
-                                        CornerRadius="17">
-                                    <Grid ClipToBounds="True">
-                                        <Image x:Name="UserAvatarImage"
-                                               Stretch="UniformToFill"
-                                               Visibility="Collapsed" />
-                                        <TextBlock x:Name="UserInitialsText"
-                                                   VerticalAlignment="Center"
-                                                   HorizontalAlignment="Center"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="White"
-                                                   Text="?" />
-                                    </Grid>
+                    <Border Grid.Row="0"
+                            Padding="18,16"
+                            Background="{StaticResource LltChromeBrush}"
+                            BorderBrush="#43205C"
+                            BorderThickness="1"
+                            CornerRadius="24">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <Border Width="64"
+                                        Height="64"
+                                        CornerRadius="18"
+                                        ClipToBounds="True">
+                                    <Image Source="/Assets/mascot.jpg" Stretch="UniformToFill" />
                                 </Border>
 
-                                <StackPanel>
-                                    <TextBlock x:Name="UserNameText"
+                                <StackPanel Margin="14,0,0,0"
+                                            VerticalAlignment="Center">
+                                    <TextBlock FontSize="28"
                                                FontWeight="SemiBold"
-                                               Foreground="White"
-                                               Text="Профиль" />
-                                    <TextBlock x:Name="UserRoleText"
-                                               FontSize="12"
-                                               Foreground="#9CA3AF"
-                                               Text="Не загружен" />
+                                               Foreground="{StaticResource LltLightTextBrush}"
+                                               Text="Low-Level to Top" />
+                                    <TextBlock Margin="0,4,0,0"
+                                               Foreground="#D9C9EA"
+                                               Text="Платформа курсов, практики и роста в IT" />
                                 </StackPanel>
                             </StackPanel>
-                        </Border>
-                    </Button>
-                    <Button x:Name="LogoutButton"
-                            Width="120"
-                            Click="LogoutButton_OnClick"
-                            Content="Выйти"
-                            Visibility="Collapsed" />
-                </StackPanel>
-            </DockPanel>
-        </Border>
 
-        <Frame x:Name="MainFrame"
-               Grid.Row="1"
-               NavigationUIVisibility="Hidden" />
+                            <TextBlock Grid.Column="1"
+                                       Margin="30,0"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Center"
+                                       FontSize="14"
+                                       Foreground="#CDB9E4"
+                                       TextTrimming="CharacterEllipsis"
+                                       Text="Online Courses Platform" />
+
+                            <StackPanel Grid.Column="2"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <Button x:Name="BackButton"
+                                        Style="{StaticResource LltLightButtonStyle}"
+                                        Click="BackButton_OnClick"
+                                        Content="Назад"
+                                        Visibility="Collapsed" />
+
+                                <Button x:Name="ManageCoursesButton"
+                                        Style="{StaticResource LltPrimaryButtonStyle}"
+                                        Click="ManageCoursesButton_OnClick"
+                                        Content="Управление"
+                                        Visibility="Collapsed" />
+
+                                <Button x:Name="ProfileBadge"
+                                        Margin="0,0,10,0"
+                                        Padding="0"
+                                        Background="Transparent"
+                                        BorderBrush="Transparent"
+                                        Click="ProfileBadge_OnClick"
+                                        Cursor="Hand"
+                                        Visibility="Collapsed">
+                                    <Border Padding="12,8"
+                                            Background="#2A1238"
+                                            BorderBrush="#5E3783"
+                                            BorderThickness="1"
+                                            CornerRadius="18">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Width="38"
+                                                    Height="38"
+                                                    Margin="0,0,10,0"
+                                                    Background="#3B1E4C"
+                                                    CornerRadius="19">
+                                                <Grid ClipToBounds="True">
+                                                    <Image x:Name="UserAvatarImage"
+                                                           Stretch="UniformToFill"
+                                                           Visibility="Collapsed" />
+                                                    <TextBlock x:Name="UserInitialsText"
+                                                               VerticalAlignment="Center"
+                                                               HorizontalAlignment="Center"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{StaticResource LltLightTextBrush}"
+                                                               Text="?" />
+                                                </Grid>
+                                            </Border>
+
+                                            <StackPanel>
+                                                <TextBlock x:Name="UserNameText"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{StaticResource LltLightTextBrush}"
+                                                           Text="Профиль" />
+                                                <TextBlock x:Name="UserRoleText"
+                                                           FontSize="12"
+                                                           Foreground="#D3BFEB"
+                                                           Text="Не загружен" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+                                </Button>
+
+                                <Button x:Name="LogoutButton"
+                                        Style="{StaticResource LltLightButtonStyle}"
+                                        Margin="0"
+                                        Click="LogoutButton_OnClick"
+                                        Content="Выйти"
+                                        Visibility="Collapsed" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="1"
+                            Margin="0,18,0,0"
+                            Padding="10"
+                            Background="#13FFFFFF"
+                            BorderBrush="#34FFFFFF"
+                            BorderThickness="1"
+                            CornerRadius="26">
+                        <Frame x:Name="MainFrame"
+                               Background="Transparent"
+                               NavigationUIVisibility="Hidden" />
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

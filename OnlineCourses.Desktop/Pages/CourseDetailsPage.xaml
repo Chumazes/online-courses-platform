@@ -5,12 +5,8 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
       Title="CourseDetailsPage">
-    <Page.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-    </Page.Resources>
-
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Margin="24">
+        <Grid Margin="26">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -19,168 +15,198 @@
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0"
-                    Padding="22"
-                    Background="White"
-                    BorderBrush="#E5E7EB"
+                    Padding="26"
+                    Background="#7A43AE"
+                    BorderBrush="#A97AD4"
                     BorderThickness="1"
-                    CornerRadius="12">
-                <StackPanel>
-                    <TextBlock FontSize="28"
-                               FontWeight="SemiBold"
-                               Text="{Binding Title}" />
+                    CornerRadius="30">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="220" />
+                    </Grid.ColumnDefinitions>
 
-                    <TextBlock Margin="0,16,0,0"
-                               FontSize="16"
-                               Foreground="#4B5563"
-                               Text="{Binding Description}"
-                               TextWrapping="Wrap" />
+                    <StackPanel Grid.Column="0"
+                                Margin="0,0,24,0">
+                        <TextBlock FontSize="34"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource LltLightTextBrush}"
+                                   Text="{Binding Title}"
+                                   TextWrapping="Wrap" />
 
-                    <WrapPanel Margin="0,18,0,0">
-                        <Border Padding="10,4"
-                                Margin="0,0,10,0"
-                                Background="#EFF6FF"
-                                CornerRadius="14">
-                            <TextBlock Foreground="#1D4ED8"
-                                       Text="{Binding Level}" />
-                        </Border>
+                        <TextBlock Margin="0,16,0,0"
+                                   FontSize="16"
+                                   Foreground="#EBDDFA"
+                                   Text="{Binding Description}"
+                                   TextWrapping="Wrap" />
 
-                        <Border Padding="10,4"
-                                Margin="0,0,10,0"
-                                Background="#ECFDF5"
-                                CornerRadius="14">
-                            <TextBlock Foreground="#047857"
-                                       Text="{Binding Price}" />
-                        </Border>
+                        <WrapPanel Margin="0,18,0,0">
+                            <Border Padding="12,5"
+                                    Margin="0,0,10,10"
+                                    Background="#F4EEFA"
+                                    CornerRadius="16">
+                                <TextBlock Foreground="{StaticResource LltInkBrush}"
+                                           Text="{Binding Level}" />
+                            </Border>
 
-                        <Border Padding="10,4"
-                                Margin="0,0,10,0"
-                                Background="#F3E8FF"
-                                CornerRadius="14">
-                            <TextBlock Foreground="#7C3AED"
-                                       Text="{Binding CategoryName}" />
-                        </Border>
-                    </WrapPanel>
+                            <Border Padding="12,5"
+                                    Margin="0,0,10,10"
+                                    Background="#63E62E"
+                                    CornerRadius="16">
+                                <TextBlock Foreground="{StaticResource LltAccentDarkBrush}"
+                                           Text="{Binding Price}" />
+                            </Border>
 
-                    <TextBlock Margin="0,18,0,0"
-                               Foreground="#6B7280"
-                               Text="{Binding AuthorName, StringFormat=Автор: {0}}" />
-
-                    <StackPanel Margin="0,18,0,0">
-                        <Button Width="190"
-                                Height="38"
-                                HorizontalAlignment="Left"
-                                Background="#111827"
-                                Foreground="White"
-                                Command="{Binding EnrollCommand}"
-                                Content="{Binding EnrollButtonText}" />
+                            <Border Padding="12,5"
+                                    Margin="0,0,10,10"
+                                    Background="#F4EEFA"
+                                    CornerRadius="16">
+                                <TextBlock Foreground="{StaticResource LltInkBrush}"
+                                           Text="{Binding CategoryName}" />
+                            </Border>
+                        </WrapPanel>
 
                         <TextBlock Margin="0,10,0,0"
-                                   Foreground="#047857"
+                                   Foreground="#EBDDFA"
+                                   Text="{Binding AuthorName, StringFormat=Автор: {0}}" />
+
+                        <WrapPanel Margin="0,22,0,0">
+                            <Button Width="210"
+                                    Margin="0,0,14,10"
+                                    Style="{StaticResource LltAccentButtonStyle}"
+                                    Command="{Binding EnrollCommand}"
+                                    Content="{Binding EnrollButtonText}" />
+
+                            <Border Padding="16,10"
+                                    Margin="0,0,0,10"
+                                    Background="#220A2C"
+                                    BorderBrush="#9C71C8"
+                                    BorderThickness="1"
+                                    CornerRadius="18"
+                                    Visibility="{Binding ShowCourseProgress, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Foreground="#EBDDFA"
+                                           Text="{Binding CourseProgressCaption}" />
+                            </Border>
+                        </WrapPanel>
+
+                        <TextBlock Margin="0,10,0,0"
+                                   Foreground="#EAFFD8"
                                    Text="{Binding EnrollmentStatusMessage}"
                                    TextWrapping="Wrap" />
 
                         <TextBlock Margin="0,8,0,0"
-                                   Foreground="#B91C1C"
+                                   Foreground="#FFE2E2"
                                    Text="{Binding EnrollmentErrorMessage}"
                                    TextWrapping="Wrap" />
                     </StackPanel>
 
-                    <Border Margin="0,18,0,0"
-                            Padding="14"
-                            Background="#F9FAFB"
-                            BorderBrush="#E5E7EB"
+                    <Border Grid.Column="1"
+                            Background="#18071F"
+                            BorderBrush="#A97AD4"
                             BorderThickness="1"
-                            CornerRadius="10"
-                            Visibility="{Binding ShowCourseProgress, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <StackPanel>
-                            <TextBlock FontWeight="SemiBold"
-                                       Foreground="#111827"
-                                       Text="{Binding CourseProgressCaption}" />
+                            CornerRadius="24">
+                        <StackPanel Margin="18"
+                                    VerticalAlignment="Center">
+                            <TextBlock FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LltLightTextBrush}"
+                                       Text="Прогресс" />
 
-                            <ProgressBar Height="10"
-                                         Margin="0,12,0,0"
+                            <ProgressBar Height="12"
+                                         Margin="0,18,0,0"
                                          Minimum="0"
                                          Maximum="100"
                                          Value="{Binding OverallProgress, Mode=OneWay}" />
 
-                            <TextBlock Margin="0,8,0,0"
-                                       Foreground="#4B5563"
+                            <TextBlock Margin="0,10,0,0"
+                                       Foreground="#EBDDFA"
                                        Text="{Binding OverallProgress, StringFormat=Общий прогресс: {0}%}" />
+
+                            <TextBlock Margin="0,18,0,0"
+                                       Foreground="#D2BCE9"
+                                       Text="Low-Level to Top"
+                                       TextAlignment="Center" />
                         </StackPanel>
                     </Border>
-                </StackPanel>
+                </Grid>
             </Border>
 
             <TextBlock Grid.Row="1"
-                       Margin="0,16,0,0"
-                       Foreground="#1D4ED8"
+                       Margin="6,14,0,0"
+                       Foreground="{StaticResource LltInkSoftBrush}"
                        Text="Загружаем структуру курса..."
                        Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" />
 
             <TextBlock Grid.Row="2"
-                       Margin="0,12,0,0"
-                       Foreground="#B91C1C"
+                       Margin="6,10,0,0"
+                       Foreground="#9A1C30"
                        Text="{Binding ErrorMessage}"
                        TextWrapping="Wrap" />
 
             <Border Grid.Row="3"
-                    Margin="0,16,0,0"
-                    Padding="18"
-                    Background="White"
-                    BorderBrush="#E5E7EB"
+                    Margin="0,18,0,0"
+                    Padding="24"
+                    Background="#C5FFFFFF"
+                    BorderBrush="#4EFFFFFF"
                     BorderThickness="1"
-                    CornerRadius="12">
+                    CornerRadius="28">
                 <StackPanel>
-                    <TextBlock FontSize="20"
+                    <TextBlock FontSize="28"
                                FontWeight="SemiBold"
                                Text="Программа курса" />
 
                     <TextBlock Margin="0,10,0,0"
-                               Foreground="#6B7280"
-                               Text="Здесь отображаются реальные разделы и уроки, которые пришли с API."
+                               Foreground="{StaticResource LltInkSoftBrush}"
+                               Text="Реальные разделы и уроки, которые пришли из API и уже доступны внутри desktop-клиента."
                                TextWrapping="Wrap" />
 
-                    <TextBlock Margin="0,16,0,0"
-                               Foreground="#6B7280"
-                               Text="Разделы пока не добавлены."
-                               Visibility="{Binding ShowEmptyState, Converter={StaticResource BoolToVisibilityConverter}}" />
+                    <Border Margin="0,18,0,0"
+                            Padding="18"
+                            Background="#EEE6F6"
+                            CornerRadius="20"
+                            Visibility="{Binding ShowEmptyState, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Foreground="{StaticResource LltInkSoftBrush}"
+                                   Text="Разделы пока не добавлены."
+                                   TextWrapping="Wrap" />
+                    </Border>
 
-                    <ItemsControl Margin="0,16,0,0"
+                    <ItemsControl Margin="0,18,0,0"
                                   ItemsSource="{Binding Sections}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Margin="0,0,0,14"
-                                        Padding="16"
-                                        Background="#F9FAFB"
-                                        BorderBrush="#E5E7EB"
+                                <Border Margin="0,0,0,16"
+                                        Padding="20"
+                                        Background="#7340A6"
+                                        BorderBrush="#A97AD4"
                                         BorderThickness="1"
-                                        CornerRadius="10">
+                                        CornerRadius="24">
                                     <StackPanel>
                                         <DockPanel LastChildFill="False">
                                             <TextBlock DockPanel.Dock="Left"
-                                                       FontSize="18"
+                                                       FontSize="22"
                                                        FontWeight="SemiBold"
+                                                       Foreground="{StaticResource LltLightTextBrush}"
                                                        Text="{Binding Title}" />
                                             <Border DockPanel.Dock="Right"
-                                                    Padding="8,3"
-                                                    Background="#E0F2FE"
-                                                    CornerRadius="12">
-                                                <TextBlock Foreground="#0369A1"
+                                                    Padding="10,4"
+                                                    Background="#F4EEFA"
+                                                    CornerRadius="16">
+                                                <TextBlock Foreground="{StaticResource LltInkBrush}"
                                                            Text="{Binding LessonsCaption}" />
                                             </Border>
                                         </DockPanel>
 
-                                        <TextBlock Margin="0,8,0,0"
-                                                   Foreground="#6B7280"
+                                        <TextBlock Margin="0,10,0,0"
+                                                   Foreground="#EEE5F8"
                                                    Text="{Binding Description}"
                                                    TextWrapping="Wrap" />
 
-                                        <ItemsControl Margin="0,12,0,0"
+                                        <ItemsControl Margin="0,16,0,0"
                                                       ItemsSource="{Binding Lessons}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Button x:Name="LessonButton"
-                                                            Margin="0,0,0,10"
+                                                            Margin="0,0,0,12"
                                                             Padding="0"
                                                             Background="Transparent"
                                                             BorderBrush="Transparent"
@@ -189,25 +215,30 @@
                                                             HorizontalContentAlignment="Stretch"
                                                             Tag="{Binding}">
                                                         <Border x:Name="LessonCardBorder"
-                                                                Padding="12"
-                                                                Background="White"
-                                                                BorderBrush="#E5E7EB"
+                                                                Padding="16"
+                                                                Background="#F6F1FB"
+                                                                BorderBrush="#E4D6F1"
                                                                 BorderThickness="1"
-                                                                CornerRadius="8">
+                                                                CornerRadius="20">
                                                             <StackPanel>
                                                                 <DockPanel LastChildFill="False">
                                                                     <TextBlock DockPanel.Dock="Left"
                                                                                FontWeight="SemiBold"
+                                                                               Foreground="{StaticResource LltInkBrush}"
                                                                                Text="{Binding Title}" />
-                                                                    <TextBlock DockPanel.Dock="Right"
-                                                                               Foreground="#2563EB"
-                                                                               Text="Открыть" />
+                                                                    <Border DockPanel.Dock="Right"
+                                                                            Padding="10,4"
+                                                                            Background="#63E62E"
+                                                                            CornerRadius="14">
+                                                                        <TextBlock Foreground="{StaticResource LltAccentDarkBrush}"
+                                                                                   Text="Открыть" />
+                                                                    </Border>
                                                                 </DockPanel>
-                                                                <TextBlock Margin="0,6,0,0"
-                                                                           Foreground="#6B7280"
+                                                                <TextBlock Margin="0,8,0,0"
+                                                                           Foreground="{StaticResource LltInkSoftBrush}"
                                                                            Text="{Binding MetaText}" />
-                                                                <TextBlock Margin="0,6,0,0"
-                                                                           Foreground="#4B5563"
+                                                                <TextBlock Margin="0,8,0,0"
+                                                                           Foreground="{StaticResource LltInkBrush}"
                                                                            Text="{Binding Content}"
                                                                            TextWrapping="Wrap" />
                                                             </StackPanel>
@@ -215,12 +246,12 @@
                                                     </Button>
                                                     <DataTemplate.Triggers>
                                                         <Trigger SourceName="LessonButton" Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="LessonCardBorder" Property="Background" Value="#F8FBFF" />
-                                                            <Setter TargetName="LessonCardBorder" Property="BorderBrush" Value="#93C5FD" />
+                                                            <Setter TargetName="LessonCardBorder" Property="Background" Value="#FFF9FF" />
+                                                            <Setter TargetName="LessonCardBorder" Property="BorderBrush" Value="#A97AD4" />
                                                         </Trigger>
                                                         <Trigger SourceName="LessonButton" Property="IsPressed" Value="True">
-                                                            <Setter TargetName="LessonCardBorder" Property="Background" Value="#EFF6FF" />
-                                                            <Setter TargetName="LessonCardBorder" Property="BorderBrush" Value="#60A5FA" />
+                                                            <Setter TargetName="LessonCardBorder" Property="Background" Value="#EDE2F8" />
+                                                            <Setter TargetName="LessonCardBorder" Property="BorderBrush" Value="#8B59C0" />
                                                         </Trigger>
                                                     </DataTemplate.Triggers>
                                                 </DataTemplate>

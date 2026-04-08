@@ -5,118 +5,132 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
       Title="LessonDetailsPage">
-    <Page.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-    </Page.Resources>
-
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Margin="24">
-            <Border Padding="22"
-                    Background="White"
-                    BorderBrush="#E5E7EB"
+        <Grid Margin="26">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    Padding="26"
+                    Background="#7A43AE"
+                    BorderBrush="#A97AD4"
                     BorderThickness="1"
-                    CornerRadius="12">
+                    CornerRadius="30">
                 <StackPanel>
-                    <TextBlock Foreground="#6B7280"
+                    <TextBlock Foreground="#EBDDFA"
                                Text="{Binding SectionTitle, StringFormat=Раздел: {0}}" />
 
-                    <TextBlock Margin="0,12,0,0"
-                               FontSize="28"
+                    <TextBlock Margin="0,14,0,0"
+                               FontSize="34"
                                FontWeight="SemiBold"
+                               Foreground="{StaticResource LltLightTextBrush}"
                                Text="{Binding Title}"
                                TextWrapping="Wrap" />
 
                     <WrapPanel Margin="0,18,0,0">
-                        <Border Padding="10,4"
-                                Margin="0,0,10,0"
-                                Background="#EFF6FF"
-                                CornerRadius="14">
-                            <TextBlock Foreground="#1D4ED8"
+                        <Border Padding="12,5"
+                                Margin="0,0,10,10"
+                                Background="#F4EEFA"
+                                CornerRadius="16">
+                            <TextBlock Foreground="{StaticResource LltInkBrush}"
                                        Text="{Binding MetaText}" />
                         </Border>
 
-                        <Border Padding="10,4"
-                                Background="#ECFDF5"
-                                CornerRadius="14">
-                            <TextBlock Foreground="#047857"
+                        <Border Padding="12,5"
+                                Margin="0,0,10,10"
+                                Background="#220A2C"
+                                BorderBrush="#9C71C8"
+                                BorderThickness="1"
+                                CornerRadius="16">
+                            <TextBlock Foreground="#EBDDFA"
                                        Text="{Binding AccessText}" />
                         </Border>
                     </WrapPanel>
 
                     <Border Margin="0,20,0,0"
-                            Padding="14"
-                            Background="#F9FAFB"
-                            BorderBrush="#E5E7EB"
+                            Padding="18"
+                            Background="#200A2B"
+                            BorderBrush="#9C71C8"
                             BorderThickness="1"
-                            CornerRadius="10">
+                            CornerRadius="20">
                         <StackPanel>
                             <TextBlock FontWeight="SemiBold"
-                                       Foreground="#111827"
+                                       Foreground="{StaticResource LltLightTextBrush}"
                                        Text="{Binding CompletionStateText}" />
 
-                            <Button Width="220"
-                                    Height="38"
-                                    Margin="0,14,0,0"
+                            <Button Width="250"
+                                    Margin="0,16,0,0"
                                     HorizontalAlignment="Left"
-                                    Background="#111827"
-                                    Foreground="White"
+                                    Style="{StaticResource LltAccentButtonStyle}"
                                     Command="{Binding CompleteCommand}"
                                     Content="{Binding CompleteButtonText}" />
 
-                            <TextBlock Margin="0,10,0,0"
-                                       Foreground="#047857"
+                            <TextBlock Margin="0,12,0,0"
+                                       Foreground="#EAFFD8"
                                        Text="{Binding ProgressStatusMessage}"
                                        TextWrapping="Wrap" />
 
                             <TextBlock Margin="0,8,0,0"
-                                       Foreground="#B91C1C"
+                                       Foreground="#FFE2E2"
                                        Text="{Binding ProgressErrorMessage}"
                                        TextWrapping="Wrap" />
                         </StackPanel>
                     </Border>
+                </StackPanel>
+            </Border>
 
-                    <Border Margin="0,20,0,0"
-                            Padding="14"
-                            Background="#F9FAFB"
-                            BorderBrush="#E5E7EB"
-                            BorderThickness="1"
-                            CornerRadius="10"
-                            Visibility="{Binding HasAttachment, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <StackPanel>
-                            <TextBlock FontWeight="SemiBold"
-                                       Text="Файл урока" />
+            <Border Grid.Row="1"
+                    Margin="0,18,0,0"
+                    Padding="20"
+                    Background="#C5FFFFFF"
+                    BorderBrush="#4EFFFFFF"
+                    BorderThickness="1"
+                    CornerRadius="24"
+                    Visibility="{Binding HasAttachment, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel>
+                    <TextBlock FontSize="22"
+                               FontWeight="SemiBold"
+                               Text="Файл урока" />
 
-                            <TextBlock Margin="0,10,0,0"
-                                       FontWeight="SemiBold"
-                                       Text="{Binding AttachmentName}" />
+                    <TextBlock Margin="0,12,0,0"
+                               FontWeight="SemiBold"
+                               Text="{Binding AttachmentName}" />
 
-                            <TextBlock Margin="0,6,0,0"
-                                       Foreground="#6B7280"
-                                       Text="{Binding AttachmentSizeText}" />
+                    <TextBlock Margin="0,8,0,0"
+                               Foreground="{StaticResource LltInkSoftBrush}"
+                               Text="{Binding AttachmentSizeText}" />
 
-                            <Button Width="150"
-                                    Height="36"
-                                    Margin="0,12,0,0"
-                                    HorizontalAlignment="Left"
-                                    Background="#E5E7EB"
-                                    BorderBrush="#D1D5DB"
-                                    Click="OpenAttachmentButton_OnClick"
-                                    Content="Открыть файл" />
-                        </StackPanel>
-                    </Border>
+                    <Button Width="180"
+                            Margin="0,14,0,0"
+                            HorizontalAlignment="Left"
+                            Style="{StaticResource LltPrimaryButtonStyle}"
+                            Click="OpenAttachmentButton_OnClick"
+                            Content="Открыть файл" />
+                </StackPanel>
+            </Border>
 
-                    <TextBlock Margin="0,24,0,0"
-                               FontSize="20"
+            <Border Grid.Row="2"
+                    Margin="0,18,0,0"
+                    Padding="24"
+                    Background="#C5FFFFFF"
+                    BorderBrush="#4EFFFFFF"
+                    BorderThickness="1"
+                    CornerRadius="28">
+                <StackPanel>
+                    <TextBlock FontSize="28"
                                FontWeight="SemiBold"
                                Text="Содержимое урока" />
 
-                    <Border Margin="0,12,0,0"
-                            Padding="18"
-                            Background="#F9FAFB"
-                            BorderBrush="#E5E7EB"
+                    <Border Margin="0,16,0,0"
+                            Padding="20"
+                            Background="#7340A6"
+                            BorderBrush="#A97AD4"
                             BorderThickness="1"
-                            CornerRadius="10">
-                        <TextBlock Foreground="#374151"
+                            CornerRadius="24">
+                        <TextBlock Foreground="{StaticResource LltLightTextBrush}"
                                    FontSize="15"
                                    LineHeight="24"
                                    Text="{Binding Content}"
