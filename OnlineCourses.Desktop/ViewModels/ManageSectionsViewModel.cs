@@ -338,6 +338,7 @@ public sealed class ManageSectionsViewModel : ViewModelBase
         {
             SectionId = section.SectionId,
             CourseId = section.CourseId,
+            CourseTitle = section.CourseTitle,
             Title = section.Title,
             Description = section.Description ?? string.Empty,
             SectionOrder = section.SectionOrder,

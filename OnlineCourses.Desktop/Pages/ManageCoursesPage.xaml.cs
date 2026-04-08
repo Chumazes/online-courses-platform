@@ -21,7 +21,6 @@ public partial class ManageCoursesPage : Page
 
     private async void Page_Loaded(object sender, RoutedEventArgs e)
     {
-        Loaded -= Page_Loaded;
         await _viewModel.LoadAsync();
     }
 

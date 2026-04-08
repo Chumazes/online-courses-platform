@@ -89,7 +89,13 @@ public partial class MainWindow : Window
 
     private void NavigateToManageSections(ManageCourseItemViewModel course)
     {
-        MainFrame.Navigate(new ManageSectionsPage(course, _sectionsClient));
+        MainFrame.Navigate(new ManageSectionsPage(course, _sectionsClient, NavigateToManageLessons));
+        UpdateHeader(loggedIn: true, canGoBack: true);
+    }
+
+    private void NavigateToManageLessons(ManageSectionItemViewModel section)
+    {
+        MainFrame.Navigate(new ManageLessonsPage(section, _lessonsClient));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
@@ -305,6 +311,6 @@ public partial class MainWindow : Window
 
     private bool IsManagementPage()
     {
-        return MainFrame.Content is ManageCoursesPage or ManageSectionsPage;
+        return MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageLessonsPage;
     }
 }

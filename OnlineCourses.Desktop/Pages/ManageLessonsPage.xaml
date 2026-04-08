@@ -1,10 +1,10 @@
-<Page x:Class="OnlineCourses.Desktop.Pages.ManageSectionsPage"
+<Page x:Class="OnlineCourses.Desktop.Pages.ManageLessonsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
-      Title="ManageSectionsPage">
+      Title="ManageLessonsPage">
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Page.Resources>
@@ -28,10 +28,10 @@
                 <StackPanel DockPanel.Dock="Left">
                     <TextBlock FontSize="26"
                                FontWeight="SemiBold"
-                               Text="Секции курса" />
+                               Text="Уроки секции" />
                     <TextBlock Margin="0,6,0,0"
                                Foreground="#4B5563"
-                               Text="{Binding CourseTitle}" />
+                               Text="{Binding SectionTitle}" />
                 </StackPanel>
 
                 <Button DockPanel.Dock="Right"
@@ -39,8 +39,8 @@
                         Height="38"
                         Background="#111827"
                         Foreground="White"
-                        Click="CreateSectionButton_OnClick"
-                        Content="Новая секция" />
+                        Click="CreateLessonButton_OnClick"
+                        Content="Новый урок" />
             </DockPanel>
 
             <TextBlock Grid.Row="1"
@@ -51,9 +51,8 @@
 
             <Grid Grid.Row="2"
                   Margin="0,16,0,0">
-                <ListBox x:Name="SectionsList"
-                         ItemsSource="{Binding Sections}"
-                         SelectedItem="{Binding SelectedSection}">
+                <ListBox ItemsSource="{Binding Lessons}"
+                         SelectedItem="{Binding SelectedLesson}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Border Padding="14"
@@ -79,7 +78,7 @@
 
                                     <TextBlock Margin="0,8,0,0"
                                                Foreground="#374151"
-                                               Text="{Binding Description}"
+                                               Text="{Binding Content}"
                                                TextTrimming="CharacterEllipsis" />
 
                                     <TextBlock Margin="0,8,0,0"
@@ -101,7 +100,7 @@
                                VerticalAlignment="Center"
                                FontSize="16"
                                Foreground="#4B5563"
-                               Text="У этого курса пока нет секций."
+                               Text="У этой секции пока нет уроков."
                                TextAlignment="Center"
                                TextWrapping="Wrap" />
                 </Border>
@@ -116,7 +115,7 @@
                                VerticalAlignment="Center"
                                FontSize="16"
                                Foreground="#4B5563"
-                               Text="Загружаем секции..."
+                               Text="Загружаем уроки..."
                                TextAlignment="Center"
                                TextWrapping="Wrap" />
                 </Border>
@@ -147,38 +146,75 @@
 
                     <TextBlock Margin="0,20,0,0"
                                FontWeight="SemiBold"
-                               Text="Название секции" />
+                               Text="Название урока" />
                     <TextBox Margin="0,8,0,0"
                              Padding="12,8"
                              Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
 
                     <TextBlock Margin="0,18,0,0"
                                FontWeight="SemiBold"
-                               Text="Описание" />
+                               Text="Содержание" />
                     <TextBox MinHeight="120"
                              Margin="0,8,0,0"
                              Padding="12"
                              AcceptsReturn="True"
-                             Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                             Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}"
                              TextWrapping="Wrap"
                              VerticalScrollBarVisibility="Auto" />
 
-                    <TextBlock Margin="0,18,0,0"
-                               FontWeight="SemiBold"
-                               Text="Порядок в курсе" />
-                    <TextBox Margin="0,8,0,0"
-                             Padding="12,8"
-                             Text="{Binding SectionOrder, UpdateSourceTrigger=PropertyChanged}" />
+                    <Grid Margin="0,18,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                    <Button Width="170"
-                            Height="40"
-                            Margin="0,18,0,0"
-                            HorizontalAlignment="Left"
-                            Background="#E5E7EB"
-                            BorderBrush="#D1D5DB"
-                            Click="ManageLessonsButton_OnClick"
-                            Content="Уроки секции"
-                            IsEnabled="{Binding IsExistingSection}" />
+                        <StackPanel Grid.Column="0"
+                                    Margin="0,0,10,0">
+                            <TextBlock FontWeight="SemiBold"
+                                       Text="Тип урока" />
+                            <ComboBox Margin="0,8,0,0"
+                                      ItemsSource="{Binding LessonTypes}"
+                                      SelectedItem="{Binding LessonType}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    Margin="10,0,0,0">
+                            <TextBlock FontWeight="SemiBold"
+                                       Text="Порядок в секции" />
+                            <TextBox Margin="0,8,0,0"
+                                     Padding="12,8"
+                                     Text="{Binding LessonOrder, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid Margin="0,18,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0"
+                                    Margin="0,0,10,0">
+                            <TextBlock FontWeight="SemiBold"
+                                       Text="Видео URL" />
+                            <TextBox Margin="0,8,0,0"
+                                     Padding="12,8"
+                                     Text="{Binding VideoUrl, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    Margin="10,0,0,0">
+                            <TextBlock FontWeight="SemiBold"
+                                       Text="Длительность (мин)" />
+                            <TextBox Margin="0,8,0,0"
+                                     Padding="12,8"
+                                     Text="{Binding DurationMinutes, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <CheckBox Margin="0,18,0,0"
+                              Content="Бесплатный урок"
+                              IsChecked="{Binding IsFree}" />
 
                     <DockPanel Margin="0,24,0,0"
                                LastChildFill="False">
@@ -195,9 +231,9 @@
                                 Background="#FEE2E2"
                                 BorderBrush="#FCA5A5"
                                 Foreground="#B91C1C"
-                                Click="DeleteSectionButton_OnClick"
-                                Content="Удалить секцию"
-                                IsEnabled="{Binding IsExistingSection}" />
+                                Click="DeleteLessonButton_OnClick"
+                                Content="Удалить урок"
+                                IsEnabled="{Binding IsExistingLesson}" />
                     </DockPanel>
                 </StackPanel>
             </ScrollViewer>
