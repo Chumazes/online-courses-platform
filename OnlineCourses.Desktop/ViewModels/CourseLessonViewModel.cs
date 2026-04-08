@@ -10,6 +10,10 @@ public sealed class CourseLessonViewModel
     public bool IsFree { get; init; }
     public int? DurationMinutes { get; init; }
     public string? Content { get; init; }
+    public string? FileName { get; init; }
+    public string? FileUrl { get; init; }
+    public string? FileType { get; init; }
+    public long? FileSize { get; init; }
 
     public string MetaText
     {
@@ -22,4 +26,5 @@ public sealed class CourseLessonViewModel
     }
 
     public string AccessText => IsFree ? "Открытый урок" : "Урок для записанных студентов";
+    public bool HasFile => !string.IsNullOrWhiteSpace(FileUrl);
 }

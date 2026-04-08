@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using OnlineCourses.Client.Api;
@@ -18,7 +19,7 @@ public sealed class LessonDetailsViewModel : ViewModelBase
     private string? _progressStatusMessage;
     private string? _progressErrorMessage;
 
-    public LessonDetailsViewModel(CourseLessonViewModel lesson, ProgressClient progressClient)
+    public LessonDetailsViewModel(CourseLessonViewModel lesson, ProgressClient progressClient, FilesClient filesClient)
     {
         _lessonId = lesson.LessonId;
         _watchTime = (lesson.DurationMinutes ?? 0) * 60;
@@ -34,6 +35,9 @@ public sealed class LessonDetailsViewModel : ViewModelBase
         Content = string.IsNullOrWhiteSpace(lesson.Content)
             ? "Содержимое урока пока не заполнено."
             : lesson.Content;
+        AttachmentName = lesson.FileName;
+        AttachmentSizeText = lesson.FileSize.HasValue ? FormatFileSize(lesson.FileSize.Value) : null;
+        AttachmentDisplayUrl = filesClient.BuildDownloadUrl(lesson.FileUrl);
         CanTrackProgress = true;
     }
 
@@ -42,6 +46,10 @@ public sealed class LessonDetailsViewModel : ViewModelBase
     public string MetaText { get; }
     public string AccessText { get; }
     public string Content { get; }
+    public string? AttachmentName { get; }
+    public string? AttachmentSizeText { get; }
+    public string? AttachmentDisplayUrl { get; }
+    public bool HasAttachment => !string.IsNullOrWhiteSpace(AttachmentDisplayUrl);
 
     public bool IsCompleted
     {
@@ -87,11 +95,11 @@ public sealed class LessonDetailsViewModel : ViewModelBase
         !CanTrackProgress
             ? "Прогресс недоступен"
             : IsCompleted
-                ? "Урок завершён"
-                : "Урок ещё не завершён";
+                ? "Урок завершен"
+                : "Урок еще не завершен";
 
     public string CompleteButtonText =>
-        IsCompleted ? "Урок завершён" : IsCompleting ? "Сохраняем..." : "Отметить как завершённый";
+        IsCompleted ? "Урок завершен" : IsCompleting ? "Сохраняем..." : "Отметить как завершенный";
 
     public string? ProgressStatusMessage
     {
@@ -120,7 +128,7 @@ public sealed class LessonDetailsViewModel : ViewModelBase
 
             if (IsCompleted)
             {
-                ProgressStatusMessage = "Этот урок уже отмечен как завершённый.";
+                ProgressStatusMessage = "Этот урок уже отмечен как завершенный.";
             }
         }
         catch (ApiException ex) when (
@@ -163,7 +171,7 @@ public sealed class LessonDetailsViewModel : ViewModelBase
             });
 
             IsCompleted = true;
-            ProgressStatusMessage = "Урок отмечен как завершённый.";
+            ProgressStatusMessage = "Урок отмечен как завершенный.";
         }
         catch (ApiException ex)
         {
@@ -181,5 +189,28 @@ public sealed class LessonDetailsViewModel : ViewModelBase
         {
             IsCompleting = false;
         }
+    }
+
+    private static string FormatFileSize(long fileSize)
+    {
+        if (fileSize <= 0)
+        {
+            return "0 Б";
+        }
+
+        const double kb = 1024d;
+        const double mb = kb * 1024d;
+
+        if (fileSize >= mb)
+        {
+            return $"{fileSize / mb:0.##} МБ";
+        }
+
+        if (fileSize >= kb)
+        {
+            return $"{fileSize / kb:0.##} КБ";
+        }
+
+        return fileSize.ToString("0", CultureInfo.InvariantCulture) + " Б";
     }
 }

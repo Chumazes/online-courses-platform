@@ -11,7 +11,6 @@ namespace OnlineCourses.Desktop.ViewModels;
 
 public sealed class ManageLessonsViewModel : ViewModelBase
 {
-    private static readonly Dictionary<int, FileUploadDto> UploadedFilesByLesson = new();
     private readonly LessonsClient _lessonsClient;
     private readonly FilesClient _filesClient;
     private readonly AsyncRelayCommand _saveCommand;
@@ -294,7 +293,7 @@ public sealed class ManageLessonsViewModel : ViewModelBase
         DurationMinutes = string.Empty;
         LessonOrder = GetNextLessonOrder().ToString();
         IsFree = false;
-        ApplyUploadedFile(null);
+        ApplyUploadedFile(null, null, null);
         StatusMessage = null;
         ErrorMessage = null;
         RaisePropertyChanged(nameof(IsExistingLesson));
@@ -314,11 +313,9 @@ public sealed class ManageLessonsViewModel : ViewModelBase
         {
             ErrorMessage = null;
             StatusMessage = null;
-            var deletedLessonId = SelectedLesson.LessonId;
 
-            await _lessonsClient.DeleteAsync(_sectionId, deletedLessonId);
-            UploadedFilesByLesson.Remove(deletedLessonId);
-            StatusMessage = "Урок удалён.";
+            await _lessonsClient.DeleteAsync(_sectionId, SelectedLesson.LessonId);
+            StatusMessage = "Урок удален.";
             StartCreating();
             await LoadAsync();
         }
@@ -350,7 +347,7 @@ public sealed class ManageLessonsViewModel : ViewModelBase
         DurationMinutes = lesson.DurationMinutes?.ToString() ?? string.Empty;
         LessonOrder = lesson.LessonOrder.ToString();
         IsFree = lesson.IsFree;
-        ApplyUploadedFile(UploadedFilesByLesson.GetValueOrDefault(lesson.LessonId));
+        ApplyUploadedFile(lesson.FileName, lesson.FileUrl, lesson.FileSize);
         StatusMessage = null;
         ErrorMessage = null;
     }
@@ -373,13 +370,10 @@ public sealed class ManageLessonsViewModel : ViewModelBase
                 ? Path.GetFileNameWithoutExtension(filePath)
                 : Title.Trim();
 
-            var uploadedFile = await _filesClient.UploadLessonFileAsync(
-                SelectedLesson.LessonId,
-                filePath,
-                uploadTitle);
-
-            UploadedFilesByLesson[SelectedLesson.LessonId] = uploadedFile;
-            ApplyUploadedFile(uploadedFile);
+            var lessonId = SelectedLesson.LessonId;
+            await _filesClient.UploadLessonFileAsync(lessonId, filePath, uploadTitle);
+            await LoadAsync();
+            SelectedLesson = Lessons.FirstOrDefault(item => item.LessonId == lessonId);
             StatusMessage = "Файл урока загружен.";
         }
         catch (ApiException ex)
@@ -459,7 +453,7 @@ public sealed class ManageLessonsViewModel : ViewModelBase
 
                 await LoadAsync();
                 SelectedLesson = Lessons.FirstOrDefault(item => item.LessonId == lessonId);
-                StatusMessage = "Урок обновлён.";
+                StatusMessage = "Урок обновлен.";
             }
         }
         catch (ApiException ex)
@@ -512,9 +506,9 @@ public sealed class ManageLessonsViewModel : ViewModelBase
         return Lessons.Count == 0 ? 1 : Lessons.Max(item => item.LessonOrder) + 1;
     }
 
-    private void ApplyUploadedFile(FileUploadDto? file)
+    private void ApplyUploadedFile(string? fileName, string? fileUrl, long? fileSize)
     {
-        if (file is null || string.IsNullOrWhiteSpace(file.FileUrl))
+        if (string.IsNullOrWhiteSpace(fileUrl))
         {
             UploadedFileName = null;
             UploadedFileUrl = null;
@@ -523,10 +517,10 @@ public sealed class ManageLessonsViewModel : ViewModelBase
             return;
         }
 
-        UploadedFileName = string.IsNullOrWhiteSpace(file.FileName) ? "Файл урока" : file.FileName;
-        UploadedFileUrl = file.FileUrl;
-        UploadedFileDisplayUrl = _filesClient.BuildDownloadUrl(file.FileUrl);
-        UploadedFileSizeText = FormatFileSize(file.FileSize);
+        UploadedFileName = string.IsNullOrWhiteSpace(fileName) ? "Файл урока" : fileName;
+        UploadedFileUrl = fileUrl;
+        UploadedFileDisplayUrl = _filesClient.BuildDownloadUrl(fileUrl);
+        UploadedFileSizeText = fileSize.HasValue ? FormatFileSize(fileSize.Value) : null;
     }
 
     private bool IsLessonOrderTaken(int parsedOrder)
@@ -545,6 +539,10 @@ public sealed class ManageLessonsViewModel : ViewModelBase
             Content = lesson.Content ?? string.Empty,
             LessonType = string.IsNullOrWhiteSpace(lesson.LessonType) ? "text" : lesson.LessonType,
             VideoUrl = lesson.VideoUrl,
+            FileName = lesson.FileName,
+            FileUrl = lesson.FileUrl,
+            FileType = lesson.FileType,
+            FileSize = lesson.FileSize,
             DurationMinutes = lesson.DurationMinutes,
             LessonOrder = lesson.LessonOrder,
             IsFree = lesson.IsFree,

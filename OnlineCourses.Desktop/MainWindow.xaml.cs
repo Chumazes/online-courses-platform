@@ -114,7 +114,7 @@ public partial class MainWindow : Window
 
     private void NavigateToLessonDetails(CourseLessonViewModel lesson)
     {
-        MainFrame.Navigate(new LessonDetailsPage(lesson, _progressClient));
+        MainFrame.Navigate(new LessonDetailsPage(lesson, _progressClient, _filesClient));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 

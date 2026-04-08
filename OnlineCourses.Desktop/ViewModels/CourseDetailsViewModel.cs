@@ -236,7 +236,11 @@ public sealed class CourseDetailsViewModel : ViewModelBase
                         LessonType = NormalizeLessonType(lesson.LessonType),
                         IsFree = lesson.IsFree,
                         DurationMinutes = lesson.DurationMinutes,
-                        Content = lesson.Content
+                        Content = lesson.Content,
+                        FileName = lesson.FileName,
+                        FileUrl = lesson.FileUrl,
+                        FileType = lesson.FileType,
+                        FileSize = lesson.FileSize
                     });
                 }
 
