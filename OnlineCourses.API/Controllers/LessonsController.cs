@@ -129,6 +129,13 @@ public class LessonsController : ControllerBase
             _logger.LogWarning("User {UserId} not authorized to create lesson in section {SectionId}", userId, sectionId);
             return Forbid();
         }
+
+        var existingLessons = await _lessonRepository.GetBySectionIdAsync(sectionId);
+        if (existingLessons.Any(item => item.LessonOrder == createDto.LessonOrder))
+        {
+            _logger.LogWarning("Duplicate lesson order {LessonOrder} in section {SectionId}", createDto.LessonOrder, sectionId);
+            return BadRequest(new { message = "Урок с таким порядковым номером уже существует в этой секции." });
+        }
         
         var lesson = new Lesson
         {
@@ -145,10 +152,25 @@ public class LessonsController : ControllerBase
         var created = await _lessonRepository.CreateAsync(lesson);
         
         _logger.LogInformation("Lesson created successfully: {LessonId} in section {SectionId}", created.LessonId, sectionId);
-        
+
+        var response = new LessonResponseDto
+        {
+            LessonId = created.LessonId,
+            SectionId = created.SectionId,
+            SectionTitle = section.Title,
+            Title = created.Title,
+            Content = created.Content,
+            LessonType = created.LessonType,
+            VideoUrl = created.VideoUrl,
+            DurationMinutes = created.DurationMinutes,
+            LessonOrder = created.LessonOrder,
+            IsFree = created.IsFree,
+            CreatedAt = created.CreatedAt
+        };
+
         return CreatedAtAction(nameof(GetLessonById), 
             new { sectionId = sectionId, lessonId = created.LessonId }, 
-            created);
+            response);
     }
     
     // PUT: api/sections/{sectionId}/lessons/{lessonId}
@@ -178,6 +200,13 @@ public class LessonsController : ControllerBase
         {
             _logger.LogWarning("User {UserId} not authorized to update lesson {LessonId}", userId, lessonId);
             return Forbid();
+        }
+
+        var existingLessons = await _lessonRepository.GetBySectionIdAsync(sectionId);
+        if (existingLessons.Any(item => item.LessonId != lessonId && item.LessonOrder == updateDto.LessonOrder))
+        {
+            _logger.LogWarning("Duplicate lesson order {LessonOrder} in section {SectionId} while updating lesson {LessonId}", updateDto.LessonOrder, sectionId, lessonId);
+            return BadRequest(new { message = "Урок с таким порядковым номером уже существует в этой секции." });
         }
         
         lesson.Title = updateDto.Title;
