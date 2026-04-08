@@ -28,9 +28,8 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         var settings = DesktopSettingsLoader.Load();
-        var baseUrl = settings.ApiBaseUrl;
-        _apiBaseUrl = baseUrl;
-        var httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
+        _apiBaseUrl = settings.ApiBaseUrl;
+        var httpClient = new HttpClient { BaseAddress = new Uri(_apiBaseUrl) };
 
         var appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         var sessionFilePath = Path.Combine(appDataFolder, "OnlineCourses", "session.json");
@@ -74,6 +73,12 @@ public partial class MainWindow : Window
     private void NavigateToMyCourses()
     {
         MainFrame.Navigate(new MyCoursesPage(_enrollmentsClient, NavigateToCourseDetails));
+        UpdateHeader(loggedIn: true, canGoBack: true);
+    }
+
+    private void NavigateToManageCourses()
+    {
+        MainFrame.Navigate(new ManageCoursesPage(_coursesClient));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
@@ -124,6 +129,11 @@ public partial class MainWindow : Window
         await PerformLogoutAsync();
     }
 
+    private void ManageCoursesButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        NavigateToManageCourses();
+    }
+
     private void BackButton_OnClick(object sender, RoutedEventArgs e)
     {
         if (MainFrame.CanGoBack)
@@ -145,6 +155,9 @@ public partial class MainWindow : Window
         LogoutButton.Visibility = loggedIn ? Visibility.Visible : Visibility.Collapsed;
         BackButton.Visibility = canGoBack ? Visibility.Visible : Visibility.Collapsed;
         ProfileBadge.Visibility = loggedIn ? Visibility.Visible : Visibility.Collapsed;
+        ManageCoursesButton.Visibility = loggedIn && CanManageCourses()
+            ? Visibility.Visible
+            : Visibility.Collapsed;
     }
 
     private void MainFrame_OnNavigated(object? sender, System.Windows.Navigation.NavigationEventArgs e)
@@ -189,6 +202,7 @@ public partial class MainWindow : Window
         UserNameText.Text = "Загружаем профиль...";
         UserRoleText.Text = "Проверяем сессию";
         UserInitialsText.Text = "...";
+        ManageCoursesButton.Visibility = Visibility.Collapsed;
     }
 
     private void ClearProfileHeader()
@@ -200,6 +214,7 @@ public partial class MainWindow : Window
         UserAvatarImage.Source = null;
         UserAvatarImage.Visibility = Visibility.Collapsed;
         UserInitialsText.Visibility = Visibility.Visible;
+        ManageCoursesButton.Visibility = Visibility.Collapsed;
     }
 
     private void ApplyProfileHeader(CurrentUserDto user)
@@ -210,6 +225,7 @@ public partial class MainWindow : Window
         UserRoleText.Text = FormatRole(user.Role);
         UserInitialsText.Text = GetInitials(displayName);
         ApplyHeaderAvatar(user.AvatarUrl);
+        UpdateHeader(loggedIn: true, canGoBack: MainFrame.Content is not LoginPage && MainFrame.Content is not CoursesPage && MainFrame.CanGoBack);
     }
 
     private void OnProfileSaved(CurrentUserDto user)
@@ -241,6 +257,14 @@ public partial class MainWindow : Window
         }
 
         return new string(parts);
+    }
+
+    private bool CanManageCourses()
+    {
+        var role = _currentUser?.Role;
+        return role is not null &&
+               (role.Equals("teacher", StringComparison.OrdinalIgnoreCase) ||
+                role.Equals("admin", StringComparison.OrdinalIgnoreCase));
     }
 
     private void ApplyHeaderAvatar(string? avatarUrl)
