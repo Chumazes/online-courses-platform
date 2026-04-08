@@ -130,6 +130,13 @@ public class SectionsController : ControllerBase
             _logger.LogWarning("User {UserId} not authorized to create section in course {CourseId}", userId, courseId);
             return Forbid();
         }
+
+        var existingSections = await _sectionRepository.GetByCourseIdAsync(courseId);
+        if (existingSections.Any(item => item.SectionOrder == createDto.SectionOrder))
+        {
+            _logger.LogWarning("Duplicate section order {SectionOrder} in course {CourseId}", createDto.SectionOrder, courseId);
+            return BadRequest(new { message = "Секция с таким порядковым номером уже существует в этом курсе." });
+        }
         
         var section = new Section
         {
@@ -142,10 +149,22 @@ public class SectionsController : ControllerBase
         var created = await _sectionRepository.CreateAsync(section);
         
         _logger.LogInformation("Section created successfully: {SectionId} in course {CourseId}", created.SectionId, courseId);
-        
+
+        var response = new SectionResponseDto
+        {
+            SectionId = created.SectionId,
+            CourseId = created.CourseId,
+            CourseTitle = course.Title,
+            Title = created.Title,
+            Description = created.Description,
+            SectionOrder = created.SectionOrder,
+            LessonsCount = 0,
+            CreatedAt = created.CreatedAt
+        };
+
         return CreatedAtAction(nameof(GetSectionById), 
             new { courseId = courseId, sectionId = created.SectionId }, 
-            created);
+            response);
     }
     
     // PUT: api/courses/{courseId}/sections/{sectionId}
@@ -175,6 +194,13 @@ public class SectionsController : ControllerBase
         {
             _logger.LogWarning("User {UserId} not authorized to update section {SectionId}", userId, sectionId);
             return Forbid();
+        }
+
+        var existingSections = await _sectionRepository.GetByCourseIdAsync(courseId);
+        if (existingSections.Any(item => item.SectionId != sectionId && item.SectionOrder == updateDto.SectionOrder))
+        {
+            _logger.LogWarning("Duplicate section order {SectionOrder} in course {CourseId} while updating section {SectionId}", updateDto.SectionOrder, courseId, sectionId);
+            return BadRequest(new { message = "Секция с таким порядковым номером уже существует в этом курсе." });
         }
         
         section.Title = updateDto.Title;
