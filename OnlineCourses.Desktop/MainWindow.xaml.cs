@@ -95,7 +95,7 @@ public partial class MainWindow : Window
 
     private void NavigateToManageLessons(ManageSectionItemViewModel section)
     {
-        MainFrame.Navigate(new ManageLessonsPage(section, _lessonsClient));
+        MainFrame.Navigate(new ManageLessonsPage(section, _lessonsClient, _filesClient));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
