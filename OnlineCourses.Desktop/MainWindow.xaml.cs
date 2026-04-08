@@ -78,7 +78,18 @@ public partial class MainWindow : Window
 
     private void NavigateToManageCourses()
     {
-        MainFrame.Navigate(new ManageCoursesPage(_coursesClient));
+        if (MainFrame.Content is ManageCoursesPage or ManageSectionsPage)
+        {
+            return;
+        }
+
+        MainFrame.Navigate(new ManageCoursesPage(_coursesClient, NavigateToManageSections));
+        UpdateHeader(loggedIn: true, canGoBack: true);
+    }
+
+    private void NavigateToManageSections(ManageCourseItemViewModel course)
+    {
+        MainFrame.Navigate(new ManageSectionsPage(course, _sectionsClient));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
@@ -155,7 +166,7 @@ public partial class MainWindow : Window
         LogoutButton.Visibility = loggedIn ? Visibility.Visible : Visibility.Collapsed;
         BackButton.Visibility = canGoBack ? Visibility.Visible : Visibility.Collapsed;
         ProfileBadge.Visibility = loggedIn ? Visibility.Visible : Visibility.Collapsed;
-        ManageCoursesButton.Visibility = loggedIn && CanManageCourses()
+        ManageCoursesButton.Visibility = loggedIn && CanManageCourses() && !IsManagementPage()
             ? Visibility.Visible
             : Visibility.Collapsed;
     }
@@ -290,5 +301,10 @@ public partial class MainWindow : Window
             UserAvatarImage.Visibility = Visibility.Collapsed;
             UserInitialsText.Visibility = Visibility.Visible;
         }
+    }
+
+    private bool IsManagementPage()
+    {
+        return MainFrame.Content is ManageCoursesPage or ManageSectionsPage;
     }
 }

@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Net.Http;
 using System.Text.Json;
 using OnlineCourses.Client.Api;
@@ -8,45 +7,42 @@ using OnlineCourses.Models.DTOs;
 
 namespace OnlineCourses.Desktop.ViewModels;
 
-public sealed class ManageCoursesViewModel : ViewModelBase
+public sealed class ManageSectionsViewModel : ViewModelBase
 {
-    private readonly CoursesClient _coursesClient;
+    private readonly SectionsClient _sectionsClient;
     private readonly AsyncRelayCommand _saveCommand;
-    private ManageCourseItemViewModel? _selectedCourse;
+    private readonly int _courseId;
+    private ManageSectionItemViewModel? _selectedSection;
     private bool _isLoading;
     private bool _isSaving;
     private string _title = string.Empty;
     private string _description = string.Empty;
-    private string _level = "beginner";
-    private string _price = "0";
-    private string _status = "draft";
-    private string? _coverImageUrl;
+    private string _sectionOrder = "1";
     private string? _statusMessage;
     private string? _errorMessage;
 
-    public ManageCoursesViewModel(CoursesClient coursesClient)
+    public ManageSectionsViewModel(int courseId, string courseTitle, SectionsClient sectionsClient)
     {
-        _coursesClient = coursesClient;
+        _courseId = courseId;
+        CourseTitle = string.IsNullOrWhiteSpace(courseTitle) ? "Без названия" : courseTitle;
+        _sectionsClient = sectionsClient;
         _saveCommand = new AsyncRelayCommand(SaveAsync, CanSave);
-
-        Courses = new ObservableCollection<ManageCourseItemViewModel>();
-        Levels = new[] { "beginner", "intermediate", "advanced" };
-        Statuses = new[] { "draft", "published", "archived" };
+        Sections = new ObservableCollection<ManageSectionItemViewModel>();
     }
 
-    public ObservableCollection<ManageCourseItemViewModel> Courses { get; }
-    public IReadOnlyList<string> Levels { get; }
-    public IReadOnlyList<string> Statuses { get; }
+    public ObservableCollection<ManageSectionItemViewModel> Sections { get; }
 
-    public ManageCourseItemViewModel? SelectedCourse
+    public string CourseTitle { get; }
+
+    public ManageSectionItemViewModel? SelectedSection
     {
-        get => _selectedCourse;
+        get => _selectedSection;
         set
         {
-            if (SetProperty(ref _selectedCourse, value))
+            if (SetProperty(ref _selectedSection, value))
             {
                 ApplySelection(value);
-                RaisePropertyChanged(nameof(IsExistingCourse));
+                RaisePropertyChanged(nameof(IsExistingSection));
                 RaisePropertyChanged(nameof(EditorTitle));
                 RaisePropertyChanged(nameof(SaveButtonText));
                 _saveCommand.RaiseCanExecuteChanged();
@@ -80,16 +76,16 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         }
     }
 
-    public bool IsExistingCourse => SelectedCourse is not null;
+    public bool IsExistingSection => SelectedSection is not null;
 
     public bool ShowEmptyState =>
         !IsLoading &&
         string.IsNullOrWhiteSpace(ErrorMessage) &&
-        Courses.Count == 0;
+        Sections.Count == 0;
 
-    public string EditorTitle => IsExistingCourse ? "Редактирование курса" : "Новый курс";
+    public string EditorTitle => IsExistingSection ? "Редактирование секции" : "Новая секция";
 
-    public string SaveButtonText => IsSaving ? "Сохраняем..." : IsExistingCourse ? "Сохранить изменения" : "Создать курс";
+    public string SaveButtonText => IsSaving ? "Сохраняем..." : IsExistingSection ? "Сохранить изменения" : "Создать секцию";
 
     public string Title
     {
@@ -115,34 +111,16 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         }
     }
 
-    public string Level
+    public string SectionOrder
     {
-        get => _level;
-        set => SetProperty(ref _level, value);
-    }
-
-    public string Price
-    {
-        get => _price;
+        get => _sectionOrder;
         set
         {
-            if (SetProperty(ref _price, value))
+            if (SetProperty(ref _sectionOrder, value))
             {
                 _saveCommand.RaiseCanExecuteChanged();
             }
         }
-    }
-
-    public string Status
-    {
-        get => _status;
-        set => SetProperty(ref _status, value);
-    }
-
-    public string? CoverImageUrl
-    {
-        get => _coverImageUrl;
-        set => SetProperty(ref _coverImageUrl, value);
     }
 
     public string? StatusMessage
@@ -167,23 +145,23 @@ public sealed class ManageCoursesViewModel : ViewModelBase
 
     public async Task LoadAsync()
     {
-        var selectedCourseId = SelectedCourse?.CourseId;
+        var selectedSectionId = SelectedSection?.SectionId;
         IsLoading = true;
         ErrorMessage = null;
         StatusMessage = null;
-        Courses.Clear();
+        Sections.Clear();
 
         try
         {
-            var courses = await _coursesClient.GetMyAsync();
-            foreach (var course in courses.OrderByDescending(item => item.CreatedAt))
+            var sections = await _sectionsClient.GetByCourseIdAsync(_courseId);
+            foreach (var section in sections.OrderBy(item => item.SectionOrder))
             {
-                Courses.Add(MapCourse(course));
+                Sections.Add(MapSection(section));
             }
 
-            if (selectedCourseId is not null)
+            if (selectedSectionId is not null)
             {
-                SelectedCourse = Courses.FirstOrDefault(item => item.CourseId == selectedCourseId.Value);
+                SelectedSection = Sections.FirstOrDefault(item => item.SectionId == selectedSectionId.Value);
             }
         }
         catch (ApiException ex)
@@ -192,7 +170,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         }
         catch (HttpRequestException)
         {
-            ErrorMessage = "Не удалось загрузить курсы автора. Проверь, доступен ли API.";
+            ErrorMessage = "Не удалось загрузить секции курса. Проверь, доступен ли API.";
         }
         catch (Exception ex)
         {
@@ -206,16 +184,13 @@ public sealed class ManageCoursesViewModel : ViewModelBase
 
     public void StartCreating()
     {
-        SelectedCourse = null;
+        SelectedSection = null;
         Title = string.Empty;
         Description = string.Empty;
-        Level = Levels[0];
-        Price = "0";
-        Status = Statuses[0];
-        CoverImageUrl = string.Empty;
+        SectionOrder = GetNextSectionOrder().ToString();
         StatusMessage = null;
         ErrorMessage = null;
-        RaisePropertyChanged(nameof(IsExistingCourse));
+        RaisePropertyChanged(nameof(IsExistingSection));
         RaisePropertyChanged(nameof(EditorTitle));
         RaisePropertyChanged(nameof(SaveButtonText));
         _saveCommand.RaiseCanExecuteChanged();
@@ -223,7 +198,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
 
     public async Task DeleteSelectedAsync()
     {
-        if (SelectedCourse is null)
+        if (SelectedSection is null)
         {
             return;
         }
@@ -232,10 +207,10 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         {
             ErrorMessage = null;
             StatusMessage = null;
-            var deletedCourseId = SelectedCourse.CourseId;
+            var deletedSectionId = SelectedSection.SectionId;
 
-            await _coursesClient.DeleteAsync(deletedCourseId);
-            StatusMessage = "Курс удалён.";
+            await _sectionsClient.DeleteAsync(_courseId, deletedSectionId);
+            StatusMessage = "Секция удалена.";
             StartCreating();
             await LoadAsync();
         }
@@ -245,7 +220,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         }
         catch (HttpRequestException)
         {
-            ErrorMessage = "Не удалось удалить курс. Проверь, доступен ли API.";
+            ErrorMessage = "Не удалось удалить секцию. Проверь, доступен ли API.";
         }
         catch (Exception ex)
         {
@@ -253,28 +228,31 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         }
     }
 
-    private void ApplySelection(ManageCourseItemViewModel? course)
+    private void ApplySelection(ManageSectionItemViewModel? section)
     {
-        if (course is null)
+        if (section is null)
         {
             return;
         }
 
-        Title = course.Title;
-        Description = course.Description;
-        Level = course.Level;
-        Price = course.Price.ToString("0.##", CultureInfo.InvariantCulture);
-        Status = course.Status;
-        CoverImageUrl = course.CoverImageUrl;
+        Title = section.Title;
+        Description = section.Description;
+        SectionOrder = section.SectionOrder.ToString();
         StatusMessage = null;
         ErrorMessage = null;
     }
 
     private async Task SaveAsync()
     {
-        if (!TryParsePrice(out var parsedPrice))
+        if (!TryParseSectionOrder(out var parsedOrder))
         {
-            ErrorMessage = "Цена должна быть числом.";
+            ErrorMessage = "Порядок секции должен быть целым числом.";
+            return;
+        }
+
+        if (IsSectionOrderTaken(parsedOrder))
+        {
+            ErrorMessage = "Секция с таким порядковым номером уже существует. Выбери другой номер.";
             return;
         }
 
@@ -284,37 +262,32 @@ public sealed class ManageCoursesViewModel : ViewModelBase
 
         try
         {
-            if (SelectedCourse is null)
+            if (SelectedSection is null)
             {
-                var created = await _coursesClient.CreateAsync(new CreateCourseDto
+                var created = await _sectionsClient.CreateAsync(_courseId, new CreateSectionDto
                 {
                     Title = Title.Trim(),
-                    Description = Description.Trim(),
-                    Price = parsedPrice,
-                    Level = Level,
-                    CoverImageUrl = string.IsNullOrWhiteSpace(CoverImageUrl) ? null : CoverImageUrl.Trim()
+                    Description = string.IsNullOrWhiteSpace(Description) ? null : Description.Trim(),
+                    SectionOrder = parsedOrder
                 });
 
                 await LoadAsync();
-                SelectedCourse = Courses.FirstOrDefault(item => item.CourseId == created.CourseId);
-                StatusMessage = "Курс создан.";
+                SelectedSection = Sections.FirstOrDefault(item => item.SectionId == created.SectionId);
+                StatusMessage = "Секция создана.";
             }
             else
             {
-                var courseId = SelectedCourse.CourseId;
-                await _coursesClient.UpdateAsync(SelectedCourse.CourseId, new UpdateCourseDto
+                var sectionId = SelectedSection.SectionId;
+                await _sectionsClient.UpdateAsync(_courseId, sectionId, new UpdateSectionDto
                 {
                     Title = Title.Trim(),
-                    Description = Description.Trim(),
-                    Price = parsedPrice,
-                    Level = Level,
-                    Status = Status,
-                    CoverImageUrl = string.IsNullOrWhiteSpace(CoverImageUrl) ? null : CoverImageUrl.Trim()
+                    Description = string.IsNullOrWhiteSpace(Description) ? null : Description.Trim(),
+                    SectionOrder = parsedOrder
                 });
 
                 await LoadAsync();
-                SelectedCourse = Courses.FirstOrDefault(item => item.CourseId == courseId);
-                StatusMessage = "Курс обновлён.";
+                SelectedSection = Sections.FirstOrDefault(item => item.SectionId == sectionId);
+                StatusMessage = "Секция обновлена.";
             }
         }
         catch (ApiException ex)
@@ -323,7 +296,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         }
         catch (HttpRequestException)
         {
-            ErrorMessage = "Не удалось сохранить курс. Проверь, доступен ли API.";
+            ErrorMessage = "Не удалось сохранить секцию. Проверь, доступен ли API.";
         }
         catch (Exception ex)
         {
@@ -340,28 +313,36 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         return !IsLoading &&
                !IsSaving &&
                !string.IsNullOrWhiteSpace(Title) &&
-               !string.IsNullOrWhiteSpace(Description) &&
-               TryParsePrice(out _);
+               TryParseSectionOrder(out _);
     }
 
-    private bool TryParsePrice(out decimal parsedPrice)
+    private bool TryParseSectionOrder(out int parsedOrder)
     {
-        var raw = Price.Replace(',', '.');
-        return decimal.TryParse(raw, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out parsedPrice);
+        return int.TryParse(SectionOrder, out parsedOrder) && parsedOrder > 0;
     }
 
-    private static ManageCourseItemViewModel MapCourse(CourseResponseDto course) =>
+    private int GetNextSectionOrder()
+    {
+        return Sections.Count == 0 ? 1 : Sections.Max(item => item.SectionOrder) + 1;
+    }
+
+    private bool IsSectionOrderTaken(int parsedOrder)
+    {
+        return Sections.Any(item =>
+            item.SectionOrder == parsedOrder &&
+            item.SectionId != SelectedSection?.SectionId);
+    }
+
+    private static ManageSectionItemViewModel MapSection(SectionResponseDto section) =>
         new()
         {
-            CourseId = course.CourseId,
-            Title = course.Title,
-            Description = course.Description,
-            Level = course.Level,
-            Price = course.Price,
-            Status = string.IsNullOrWhiteSpace(course.Status) ? "draft" : course.Status,
-            CoverImageUrl = course.CoverImageUrl,
-            CreatedAt = course.CreatedAt,
-            TotalStudents = course.TotalStudents
+            SectionId = section.SectionId,
+            CourseId = section.CourseId,
+            Title = section.Title,
+            Description = section.Description ?? string.Empty,
+            SectionOrder = section.SectionOrder,
+            LessonsCount = section.LessonsCount,
+            CreatedAt = section.CreatedAt
         };
 
     private static string ExtractApiErrorMessage(ApiException ex)

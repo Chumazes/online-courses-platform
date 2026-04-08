@@ -1,18 +1,18 @@
-<Page x:Class="OnlineCourses.Desktop.Pages.ManageCoursesPage"
+<Page x:Class="OnlineCourses.Desktop.Pages.ManageSectionsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
-      Title="ManageCoursesPage">
+      Title="ManageSectionsPage">
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Page.Resources>
 
     <Grid Margin="20">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1.1*" />
-            <ColumnDefinition Width="1.3*" />
+            <ColumnDefinition Width="1.05*" />
+            <ColumnDefinition Width="1.2*" />
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0"
@@ -25,17 +25,22 @@
 
             <DockPanel Grid.Row="0"
                        LastChildFill="False">
-                <TextBlock DockPanel.Dock="Left"
-                           FontSize="26"
-                           FontWeight="SemiBold"
-                           Text="Управление курсами" />
+                <StackPanel DockPanel.Dock="Left">
+                    <TextBlock FontSize="26"
+                               FontWeight="SemiBold"
+                               Text="Секции курса" />
+                    <TextBlock Margin="0,6,0,0"
+                               Foreground="#4B5563"
+                               Text="{Binding CourseTitle}" />
+                </StackPanel>
+
                 <Button DockPanel.Dock="Right"
                         Width="150"
                         Height="38"
                         Background="#111827"
                         Foreground="White"
-                        Click="CreateCourseButton_OnClick"
-                        Content="Новый курс" />
+                        Click="CreateSectionButton_OnClick"
+                        Content="Новая секция" />
             </DockPanel>
 
             <TextBlock Grid.Row="1"
@@ -46,9 +51,9 @@
 
             <Grid Grid.Row="2"
                   Margin="0,16,0,0">
-                <ListBox x:Name="CoursesList"
-                         ItemsSource="{Binding Courses}"
-                         SelectedItem="{Binding SelectedCourse}">
+                <ListBox x:Name="SectionsList"
+                         ItemsSource="{Binding Sections}"
+                         SelectedItem="{Binding SelectedSection}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Border Padding="14"
@@ -68,7 +73,7 @@
                                                 Background="#EFF6FF"
                                                 CornerRadius="12">
                                             <TextBlock Foreground="#1D4ED8"
-                                                       Text="{Binding StatusText}" />
+                                                       Text="{Binding OrderText}" />
                                         </Border>
                                     </DockPanel>
 
@@ -96,7 +101,7 @@
                                VerticalAlignment="Center"
                                FontSize="16"
                                Foreground="#4B5563"
-                               Text="У вас пока нет авторских курсов."
+                               Text="У этого курса пока нет секций."
                                TextAlignment="Center"
                                TextWrapping="Wrap" />
                 </Border>
@@ -111,7 +116,7 @@
                                VerticalAlignment="Center"
                                FontSize="16"
                                Foreground="#4B5563"
-                               Text="Загружаем ваши курсы..."
+                               Text="Загружаем секции..."
                                TextAlignment="Center"
                                TextWrapping="Wrap" />
                 </Border>
@@ -142,7 +147,7 @@
 
                     <TextBlock Margin="0,20,0,0"
                                FontWeight="SemiBold"
-                               Text="Название" />
+                               Text="Название секции" />
                     <TextBox Margin="0,8,0,0"
                              Padding="12,8"
                              Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
@@ -158,54 +163,12 @@
                              TextWrapping="Wrap"
                              VerticalScrollBarVisibility="Auto" />
 
-                    <Grid Margin="0,18,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0"
-                                    Margin="0,0,10,0">
-                            <TextBlock FontWeight="SemiBold"
-                                       Text="Уровень" />
-                            <ComboBox Margin="0,8,0,0"
-                                      ItemsSource="{Binding Levels}"
-                                      SelectedItem="{Binding Level}" />
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1"
-                                    Margin="10,0,0,0">
-                            <TextBlock FontWeight="SemiBold"
-                                       Text="Цена" />
-                            <TextBox Margin="0,8,0,0"
-                                     Padding="12,8"
-                                     Text="{Binding Price, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                    </Grid>
-
                     <TextBlock Margin="0,18,0,0"
                                FontWeight="SemiBold"
-                               Text="Статус" />
-                    <ComboBox Margin="0,8,0,0"
-                              ItemsSource="{Binding Statuses}"
-                              SelectedItem="{Binding Status}" />
-
-                    <TextBlock Margin="0,18,0,0"
-                               FontWeight="SemiBold"
-                               Text="Cover Image URL" />
+                               Text="Порядок в курсе" />
                     <TextBox Margin="0,8,0,0"
                              Padding="12,8"
-                             Text="{Binding CoverImageUrl, UpdateSourceTrigger=PropertyChanged}" />
-
-                    <Button Width="170"
-                            Height="40"
-                            Margin="0,18,0,0"
-                            HorizontalAlignment="Left"
-                            Background="#E5E7EB"
-                            BorderBrush="#D1D5DB"
-                            Click="ManageSectionsButton_OnClick"
-                            Content="Секции курса"
-                            IsEnabled="{Binding IsExistingCourse}" />
+                             Text="{Binding SectionOrder, UpdateSourceTrigger=PropertyChanged}" />
 
                     <DockPanel Margin="0,24,0,0"
                                LastChildFill="False">
@@ -222,9 +185,9 @@
                                 Background="#FEE2E2"
                                 BorderBrush="#FCA5A5"
                                 Foreground="#B91C1C"
-                                Click="DeleteCourseButton_OnClick"
-                                Content="Удалить курс"
-                                IsEnabled="{Binding IsExistingCourse}" />
+                                Click="DeleteSectionButton_OnClick"
+                                Content="Удалить секцию"
+                                IsEnabled="{Binding IsExistingSection}" />
                     </DockPanel>
                 </StackPanel>
             </ScrollViewer>

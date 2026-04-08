@@ -8,10 +8,12 @@ namespace OnlineCourses.Desktop.Pages;
 public partial class ManageCoursesPage : Page
 {
     private readonly ManageCoursesViewModel _viewModel;
+    private readonly Action<ManageCourseItemViewModel> _openSections;
 
-    public ManageCoursesPage(CoursesClient coursesClient)
+    public ManageCoursesPage(CoursesClient coursesClient, Action<ManageCourseItemViewModel> openSections)
     {
         InitializeComponent();
+        _openSections = openSections;
         _viewModel = new ManageCoursesViewModel(coursesClient);
         DataContext = _viewModel;
         Loaded += Page_Loaded;
@@ -26,6 +28,21 @@ public partial class ManageCoursesPage : Page
     private void CreateCourseButton_OnClick(object sender, RoutedEventArgs e)
     {
         _viewModel.StartCreating();
+    }
+
+    private void ManageSectionsButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_viewModel.SelectedCourse is null)
+        {
+            MessageBox.Show(
+                "Сначала выбери курс, для которого нужно открыть секции.",
+                "Курс не выбран",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        _openSections(_viewModel.SelectedCourse);
     }
 
     private async void DeleteCourseButton_OnClick(object sender, RoutedEventArgs e)
