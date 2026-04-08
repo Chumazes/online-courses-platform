@@ -117,14 +117,28 @@ public class FilesController : ControllerBase
             return BadRequest(new { message = $"Invalid file. Allowed: {string.Join(", ", allowedExtensions)}, Max size: {maxSizeMB}MB" });
         }
         
+        if (!string.IsNullOrWhiteSpace(lesson.FileUrl))
+        {
+            await _fileService.DeleteFileAsync(lesson.FileUrl);
+        }
+
         var filePath = await _fileService.SaveFileAsync(file, "lesson-files");
-        
+        var fileType = GetMimeType(file.FileName);
+
+        lesson.FileName = file.FileName;
+        lesson.FileUrl = filePath;
+        lesson.FileType = fileType;
+        lesson.FileSize = file.Length;
+
+        await _lessonRepository.UpdateAsync(lesson);
+
         _logger.LogInformation("File uploaded successfully to lesson {LessonId} by user {UserId}. Path: {FilePath}", 
             lessonId, userId, filePath);
-        
+
         return Ok(new { 
             fileUrl = filePath, 
             fileName = file.FileName, 
+            fileType = fileType,
             fileSize = file.Length, 
             message = "File uploaded successfully" 
         });

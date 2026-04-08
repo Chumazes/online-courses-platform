@@ -8,6 +8,10 @@ public class Lesson
     public string? Content { get; set; }
     public string LessonType { get; set; } = "video";
     public string? VideoUrl { get; set; }
+    public string? FileName { get; set; }
+    public string? FileUrl { get; set; }
+    public string? FileType { get; set; }
+    public long? FileSize { get; set; }
     public int? DurationMinutes { get; set; }
     public int LessonOrder { get; set; }
     public bool IsFree { get; set; } = false;
