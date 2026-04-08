@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Windows.Input;
+using System.Windows.Media;
 using OnlineCourses.Client.Api;
 using OnlineCourses.Client.Models;
 using OnlineCourses.Desktop.Infrastructure;
@@ -19,7 +20,7 @@ public sealed class ProfileViewModel : ViewModelBase
     private string _role;
     private string _bio;
     private string _initials;
-    private string? _avatarDisplayUrl;
+    private ImageSource? _avatarImageSource;
     private bool _isSaving;
     private string? _statusMessage;
     private string? _errorMessage;
@@ -78,19 +79,19 @@ public sealed class ProfileViewModel : ViewModelBase
         private set => SetProperty(ref _initials, value);
     }
 
-    public string? AvatarDisplayUrl
+    public ImageSource? AvatarImageSource
     {
-        get => _avatarDisplayUrl;
+        get => _avatarImageSource;
         private set
         {
-            if (SetProperty(ref _avatarDisplayUrl, value))
+            if (SetProperty(ref _avatarImageSource, value))
             {
                 RaisePropertyChanged(nameof(HasAvatar));
             }
         }
     }
 
-    public bool HasAvatar => !string.IsNullOrWhiteSpace(AvatarDisplayUrl);
+    public bool HasAvatar => AvatarImageSource is not null;
 
     public bool IsSaving
     {
@@ -133,7 +134,7 @@ public sealed class ProfileViewModel : ViewModelBase
             var updatedUser = await _authClient.GetCurrentUserAsync();
             ApplyUser(updatedUser);
             _onProfileSaved(updatedUser);
-            StatusMessage = "Аватар обновлён.";
+            StatusMessage = "Аватар обновлен.";
         }
         catch (ApiException ex)
         {
@@ -168,7 +169,7 @@ public sealed class ProfileViewModel : ViewModelBase
 
             ApplyUser(updatedUser);
             _onProfileSaved(updatedUser);
-            StatusMessage = "Профиль сохранён.";
+            StatusMessage = "Профиль сохранен.";
         }
         catch (ApiException ex)
         {
@@ -195,7 +196,7 @@ public sealed class ProfileViewModel : ViewModelBase
         Role = FormatRole(user.Role);
         Bio = user.Bio ?? string.Empty;
         Initials = GetInitials(FullName);
-        AvatarDisplayUrl = _filesClient.BuildDownloadUrl(user.AvatarUrl);
+        AvatarImageSource = ImageSourceFactory.Create(_filesClient.BuildDownloadUrl(user.AvatarUrl));
     }
 
     private static string FormatRole(string role) =>

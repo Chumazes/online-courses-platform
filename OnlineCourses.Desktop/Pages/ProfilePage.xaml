@@ -28,7 +28,7 @@
                                 Background="#2563EB"
                                 CornerRadius="39">
                             <Grid ClipToBounds="True">
-                                <Image Source="{Binding AvatarDisplayUrl}"
+                                <Image Source="{Binding AvatarImageSource}"
                                        Stretch="UniformToFill"
                                        Visibility="{Binding HasAvatar, Converter={StaticResource BoolToVisibilityConverter}}" />
                                 <TextBlock VerticalAlignment="Center"
