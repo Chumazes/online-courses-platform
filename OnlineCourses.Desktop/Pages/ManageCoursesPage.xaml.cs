@@ -9,14 +9,21 @@ public partial class ManageCoursesPage : Page
 {
     private readonly ManageCoursesViewModel _viewModel;
     private readonly Action<ManageCourseItemViewModel> _openSections;
+    private readonly Action<ManageCourseItemViewModel> _openReviews;
 
-    public ManageCoursesPage(CoursesClient coursesClient, Action<ManageCourseItemViewModel> openSections)
+    public ManageCoursesPage(
+        CoursesClient coursesClient,
+        Action<ManageCourseItemViewModel> openSections,
+        Action<ManageCourseItemViewModel> openReviews,
+        bool canModerateReviews)
     {
         InitializeComponent();
         _openSections = openSections;
-        _viewModel = new ManageCoursesViewModel(coursesClient);
+        _openReviews = openReviews;
+        _viewModel = new ManageCoursesViewModel(coursesClient, canModerateReviews);
         DataContext = _viewModel;
         Loaded += Page_Loaded;
+        ManageReviewsButton.Visibility = canModerateReviews ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private async void Page_Loaded(object sender, RoutedEventArgs e)
@@ -42,6 +49,21 @@ public partial class ManageCoursesPage : Page
         }
 
         _openSections(_viewModel.SelectedCourse);
+    }
+
+    private void ManageReviewsButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_viewModel.SelectedCourse is null)
+        {
+            MessageBox.Show(
+                "Сначала выбери курс, для которого нужно открыть отзывы.",
+                "Курс не выбран",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        _openReviews(_viewModel.SelectedCourse);
     }
 
     private async void DeleteCourseButton_OnClick(object sender, RoutedEventArgs e)

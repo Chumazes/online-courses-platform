@@ -16,6 +16,7 @@ public sealed class CourseDetailsViewModel : ViewModelBase
     private readonly SectionsClient _sectionsClient;
     private readonly LessonsClient _lessonsClient;
     private readonly ReviewsClient _reviewsClient;
+    private readonly FilesClient _filesClient;
     private readonly AsyncRelayCommand _enrollCommand;
     private readonly AsyncRelayCommand _saveReviewCommand;
     private readonly AsyncRelayCommand _deleteReviewCommand;
@@ -54,7 +55,8 @@ public sealed class CourseDetailsViewModel : ViewModelBase
         ProgressClient progressClient,
         SectionsClient sectionsClient,
         LessonsClient lessonsClient,
-        ReviewsClient reviewsClient)
+        ReviewsClient reviewsClient,
+        FilesClient filesClient)
     {
         _courseId = course.Id;
         _coursesClient = coursesClient;
@@ -63,6 +65,7 @@ public sealed class CourseDetailsViewModel : ViewModelBase
         _sectionsClient = sectionsClient;
         _lessonsClient = lessonsClient;
         _reviewsClient = reviewsClient;
+        _filesClient = filesClient;
         _title = course.Title;
         _description = course.Description;
         _level = course.Level;
@@ -536,7 +539,8 @@ public sealed class CourseDetailsViewModel : ViewModelBase
                     Rating = review.Rating,
                     Comment = review.Comment,
                     ReviewDate = review.ReviewDate,
-                    IsApproved = review.IsApproved
+                    IsApproved = review.IsApproved,
+                    AvatarSource = ImageSourceFactory.Create(_filesClient.BuildDownloadUrl(review.UserAvatar))
                 });
             }
 

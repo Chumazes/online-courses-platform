@@ -33,7 +33,7 @@
                                    Text="Управление курсами" />
                         <TextBlock Margin="0,8,0,0"
                                    Foreground="#E7D8F7"
-                                   Text="Авторская панель Low-Level to Top" />
+                                   Text="{Binding HeaderSubtitle}" />
                     </StackPanel>
                     <Button DockPanel.Dock="Right"
                             Width="170"
@@ -89,7 +89,8 @@
                                             Background="#220A2C"
                                             CornerRadius="18">
                                         <TextBlock Foreground="#E7D8F7"
-                                                   Text="{Binding MetaText}" />
+                                                   Text="{Binding MetaText}"
+                                                   TextWrapping="Wrap" />
                                     </Border>
                                 </StackPanel>
                             </Border>
@@ -107,7 +108,7 @@
                                VerticalAlignment="Center"
                                FontSize="18"
                                Foreground="{StaticResource LltInkSoftBrush}"
-                               Text="У вас пока нет авторских курсов."
+                               Text="{Binding EmptyStateText}"
                                TextAlignment="Center"
                                TextWrapping="Wrap" />
                 </Border>
@@ -122,7 +123,7 @@
                                VerticalAlignment="Center"
                                FontSize="18"
                                Foreground="{StaticResource LltInkSoftBrush}"
-                               Text="Загружаем ваши курсы..."
+                               Text="{Binding LoadingText}"
                                TextAlignment="Center"
                                TextWrapping="Wrap" />
                 </Border>
@@ -214,6 +215,16 @@
                             Click="ManageSectionsButton_OnClick"
                             Content="Секции курса"
                             IsEnabled="{Binding IsExistingCourse}" />
+
+                    <Button x:Name="ManageReviewsButton"
+                            Width="190"
+                            Margin="0,12,0,0"
+                            HorizontalAlignment="Left"
+                            Style="{StaticResource LltLightButtonStyle}"
+                            Click="ManageReviewsButton_OnClick"
+                            Content="Отзывы курса"
+                            IsEnabled="{Binding IsExistingCourse}"
+                            Visibility="Collapsed" />
 
                     <DockPanel Margin="0,24,0,0"
                                LastChildFill="False">

@@ -418,17 +418,29 @@
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
 
-                                        <Border Width="48"
-                                                Height="48"
-                                                Margin="0,0,14,0"
-                                                Background="#6F4B96"
-                                                CornerRadius="24">
-                                            <TextBlock VerticalAlignment="Center"
+                                        <Grid Width="48"
+                                              Height="48"
+                                              Margin="0,0,14,0">
+                                            <Border Background="#6F4B96"
+                                                    CornerRadius="24" />
+                                            <Image x:Name="ReviewAvatarImage"
+                                                   Source="{Binding AvatarSource}"
+                                                   Stretch="UniformToFill"
+                                                   Visibility="{Binding HasAvatar, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <Image.Clip>
+                                                    <EllipseGeometry Center="24,24"
+                                                                     RadiusX="24"
+                                                                     RadiusY="24" />
+                                                </Image.Clip>
+                                            </Image>
+                                            <TextBlock x:Name="ReviewAvatarInitials"
+                                                       VerticalAlignment="Center"
                                                        HorizontalAlignment="Center"
                                                        FontWeight="SemiBold"
                                                        Foreground="{StaticResource LltLightTextBrush}"
-                                                       Text="{Binding Initials}" />
-                                        </Border>
+                                                       Text="{Binding Initials}"
+                                                       Visibility="{Binding ShowInitials, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                        </Grid>
 
                                         <StackPanel Grid.Column="1">
                                             <DockPanel LastChildFill="False">

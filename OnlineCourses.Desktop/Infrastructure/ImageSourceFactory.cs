@@ -19,18 +19,27 @@ public static class ImageSourceFactory
 
         try
         {
-            var image = new BitmapImage();
-            image.BeginInit();
-            image.UriSource = uri;
-            image.CacheOption = BitmapCacheOption.OnLoad;
-            image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-            image.EndInit();
+            var image = new BitmapImage(uri);
             image.Freeze();
             return image;
         }
         catch
         {
-            return null;
+            try
+            {
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.UriSource = uri;
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                image.EndInit();
+                image.Freeze();
+                return image;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

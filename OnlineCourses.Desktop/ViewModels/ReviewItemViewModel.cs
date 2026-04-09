@@ -1,3 +1,5 @@
+using System.Windows.Media;
+
 namespace OnlineCourses.Desktop.ViewModels;
 
 public sealed class ReviewItemViewModel
@@ -9,6 +11,11 @@ public sealed class ReviewItemViewModel
     public string? Comment { get; init; }
     public DateTime ReviewDate { get; init; }
     public bool IsApproved { get; init; }
+    public ImageSource? AvatarSource { get; init; }
+
+    public bool HasAvatar => AvatarSource is not null;
+
+    public bool ShowInitials => AvatarSource is null;
 
     public string Initials
     {
@@ -26,6 +33,10 @@ public sealed class ReviewItemViewModel
     }
 
     public string RatingText => new string('★', Rating) + new string('☆', Math.Max(0, 5 - Rating));
+
+    public string RatingValueText => $"{Rating}/5";
+
+    public string ApprovalStateText => IsApproved ? "Опубликован" : "На модерации";
 
     public string ReviewDateText => ReviewDate == default ? "Без даты" : ReviewDate.ToLocalTime().ToString("dd.MM.yyyy");
 

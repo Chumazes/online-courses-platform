@@ -18,6 +18,7 @@ public partial class CourseDetailsPage : Page
         SectionsClient sectionsClient,
         LessonsClient lessonsClient,
         ReviewsClient reviewsClient,
+        FilesClient filesClient,
         Action<CourseLessonViewModel> openLesson)
     {
         InitializeComponent();
@@ -28,7 +29,8 @@ public partial class CourseDetailsPage : Page
             progressClient,
             sectionsClient,
             lessonsClient,
-            reviewsClient);
+            reviewsClient,
+            filesClient);
         _openLesson = openLesson;
         DataContext = _viewModel;
         Loaded += Page_Loaded;

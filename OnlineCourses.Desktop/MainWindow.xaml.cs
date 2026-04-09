@@ -80,12 +80,16 @@ public partial class MainWindow : Window
 
     private void NavigateToManageCourses()
     {
-        if (MainFrame.Content is ManageCoursesPage or ManageSectionsPage)
+        if (MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageCourseReviewsPage)
         {
             return;
         }
 
-        MainFrame.Navigate(new ManageCoursesPage(_coursesClient, NavigateToManageSections));
+        MainFrame.Navigate(new ManageCoursesPage(
+            _coursesClient,
+            NavigateToManageSections,
+            NavigateToManageCourseReviews,
+            CanModerateReviews()));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
@@ -101,6 +105,12 @@ public partial class MainWindow : Window
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
+    private void NavigateToManageCourseReviews(ManageCourseItemViewModel course)
+    {
+        MainFrame.Navigate(new ManageCourseReviewsPage(course, _reviewsClient, CanModerateReviews()));
+        UpdateHeader(loggedIn: true, canGoBack: true);
+    }
+
     private void NavigateToCourseDetails(CourseCardViewModel course)
     {
         MainFrame.Navigate(new CourseDetailsPage(
@@ -111,6 +121,7 @@ public partial class MainWindow : Window
             _sectionsClient,
             _lessonsClient,
             _reviewsClient,
+            _filesClient,
             NavigateToLessonDetails));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
@@ -287,6 +298,13 @@ public partial class MainWindow : Window
                 role.Equals("admin", StringComparison.OrdinalIgnoreCase));
     }
 
+    private bool CanModerateReviews()
+    {
+        var role = _currentUser?.Role;
+        return role is not null &&
+               role.Equals("admin", StringComparison.OrdinalIgnoreCase);
+    }
+
     private void ApplyHeaderAvatar(string? avatarUrl)
     {
         var avatarSource = _filesClient.BuildDownloadUrl(avatarUrl);
@@ -314,6 +332,6 @@ public partial class MainWindow : Window
 
     private bool IsManagementPage()
     {
-        return MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageLessonsPage;
+        return MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageLessonsPage or ManageCourseReviewsPage;
     }
 }

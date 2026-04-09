@@ -11,6 +11,7 @@ namespace OnlineCourses.Desktop.ViewModels;
 public sealed class ManageCoursesViewModel : ViewModelBase
 {
     private readonly CoursesClient _coursesClient;
+    private readonly bool _showAllCourses;
     private readonly AsyncRelayCommand _saveCommand;
     private ManageCourseItemViewModel? _selectedCourse;
     private bool _isLoading;
@@ -24,9 +25,10 @@ public sealed class ManageCoursesViewModel : ViewModelBase
     private string? _statusMessage;
     private string? _errorMessage;
 
-    public ManageCoursesViewModel(CoursesClient coursesClient)
+    public ManageCoursesViewModel(CoursesClient coursesClient, bool showAllCourses)
     {
         _coursesClient = coursesClient;
+        _showAllCourses = showAllCourses;
         _saveCommand = new AsyncRelayCommand(SaveAsync, CanSave);
 
         Courses = new ObservableCollection<ManageCourseItemViewModel>();
@@ -86,6 +88,21 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         !IsLoading &&
         string.IsNullOrWhiteSpace(ErrorMessage) &&
         Courses.Count == 0;
+
+    public string EmptyStateText =>
+        _showAllCourses
+            ? "В системе пока нет курсов."
+            : "У вас пока нет авторских курсов.";
+
+    public string LoadingText =>
+        _showAllCourses
+            ? "Загружаем все курсы..."
+            : "Загружаем ваши курсы...";
+
+    public string HeaderSubtitle =>
+        _showAllCourses
+            ? "Администратор видит курсы всех преподавателей"
+            : "Авторская панель Low-Level to Top";
 
     public string EditorTitle => IsExistingCourse ? "Редактирование курса" : "Новый курс";
 
@@ -175,7 +192,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
 
         try
         {
-            var courses = await _coursesClient.GetMyAsync();
+            var courses = await LoadCoursesAsync();
             foreach (var course in courses.OrderByDescending(item => item.CreatedAt))
             {
                 Courses.Add(MapCourse(course));
@@ -192,7 +209,9 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         }
         catch (HttpRequestException)
         {
-            ErrorMessage = "Не удалось загрузить курсы автора. Проверь, доступен ли API.";
+            ErrorMessage = _showAllCourses
+                ? "Не удалось загрузить список всех курсов. Проверь, доступен ли API."
+                : "Не удалось загрузить курсы автора. Проверь, доступен ли API.";
         }
         catch (Exception ex)
         {
@@ -335,6 +354,39 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         }
     }
 
+    private async Task<IReadOnlyList<CourseResponseDto>> LoadCoursesAsync()
+    {
+        if (!_showAllCourses)
+        {
+            return await _coursesClient.GetMyAsync();
+        }
+
+        var pageNumber = 1;
+        var courses = new List<CourseResponseDto>();
+
+        while (true)
+        {
+            var page = await _coursesClient.GetAllAsync(
+                pageNumber: pageNumber,
+                pageSize: 100,
+                all: true);
+
+            if (page.Items is { Count: > 0 })
+            {
+                courses.AddRange(page.Items);
+            }
+
+            if (page.TotalPages <= pageNumber || page.Items.Count == 0)
+            {
+                break;
+            }
+
+            pageNumber++;
+        }
+
+        return courses;
+    }
+
     private bool CanSave()
     {
         return !IsLoading &&
@@ -356,6 +408,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
             CourseId = course.CourseId,
             Title = course.Title,
             Description = course.Description,
+            AuthorName = course.AuthorName,
             Level = course.Level,
             Price = course.Price,
             Status = string.IsNullOrWhiteSpace(course.Status) ? "draft" : course.Status,
