@@ -22,6 +22,19 @@ public sealed class SectionsClient : ApiClientBase
         return await SendAsync<List<SectionResponseDto>>(request, cancellationToken);
     }
 
+    public async Task<SectionResponseDto> GetByIdAsync(
+        int courseId,
+        int sectionId,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateRequestAsync(
+            HttpMethod.Get,
+            $"api/courses/{courseId}/sections/{sectionId}",
+            cancellationToken: cancellationToken);
+
+        return await SendAsync<SectionResponseDto>(request, cancellationToken);
+    }
+
     public async Task<SectionResponseDto> CreateAsync(
         int courseId,
         CreateSectionDto dto,

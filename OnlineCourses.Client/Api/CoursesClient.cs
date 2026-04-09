@@ -90,4 +90,15 @@ public sealed class CoursesClient : ApiClientBase
 
         await SendAsync(request, cancellationToken);
     }
+
+    public async Task<IReadOnlyList<CourseCategoryDto>> GetCategoriesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateRequestAsync(
+            HttpMethod.Get,
+            "api/courses/categories",
+            cancellationToken: cancellationToken);
+
+        return await SendAsync<List<CourseCategoryDto>>(request, cancellationToken);
+    }
 }

@@ -49,4 +49,16 @@ public sealed class ProgressClient : ApiClientBase
 
         await SendAsync(request, cancellationToken);
     }
+
+    public async Task<IReadOnlyList<CourseProgressResponseDto>> GetMyAsync(
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateRequestAsync(
+            HttpMethod.Get,
+            "api/progress/my",
+            withBearerToken: true,
+            cancellationToken: cancellationToken);
+
+        return await SendAsync<List<CourseProgressResponseDto>>(request, cancellationToken);
+    }
 }

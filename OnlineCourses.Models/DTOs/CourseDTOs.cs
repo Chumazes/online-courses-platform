@@ -38,3 +38,10 @@ public class CourseResponseDto
     public DateTime CreatedAt { get; set; }
     public int TotalStudents { get; set; }
 }
+
+public class CourseCategoryDto
+{
+    public int CategoryId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public int? ParentCategoryId { get; set; }
+}
