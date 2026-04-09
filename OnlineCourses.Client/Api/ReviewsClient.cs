@@ -12,12 +12,24 @@ public sealed class ReviewsClient : ApiClientBase
 
     public async Task<IReadOnlyList<ReviewResponseDto>> GetCourseReviewsAsync(
         int courseId,
-        bool all = false,
         CancellationToken cancellationToken = default)
     {
         using var request = await CreateRequestAsync(
             HttpMethod.Get,
-            $"api/reviews/course/{courseId}?all={all.ToString().ToLowerInvariant()}",
+            $"api/reviews/course/{courseId}",
+            cancellationToken: cancellationToken);
+
+        return await SendAsync<List<ReviewResponseDto>>(request, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<ReviewResponseDto>> GetCourseReviewsForModerationAsync(
+        int courseId,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateRequestAsync(
+            HttpMethod.Get,
+            $"api/reviews/course/{courseId}/moderation",
+            withBearerToken: true,
             cancellationToken: cancellationToken);
 
         return await SendAsync<List<ReviewResponseDto>>(request, cancellationToken);
