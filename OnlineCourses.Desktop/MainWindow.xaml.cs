@@ -19,6 +19,7 @@ public partial class MainWindow : Window
     private readonly ProgressClient _progressClient;
     private readonly SectionsClient _sectionsClient;
     private readonly LessonsClient _lessonsClient;
+    private readonly ReviewsClient _reviewsClient;
     private readonly FilesClient _filesClient;
     private readonly string _apiBaseUrl;
     private CurrentUserDto? _currentUser;
@@ -41,6 +42,7 @@ public partial class MainWindow : Window
         _progressClient = new ProgressClient(httpClient, tokenStore);
         _sectionsClient = new SectionsClient(httpClient, tokenStore);
         _lessonsClient = new LessonsClient(httpClient, tokenStore);
+        _reviewsClient = new ReviewsClient(httpClient, tokenStore);
         _filesClient = new FilesClient(httpClient, tokenStore);
         MainFrame.Navigated += MainFrame_OnNavigated;
 
@@ -108,6 +110,7 @@ public partial class MainWindow : Window
             _progressClient,
             _sectionsClient,
             _lessonsClient,
+            _reviewsClient,
             NavigateToLessonDetails));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }

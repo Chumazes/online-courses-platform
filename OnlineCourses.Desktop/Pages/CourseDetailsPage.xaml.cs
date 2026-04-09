@@ -17,10 +17,18 @@ public partial class CourseDetailsPage : Page
         ProgressClient progressClient,
         SectionsClient sectionsClient,
         LessonsClient lessonsClient,
+        ReviewsClient reviewsClient,
         Action<CourseLessonViewModel> openLesson)
     {
         InitializeComponent();
-        _viewModel = new CourseDetailsViewModel(course, coursesClient, enrollmentsClient, progressClient, sectionsClient, lessonsClient);
+        _viewModel = new CourseDetailsViewModel(
+            course,
+            coursesClient,
+            enrollmentsClient,
+            progressClient,
+            sectionsClient,
+            lessonsClient,
+            reviewsClient);
         _openLesson = openLesson;
         DataContext = _viewModel;
         Loaded += Page_Loaded;
