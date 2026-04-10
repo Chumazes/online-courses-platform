@@ -2,12 +2,14 @@ using System.Collections.ObjectModel;
 using System.Net.Http;
 using System.Text.Json;
 using OnlineCourses.Client.Api;
+using OnlineCourses.Desktop.Infrastructure;
 
 namespace OnlineCourses.Desktop.ViewModels;
 
 public sealed class ManageCourseReviewsViewModel : ViewModelBase
 {
     private readonly ReviewsClient _reviewsClient;
+    private readonly FilesClient _filesClient;
     private readonly bool _canModerate;
     private ReviewItemViewModel? _selectedReview;
     private bool _isLoading;
@@ -17,10 +19,15 @@ public sealed class ManageCourseReviewsViewModel : ViewModelBase
     private string? _statusMessage;
     private string? _errorMessage;
 
-    public ManageCourseReviewsViewModel(ManageCourseItemViewModel course, ReviewsClient reviewsClient, bool canModerate)
+    public ManageCourseReviewsViewModel(
+        ManageCourseItemViewModel course,
+        ReviewsClient reviewsClient,
+        FilesClient filesClient,
+        bool canModerate)
     {
         Course = course;
         _reviewsClient = reviewsClient;
+        _filesClient = filesClient;
         _canModerate = canModerate;
         Reviews = new ObservableCollection<ReviewItemViewModel>();
     }
@@ -145,7 +152,8 @@ public sealed class ManageCourseReviewsViewModel : ViewModelBase
                     Rating = review.Rating,
                     Comment = review.Comment,
                     ReviewDate = review.ReviewDate,
-                    IsApproved = review.IsApproved
+                    IsApproved = review.IsApproved,
+                    AvatarSource = ImageSourceFactory.Create(_filesClient.BuildDownloadUrl(review.UserAvatar))
                 });
             }
 

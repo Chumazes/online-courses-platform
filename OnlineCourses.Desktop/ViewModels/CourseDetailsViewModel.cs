@@ -432,10 +432,12 @@ public sealed class CourseDetailsViewModel : ViewModelBase
     {
         try
         {
-            var enrollments = await _enrollmentsClient.GetMyAsync();
-            IsEnrolled = enrollments.Any(enrollment =>
-                enrollment.CourseId == _courseId &&
-                !string.Equals(enrollment.Status, "expired", StringComparison.OrdinalIgnoreCase));
+            var currentEnrollment = SelectCurrentEnrollment(
+                (await _enrollmentsClient.GetMyAsync())
+                .Where(enrollment => enrollment.CourseId == _courseId));
+
+            IsEnrolled = currentEnrollment is not null &&
+                !string.Equals(currentEnrollment.Status, "expired", StringComparison.OrdinalIgnoreCase);
 
             if (IsEnrolled)
             {
@@ -705,6 +707,26 @@ public sealed class CourseDetailsViewModel : ViewModelBase
         RaisePropertyChanged(nameof(ReviewButtonText));
         _deleteReviewCommand.RaiseCanExecuteChanged();
         _saveReviewCommand.RaiseCanExecuteChanged();
+    }
+
+    private static EnrollmentResponseDto? SelectCurrentEnrollment(IEnumerable<EnrollmentResponseDto> enrollments)
+    {
+        return enrollments
+            .OrderByDescending(item => GetEnrollmentPriority(item.Status))
+            .ThenByDescending(item => item.EnrollmentDate)
+            .FirstOrDefault();
+    }
+
+    private static int GetEnrollmentPriority(string? status)
+    {
+        return status?.ToLowerInvariant() switch
+        {
+            "completed" => 3,
+            "active" => 2,
+            "draft" => 1,
+            "expired" => 0,
+            _ => 1
+        };
     }
 
     private void ResetProgress()

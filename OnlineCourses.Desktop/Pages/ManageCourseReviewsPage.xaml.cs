@@ -9,10 +9,14 @@ public partial class ManageCourseReviewsPage : Page
 {
     private readonly ManageCourseReviewsViewModel _viewModel;
 
-    public ManageCourseReviewsPage(ManageCourseItemViewModel course, ReviewsClient reviewsClient, bool canModerate)
+    public ManageCourseReviewsPage(
+        ManageCourseItemViewModel course,
+        ReviewsClient reviewsClient,
+        FilesClient filesClient,
+        bool canModerate)
     {
         InitializeComponent();
-        _viewModel = new ManageCourseReviewsViewModel(course, reviewsClient, canModerate);
+        _viewModel = new ManageCourseReviewsViewModel(course, reviewsClient, filesClient, canModerate);
         DataContext = _viewModel;
         Loaded += Page_Loaded;
     }

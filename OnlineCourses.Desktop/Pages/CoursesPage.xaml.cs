@@ -23,6 +23,11 @@ public partial class CoursesPage : Page
         Loaded += Page_Loaded;
     }
 
+    public void SetMyCoursesVisibility(bool isVisible)
+    {
+        MyCoursesButton.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
+    }
+
     private async void Page_Loaded(object sender, RoutedEventArgs e)
     {
         Loaded -= Page_Loaded;

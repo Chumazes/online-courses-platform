@@ -37,7 +37,7 @@
                                TextWrapping="Wrap" />
                 </StackPanel>
 
-                <Button Grid.Column="1"
+                <Button x:Name="MyCoursesButton" Grid.Column="1"
                         Width="170"
                         VerticalAlignment="Center"
                         Style="{StaticResource LltLightButtonStyle}"
@@ -76,7 +76,14 @@
                                Text="Поиск и фильтры" />
 
                     <TextBox Height="48"
-                             Style="{StaticResource LltTextBoxStyle}"
+                             Padding="16,10"
+                             Background="#FFFDFE"
+                             BorderBrush="#8D69B6"
+                             BorderThickness="2"
+                             CaretBrush="#241230"
+                             FontSize="16"
+                             FontWeight="SemiBold"
+                             Foreground="#241230"
                              Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="Введите название курса" />
 

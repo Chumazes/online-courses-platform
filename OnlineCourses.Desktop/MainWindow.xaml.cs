@@ -67,6 +67,7 @@ public partial class MainWindow : Window
             _coursesClient,
             openCourse: NavigateToCourseDetails,
             openMyCourses: NavigateToMyCourses);
+        page.SetMyCoursesVisibility(CanOpenMyCourses());
 
         MainFrame.Navigate(page);
         ClearBackStack();
@@ -77,13 +78,13 @@ public partial class MainWindow : Window
 
     private void NavigateToMyCourses()
     {
-        MainFrame.Navigate(new MyCoursesPage(_enrollmentsClient, NavigateToCourseDetails));
+        MainFrame.Navigate(new MyCoursesPage(_enrollmentsClient, _progressClient, NavigateToCourseDetails));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
     private void NavigateToManageCourses()
     {
-        if (MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageCourseReviewsPage)
+        if (MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageLessonsPage or ManageCourseReviewsPage or ManageCourseStudentsPage)
         {
             return;
         }
@@ -91,6 +92,7 @@ public partial class MainWindow : Window
         MainFrame.Navigate(new ManageCoursesPage(
             _coursesClient,
             NavigateToManageSections,
+            NavigateToManageCourseStudents,
             NavigateToManageCourseReviews,
             CanModerateReviews()));
         UpdateHeader(loggedIn: true, canGoBack: true);
@@ -110,7 +112,13 @@ public partial class MainWindow : Window
 
     private void NavigateToManageCourseReviews(ManageCourseItemViewModel course)
     {
-        MainFrame.Navigate(new ManageCourseReviewsPage(course, _reviewsClient, CanModerateReviews()));
+        MainFrame.Navigate(new ManageCourseReviewsPage(course, _reviewsClient, _filesClient, CanModerateReviews()));
+        UpdateHeader(loggedIn: true, canGoBack: true);
+    }
+
+    private void NavigateToManageCourseStudents(ManageCourseItemViewModel course)
+    {
+        MainFrame.Navigate(new ManageCourseStudentsPage(course, _enrollmentsClient, _filesClient));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
@@ -203,6 +211,7 @@ public partial class MainWindow : Window
     {
         var loggedIn = MainFrame.Content is not LoginPage;
         var canGoBack = loggedIn && MainFrame.Content is not CoursesPage && MainFrame.CanGoBack;
+        UpdateCoursesPageRoleVisibility();
         UpdateHeader(loggedIn, canGoBack);
     }
 
@@ -247,6 +256,7 @@ public partial class MainWindow : Window
         UserRoleText.Text = "Проверяем сессию";
         UserInitialsText.Text = "...";
         ManageCoursesButton.Visibility = Visibility.Collapsed;
+        UpdateCoursesPageRoleVisibility();
     }
 
     private void ClearProfileHeader()
@@ -259,6 +269,7 @@ public partial class MainWindow : Window
         UserAvatarImage.Visibility = Visibility.Collapsed;
         UserInitialsText.Visibility = Visibility.Visible;
         ManageCoursesButton.Visibility = Visibility.Collapsed;
+        UpdateCoursesPageRoleVisibility();
     }
 
     private void ApplyProfileHeader(CurrentUserDto user)
@@ -269,6 +280,7 @@ public partial class MainWindow : Window
         UserRoleText.Text = FormatRole(user.Role);
         UserInitialsText.Text = GetInitials(displayName);
         ApplyHeaderAvatar(user.AvatarUrl);
+        UpdateCoursesPageRoleVisibility();
         UpdateHeader(loggedIn: true, canGoBack: MainFrame.Content is not LoginPage && MainFrame.Content is not CoursesPage && MainFrame.CanGoBack);
     }
 
@@ -311,11 +323,26 @@ public partial class MainWindow : Window
                 role.Equals("admin", StringComparison.OrdinalIgnoreCase));
     }
 
+    private bool CanOpenMyCourses()
+    {
+        var role = _currentUser?.Role;
+        return role is not null &&
+               role.Equals("student", StringComparison.OrdinalIgnoreCase);
+    }
+
     private bool CanModerateReviews()
     {
         var role = _currentUser?.Role;
         return role is not null &&
                role.Equals("admin", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void UpdateCoursesPageRoleVisibility()
+    {
+        if (MainFrame.Content is CoursesPage coursesPage)
+        {
+            coursesPage.SetMyCoursesVisibility(CanOpenMyCourses());
+        }
     }
 
     private void ApplyHeaderAvatar(string? avatarUrl)
@@ -345,7 +372,7 @@ public partial class MainWindow : Window
 
     private bool IsManagementPage()
     {
-        return MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageLessonsPage or ManageCourseReviewsPage;
+        return MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageLessonsPage or ManageCourseReviewsPage or ManageCourseStudentsPage;
     }
 
     private void MainWindow_OnClosed(object? sender, EventArgs e)

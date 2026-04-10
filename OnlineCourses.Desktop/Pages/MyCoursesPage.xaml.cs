@@ -12,10 +12,11 @@ public partial class MyCoursesPage : Page
 
     public MyCoursesPage(
         EnrollmentsClient enrollmentsClient,
+        ProgressClient progressClient,
         Action<CourseCardViewModel> openCourse)
     {
         InitializeComponent();
-        _viewModel = new MyCoursesViewModel(enrollmentsClient, openCourse);
+        _viewModel = new MyCoursesViewModel(enrollmentsClient, progressClient, openCourse);
         DataContext = _viewModel;
         Loaded += Page_Loaded;
     }
@@ -37,5 +38,31 @@ public partial class MyCoursesPage : Page
         {
             _viewModel.OpenCourseCommand.Execute(null);
         }
+    }
+
+    private async void UnenrollButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_viewModel.SelectedCourse is null)
+        {
+            MessageBox.Show(
+                "Сначала выбери курс, от которого хочешь отписаться.",
+                "Курс не выбран",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        var result = MessageBox.Show(
+            $"Отписаться от курса \"{_viewModel.SelectedCourse.Title}\"?",
+            "Подтверждение",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (result != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        await _viewModel.UnenrollSelectedAsync();
     }
 }

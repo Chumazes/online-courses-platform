@@ -58,32 +58,59 @@
                                     BorderBrush="#A97AD4"
                                     BorderThickness="1"
                                     CornerRadius="24">
-                                <StackPanel>
-                                    <DockPanel LastChildFill="False">
-                                        <TextBlock DockPanel.Dock="Left"
-                                                   FontSize="20"
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid Width="48"
+                                          Height="48"
+                                          Margin="0,0,14,0">
+                                        <Border Background="#6F4B96"
+                                                CornerRadius="24" />
+                                        <Image Source="{Binding AvatarSource}"
+                                               Stretch="UniformToFill"
+                                               Visibility="{Binding HasAvatar, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <Image.Clip>
+                                                <EllipseGeometry Center="24,24"
+                                                                 RadiusX="24"
+                                                                 RadiusY="24" />
+                                            </Image.Clip>
+                                        </Image>
+                                        <TextBlock VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource LltLightTextBrush}"
+                                                   Text="{Binding Initials}"
+                                                   Visibility="{Binding ShowInitials, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                    </Grid>
+
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock FontSize="20"
                                                    FontWeight="SemiBold"
                                                    Foreground="{StaticResource LltLightTextBrush}"
                                                    Text="{Binding UserName}" />
-                                        <Border DockPanel.Dock="Right"
-                                                Padding="10,4"
-                                                Background="#F4EEFA"
-                                                CornerRadius="14">
-                                            <TextBlock Foreground="{StaticResource LltInkBrush}"
-                                                       Text="{Binding ApprovalStateText}" />
-                                        </Border>
-                                    </DockPanel>
+                                        <TextBlock Margin="0,10,0,0"
+                                                   Foreground="#EEE5F8"
+                                                   Text="{Binding RatingText}" />
+                                        <TextBlock Margin="0,8,0,0"
+                                                   Foreground="#EEE5F8"
+                                                   Text="{Binding CommentText}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
 
-                                    <TextBlock Margin="0,10,0,0"
-                                               Foreground="#EEE5F8"
-                                               Text="{Binding RatingText}" />
-
-                                    <TextBlock Margin="0,8,0,0"
-                                               Foreground="#EEE5F8"
-                                               Text="{Binding CommentText}"
-                                               TextTrimming="CharacterEllipsis"
-                                               TextWrapping="Wrap" />
-                                </StackPanel>
+                                    <Border Grid.Column="2"
+                                            Padding="10,4"
+                                            Background="#F4EEFA"
+                                            CornerRadius="14"
+                                            VerticalAlignment="Top">
+                                        <TextBlock Foreground="{StaticResource LltInkBrush}"
+                                                   Text="{Binding ApprovalStateText}" />
+                                    </Border>
+                                </Grid>
                             </Border>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
@@ -151,10 +178,41 @@
                             BorderThickness="1"
                             CornerRadius="22">
                         <StackPanel>
-                            <TextBlock FontSize="22"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource LltLightTextBrush}"
-                                       Text="{Binding SelectedReview.UserName}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Width="56"
+                                      Height="56"
+                                      Margin="0,0,14,0">
+                                    <Border Background="#6F4B96"
+                                            CornerRadius="28" />
+                                    <Image Source="{Binding SelectedReview.AvatarSource}"
+                                           Stretch="UniformToFill"
+                                           Visibility="{Binding SelectedReview.HasAvatar, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Image.Clip>
+                                            <EllipseGeometry Center="28,28"
+                                                             RadiusX="28"
+                                                             RadiusY="28" />
+                                        </Image.Clip>
+                                    </Image>
+                                    <TextBlock VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource LltLightTextBrush}"
+                                               Text="{Binding SelectedReview.Initials}"
+                                               Visibility="{Binding SelectedReview.ShowInitials, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                </Grid>
+
+                                <TextBlock Grid.Column="1"
+                                           VerticalAlignment="Center"
+                                           FontSize="22"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource LltLightTextBrush}"
+                                           Text="{Binding SelectedReview.UserName}" />
+                            </Grid>
 
                             <WrapPanel Margin="0,14,0,0">
                                 <Border Padding="10,4"

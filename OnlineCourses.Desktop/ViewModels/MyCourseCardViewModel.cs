@@ -6,6 +6,8 @@ public sealed class MyCourseCardViewModel
     public string Title { get; init; } = string.Empty;
     public string Status { get; init; } = string.Empty;
     public int OverallProgress { get; init; }
+    public int TotalLessons { get; init; }
+    public int CompletedLessons { get; init; }
     public DateTime EnrollmentDate { get; init; }
     public DateTime? CompletedAt { get; init; }
 
@@ -24,6 +26,15 @@ public sealed class MyCourseCardViewModel
         CompletedAt.HasValue || OverallProgress >= 100
             ? "Курс завершён"
             : $"Прогресс: {OverallProgress}%";
+
+    public string LessonsCaption =>
+        TotalLessons <= 0
+            ? "Уроки пока не загружены"
+            : $"{CompletedLessons} из {TotalLessons} уроков завершено";
+
+    public bool CanUnenroll =>
+        !string.Equals(Status, "expired", StringComparison.OrdinalIgnoreCase) &&
+        !CompletedAt.HasValue;
 
     public CourseCardViewModel ToCourseCard() =>
         new()
