@@ -49,12 +49,24 @@ public partial class MainWindow : Window
         SessionEvents.SessionExpired += OnSessionExpired;
         Closed += MainWindow_OnClosed;
 
-        NavigateToLogin();
+        NavigateToLanding();
     }
 
-    private void NavigateToLogin()
+    private void NavigateToLanding()
     {
-        var page = new LoginPage(_authClient, NavigateToCourses);
+        var page = new LandingPage(
+            _coursesClient,
+            openLogin: () => NavigateToLogin(false),
+            openRegister: () => NavigateToLogin(true));
+        MainFrame.Navigate(page);
+        ClearBackStack();
+        ClearProfileHeader();
+        UpdateHeader(loggedIn: false, canGoBack: false);
+    }
+
+    private void NavigateToLogin(bool startInRegisterMode = false)
+    {
+        var page = new LoginPage(_authClient, NavigateToCourses, startInRegisterMode);
         MainFrame.Navigate(page);
         ClearBackStack();
         ClearProfileHeader();
@@ -153,7 +165,7 @@ public partial class MainWindow : Window
     private async void ProfileBadge_OnClick(object sender, RoutedEventArgs e)
     {
         var user = _currentUser ?? await EnsureCurrentUserAsync();
-        if (MainFrame.Content is LoginPage)
+        if (MainFrame.Content is LoginPage or LandingPage)
         {
             return;
         }
@@ -175,7 +187,7 @@ public partial class MainWindow : Window
     private async Task PerformLogoutAsync()
     {
         await _authClient.LogoutAsync();
-        NavigateToLogin();
+        NavigateToLanding();
     }
 
     private async void LogoutButton_OnClick(object sender, RoutedEventArgs e)
@@ -216,7 +228,7 @@ public partial class MainWindow : Window
 
     private void MainFrame_OnNavigated(object? sender, System.Windows.Navigation.NavigationEventArgs e)
     {
-        var loggedIn = MainFrame.Content is not LoginPage;
+        var loggedIn = MainFrame.Content is not LoginPage and not LandingPage;
         var canGoBack = loggedIn && MainFrame.Content is not CoursesPage && MainFrame.CanGoBack;
         UpdateCoursesPageRoleVisibility();
         UpdateHeader(loggedIn, canGoBack);
@@ -225,7 +237,7 @@ public partial class MainWindow : Window
     private async Task LoadCurrentUserAsync()
     {
         var user = await EnsureCurrentUserAsync();
-        if (MainFrame.Content is LoginPage)
+        if (MainFrame.Content is LoginPage or LandingPage)
         {
             return;
         }
@@ -288,7 +300,7 @@ public partial class MainWindow : Window
         UserInitialsText.Text = GetInitials(displayName);
         ApplyHeaderAvatar(user.AvatarUrl);
         UpdateCoursesPageRoleVisibility();
-        UpdateHeader(loggedIn: true, canGoBack: MainFrame.Content is not LoginPage && MainFrame.Content is not CoursesPage && MainFrame.CanGoBack);
+        UpdateHeader(loggedIn: true, canGoBack: MainFrame.Content is not LoginPage and not LandingPage and not CoursesPage && MainFrame.CanGoBack);
     }
 
     private void OnProfileSaved(CurrentUserDto user)
@@ -405,9 +417,9 @@ public partial class MainWindow : Window
         try
         {
             await _authClient.LogoutAsync();
-            if (MainFrame.Content is not LoginPage)
+            if (MainFrame.Content is not LoginPage and not LandingPage)
             {
-                NavigateToLogin();
+                NavigateToLanding();
                 MessageBox.Show(
                     message,
                     "Сессия завершена",

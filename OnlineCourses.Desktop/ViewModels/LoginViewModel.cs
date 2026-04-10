@@ -19,13 +19,19 @@ public sealed class LoginViewModel : ViewModelBase
     private bool _isBusy;
     private string? _errorMessage;
 
-    public LoginViewModel(AuthClient authClient, Action authorizedCallback)
+    public LoginViewModel(AuthClient authClient, Action authorizedCallback, bool startInRegisterMode = false)
     {
         _authClient = authClient;
         _authorizedCallback = authorizedCallback;
 
         _submitCommand = new AsyncRelayCommand(SubmitAsync, () => !IsBusy);
         _toggleModeCommand = new RelayCommand(_ => ToggleMode(), _ => !IsBusy);
+
+        if (startInRegisterMode)
+        {
+            IsRegisterMode = true;
+            RaisePropertyChanged(nameof(ShowFullName));
+        }
     }
 
     public string Email

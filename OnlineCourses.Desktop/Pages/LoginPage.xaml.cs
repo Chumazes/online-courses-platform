@@ -9,10 +9,10 @@ public partial class LoginPage : Page
 {
     private readonly LoginViewModel _viewModel;
 
-    public LoginPage(AuthClient authClient, Action onAuthorized)
+    public LoginPage(AuthClient authClient, Action onAuthorized, bool startInRegisterMode = false)
     {
         InitializeComponent();
-        _viewModel = new LoginViewModel(authClient, onAuthorized);
+        _viewModel = new LoginViewModel(authClient, onAuthorized, startInRegisterMode);
         DataContext = _viewModel;
     }
 
