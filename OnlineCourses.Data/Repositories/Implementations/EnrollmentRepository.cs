@@ -24,7 +24,10 @@ public class EnrollmentRepository : IEnrollmentRepository
     public async Task<Enrollment?> GetByUserAndCourseAsync(int userId, int courseId)
     {
         return await _context.Enrollments
-            .FirstOrDefaultAsync(e => e.UserId == userId && e.CourseId == courseId);
+            .Where(e => e.UserId == userId && e.CourseId == courseId)
+            .OrderByDescending(e => e.Status != "expired")
+            .ThenByDescending(e => e.UpdatedAt ?? e.EnrollmentDate)
+            .FirstOrDefaultAsync();
     }
     
     public async Task<IEnumerable<Enrollment>> GetByUserIdAsync(int userId)
@@ -65,12 +68,15 @@ public class EnrollmentRepository : IEnrollmentRepository
     public async Task<bool> IsUserEnrolledAsync(int userId, int courseId)
     {
         return await _context.Enrollments
-            .AnyAsync(e => e.UserId == userId && e.CourseId == courseId);
+            .AnyAsync(e =>
+                e.UserId == userId &&
+                e.CourseId == courseId &&
+                e.Status != "expired");
     }
     
     public async Task<int> GetEnrollmentCountAsync(int courseId)
     {
         return await _context.Enrollments
-            .CountAsync(e => e.CourseId == courseId);
+            .CountAsync(e => e.CourseId == courseId && e.Status != "expired");
     }
 }

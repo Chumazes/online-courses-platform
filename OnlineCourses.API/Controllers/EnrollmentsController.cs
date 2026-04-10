@@ -77,12 +77,35 @@ public class EnrollmentsController : ControllerBase
             return NotFound(new { message = "Course not found" });
         }
         
-        // Check if already enrolled
-        var isEnrolled = await _enrollmentRepository.IsUserEnrolledAsync(userId, request.CourseId);
-        if (isEnrolled)
+        var existingEnrollment = await _enrollmentRepository.GetByUserAndCourseAsync(userId, request.CourseId);
+        if (existingEnrollment is not null &&
+            !string.Equals(existingEnrollment.Status, "expired", StringComparison.OrdinalIgnoreCase))
         {
             _logger.LogWarning("User {UserId} already enrolled in course {CourseId}", userId, request.CourseId);
             return BadRequest(new { message = "Already enrolled in this course" });
+        }
+
+        if (existingEnrollment is not null)
+        {
+            existingEnrollment.Status = "active";
+            await _enrollmentRepository.UpdateAsync(existingEnrollment);
+
+            _logger.LogInformation(
+                "User {UserId} re-activated enrollment {EnrollmentId} for course {CourseId}",
+                userId,
+                existingEnrollment.EnrollmentId,
+                request.CourseId);
+
+            return Ok(new EnrollmentResponseDto
+            {
+                EnrollmentId = existingEnrollment.EnrollmentId,
+                CourseId = existingEnrollment.CourseId,
+                CourseTitle = course.Title,
+                EnrollmentDate = existingEnrollment.EnrollmentDate,
+                Status = existingEnrollment.Status,
+                OverallProgress = existingEnrollment.OverallProgress,
+                CompletedAt = existingEnrollment.CompletedAt
+            });
         }
         
         var enrollment = new OnlineCourses.Models.Entities.Enrollment
@@ -123,7 +146,7 @@ public class EnrollmentsController : ControllerBase
         _logger.LogInformation("User {UserId} attempting to unenroll from course {CourseId}", userId, courseId);
         
         var enrollment = await _enrollmentRepository.GetByUserAndCourseAsync(userId, courseId);
-        if (enrollment == null)
+        if (enrollment == null || string.Equals(enrollment.Status, "expired", StringComparison.OrdinalIgnoreCase))
         {
             _logger.LogWarning("UnenrollFromCourse - enrollment not found for user {UserId}, course {CourseId}", userId, courseId);
             return NotFound(new { message = "Enrollment not found" });
@@ -160,15 +183,18 @@ public class EnrollmentsController : ControllerBase
         
         var enrollments = await _enrollmentRepository.GetByCourseIdAsync(courseId);
         
-        var response = enrollments.Select(e => new
-        {
-            e.EnrollmentId,
-            e.UserId,
-            UserName = e.User?.FullName,
-            e.EnrollmentDate,
-            e.Status,
-            e.OverallProgress
-        });
+        var response = enrollments
+            .Where(e => !string.Equals(e.Status, "expired", StringComparison.OrdinalIgnoreCase))
+            .Select(e => new CourseEnrollmentDto
+            {
+                EnrollmentId = e.EnrollmentId,
+                UserId = e.UserId,
+                UserName = e.User?.FullName ?? "Студент",
+                UserAvatarUrl = e.User?.AvatarUrl,
+                EnrollmentDate = e.EnrollmentDate,
+                Status = e.Status,
+                OverallProgress = e.OverallProgress
+            });
         
         _logger.LogInformation("Found {Count} enrollments for course {CourseId}", response.Count(), courseId);
         

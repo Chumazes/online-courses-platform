@@ -21,6 +21,7 @@ public class CourseEnrollmentDto
     public int EnrollmentId { get; set; }
     public int UserId { get; set; }
     public string UserName { get; set; } = string.Empty;
+    public string? UserAvatarUrl { get; set; }
     public DateTime EnrollmentDate { get; set; }
     public string Status { get; set; } = string.Empty;
     public int OverallProgress { get; set; }
