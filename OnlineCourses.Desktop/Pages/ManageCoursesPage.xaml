@@ -202,12 +202,6 @@
                               ItemsSource="{Binding Statuses}"
                               SelectedItem="{Binding Status}" />
 
-                    <TextBlock Margin="0,18,0,8"
-                               Foreground="{StaticResource LltLightTextBrush}"
-                               Text="Cover Image URL" />
-                    <TextBox Style="{StaticResource LltTextBoxStyle}"
-                             Text="{Binding CoverImageUrl, UpdateSourceTrigger=PropertyChanged}" />
-
                     <Button Width="190"
                             Margin="0,20,0,0"
                             HorizontalAlignment="Left"

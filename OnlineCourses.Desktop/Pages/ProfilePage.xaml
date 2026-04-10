@@ -108,21 +108,6 @@
                                            TextWrapping="Wrap" />
                             </Grid>
 
-                            <Grid Margin="0,18,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="230" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock FontSize="18"
-                                           Foreground="{StaticResource LltLightTextBrush}"
-                                           Text="API URL:" />
-                                <TextBlock Grid.Column="1"
-                                           FontSize="18"
-                                           Foreground="{StaticResource LltLightTextBrush}"
-                                           Text="{Binding ApiBaseUrl}"
-                                           TextWrapping="Wrap" />
-                            </Grid>
-
                             <TextBlock Margin="0,22,0,10"
                                        FontSize="18"
                                        Foreground="{StaticResource LltLightTextBrush}"
