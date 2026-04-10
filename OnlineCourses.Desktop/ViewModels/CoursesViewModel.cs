@@ -9,17 +9,28 @@ namespace OnlineCourses.Desktop.ViewModels;
 
 public sealed class CoursesViewModel : ViewModelBase
 {
+    private const int PageSize = 6;
+
     private readonly CoursesClient _coursesClient;
     private readonly Action<CourseCardViewModel> _openCourse;
     private readonly RelayCommand _openCourseCommand;
     private readonly RelayCommand _clearSearchCommand;
-    private readonly List<CourseCardViewModel> _allCourses;
+    private readonly RelayCommand _previousPageCommand;
+    private readonly RelayCommand _nextPageCommand;
     private CourseCardViewModel? _selectedCourse;
     private CourseCategoryDto? _selectedCategory;
     private FilterOptionViewModel? _selectedLevel;
+    private FilterOptionViewModel? _selectedSort;
     private bool _isLoading;
+    private bool _isInitializingFilters;
+    private bool _reloadRequested;
+    private bool _resetPageOnReload;
+    private bool _categoriesLoaded;
     private string? _errorMessage;
     private string _searchQuery = string.Empty;
+    private int _currentPage = 1;
+    private int _totalPages = 1;
+    private int _totalCount;
 
     public CoursesViewModel(CoursesClient coursesClient, Action<CourseCardViewModel> openCourse)
     {
@@ -32,9 +43,18 @@ public sealed class CoursesViewModel : ViewModelBase
         _clearSearchCommand = new RelayCommand(
             _ => ClearFilters(),
             _ => HasActiveFilters && !IsLoading);
+        _previousPageCommand = new RelayCommand(
+            _ => ChangePage(-1),
+            _ => CanGoToPreviousPage);
+        _nextPageCommand = new RelayCommand(
+            _ => ChangePage(1),
+            _ => CanGoToNextPage);
 
         OpenCourseCommand = _openCourseCommand;
         ClearSearchCommand = _clearSearchCommand;
+        PreviousPageCommand = _previousPageCommand;
+        NextPageCommand = _nextPageCommand;
+
         Courses = new ObservableCollection<CourseCardViewModel>();
         Categories = new ObservableCollection<CourseCategoryDto>();
         LevelOptions = new[]
@@ -44,8 +64,17 @@ public sealed class CoursesViewModel : ViewModelBase
             new FilterOptionViewModel { Value = "intermediate", Label = "Intermediate" },
             new FilterOptionViewModel { Value = "advanced", Label = "Advanced" }
         };
+        SortOptions = new[]
+        {
+            new FilterOptionViewModel { Value = "created_desc", Label = "Сначала новые" },
+            new FilterOptionViewModel { Value = "title_asc", Label = "По названию" },
+            new FilterOptionViewModel { Value = "price_asc", Label = "Сначала дешевле" },
+            new FilterOptionViewModel { Value = "price_desc", Label = "Сначала дороже" },
+            new FilterOptionViewModel { Value = "rating_desc", Label = "По рейтингу" }
+        };
+
         _selectedLevel = LevelOptions[0];
-        _allCourses = new List<CourseCardViewModel>();
+        _selectedSort = SortOptions[0];
     }
 
     public ObservableCollection<CourseCardViewModel> Courses { get; }
@@ -53,6 +82,8 @@ public sealed class CoursesViewModel : ViewModelBase
     public ObservableCollection<CourseCategoryDto> Categories { get; }
 
     public IReadOnlyList<FilterOptionViewModel> LevelOptions { get; }
+
+    public IReadOnlyList<FilterOptionViewModel> SortOptions { get; }
 
     public CourseCardViewModel? SelectedCourse
     {
@@ -73,9 +104,7 @@ public sealed class CoursesViewModel : ViewModelBase
         {
             if (SetProperty(ref _selectedCategory, value))
             {
-                ApplyFilters();
-                RaisePropertyChanged(nameof(HasActiveFilters));
-                _clearSearchCommand.RaiseCanExecuteChanged();
+                RequestReload(resetPage: true);
             }
         }
     }
@@ -87,9 +116,19 @@ public sealed class CoursesViewModel : ViewModelBase
         {
             if (SetProperty(ref _selectedLevel, value))
             {
-                ApplyFilters();
-                RaisePropertyChanged(nameof(HasActiveFilters));
-                _clearSearchCommand.RaiseCanExecuteChanged();
+                RequestReload(resetPage: true);
+            }
+        }
+    }
+
+    public FilterOptionViewModel? SelectedSort
+    {
+        get => _selectedSort;
+        set
+        {
+            if (SetProperty(ref _selectedSort, value))
+            {
+                RequestReload(resetPage: true);
             }
         }
     }
@@ -101,9 +140,7 @@ public sealed class CoursesViewModel : ViewModelBase
         {
             if (SetProperty(ref _searchQuery, value))
             {
-                ApplyFilters();
-                RaisePropertyChanged(nameof(HasActiveFilters));
-                _clearSearchCommand.RaiseCanExecuteChanged();
+                RequestReload(resetPage: true);
             }
         }
     }
@@ -117,8 +154,12 @@ public sealed class CoursesViewModel : ViewModelBase
             {
                 _openCourseCommand.RaiseCanExecuteChanged();
                 _clearSearchCommand.RaiseCanExecuteChanged();
+                _previousPageCommand.RaiseCanExecuteChanged();
+                _nextPageCommand.RaiseCanExecuteChanged();
                 RaisePropertyChanged(nameof(ShowEmptyState));
                 RaisePropertyChanged(nameof(EmptyStateMessage));
+                RaisePropertyChanged(nameof(CanGoToPreviousPage));
+                RaisePropertyChanged(nameof(CanGoToNextPage));
             }
         }
     }
@@ -140,6 +181,52 @@ public sealed class CoursesViewModel : ViewModelBase
 
     public ICommand ClearSearchCommand { get; }
 
+    public ICommand PreviousPageCommand { get; }
+
+    public ICommand NextPageCommand { get; }
+
+    public int CurrentPage
+    {
+        get => _currentPage;
+        private set
+        {
+            if (SetProperty(ref _currentPage, value))
+            {
+                RaisePropertyChanged(nameof(ResultsCaption));
+                RaisePropertyChanged(nameof(CanGoToPreviousPage));
+                RaisePropertyChanged(nameof(CanGoToNextPage));
+                _previousPageCommand.RaiseCanExecuteChanged();
+                _nextPageCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    public int TotalPages
+    {
+        get => _totalPages;
+        private set
+        {
+            if (SetProperty(ref _totalPages, value))
+            {
+                RaisePropertyChanged(nameof(ResultsCaption));
+                RaisePropertyChanged(nameof(CanGoToNextPage));
+                _nextPageCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    public int TotalCount
+    {
+        get => _totalCount;
+        private set
+        {
+            if (SetProperty(ref _totalCount, value))
+            {
+                RaisePropertyChanged(nameof(ResultsCaption));
+            }
+        }
+    }
+
     public bool HasActiveFilters =>
         !string.IsNullOrWhiteSpace(SearchQuery) ||
         (SelectedCategory?.CategoryId ?? 0) > 0 ||
@@ -151,56 +238,163 @@ public sealed class CoursesViewModel : ViewModelBase
         Courses.Count == 0;
 
     public string EmptyStateMessage =>
-        _allCourses.Count == 0
-            ? "Курсы пока не добавлены."
-            : "По вашим фильтрам ничего не найдено.";
+        HasActiveFilters
+            ? "По вашим фильтрам ничего не найдено."
+            : "Курсы пока не добавлены.";
+
+    public string ResultsCaption =>
+        TotalCount == 0
+            ? "Курсов пока нет."
+            : $"Страница {CurrentPage} из {TotalPages} • Найдено курсов: {TotalCount}";
+
+    public bool CanGoToPreviousPage => !IsLoading && CurrentPage > 1;
+
+    public bool CanGoToNextPage => !IsLoading && CurrentPage < TotalPages;
 
     public async Task LoadCoursesAsync()
     {
+        if (!_categoriesLoaded)
+        {
+            await LoadCategoriesAsync();
+        }
+
+        if (string.IsNullOrWhiteSpace(ErrorMessage))
+        {
+            await LoadCoursesPageAsync(resetPage: false);
+        }
+    }
+
+    private async Task LoadCategoriesAsync()
+    {
         IsLoading = true;
         ErrorMessage = null;
-        Courses.Clear();
         Categories.Clear();
-        _allCourses.Clear();
-        SelectedCourse = null;
-        RaisePropertyChanged(nameof(ShowEmptyState));
-        RaisePropertyChanged(nameof(EmptyStateMessage));
 
         try
         {
-            var coursesTask = _coursesClient.GetAllAsync(pageNumber: 1, pageSize: 50, all: false);
-            var categoriesTask = _coursesClient.GetCategoriesAsync();
-            await Task.WhenAll(coursesTask, categoriesTask);
-
             Categories.Add(new CourseCategoryDto
             {
                 CategoryId = 0,
                 Name = "Все категории"
             });
 
-            foreach (var category in (await categoriesTask).OrderBy(item => item.Name))
+            foreach (var category in (await _coursesClient.GetCategoriesAsync()).OrderBy(item => item.Name))
             {
                 Categories.Add(category);
             }
 
+            _isInitializingFilters = true;
             SelectedCategory = Categories.FirstOrDefault();
             SelectedLevel = LevelOptions[0];
+            SelectedSort = SortOptions[0];
+            _categoriesLoaded = true;
+        }
+        catch (ApiException ex)
+        {
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось загрузить категории курсов.");
+        }
+        catch (HttpRequestException)
+        {
+            ErrorMessage = "Не удалось подключиться к API.";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+        finally
+        {
+            _isInitializingFilters = false;
+            IsLoading = false;
+        }
+    }
 
-            foreach (var dto in (await coursesTask).Items)
+    private void ClearFilters()
+    {
+        _isInitializingFilters = true;
+        SearchQuery = string.Empty;
+        SelectedCategory = Categories.FirstOrDefault();
+        SelectedLevel = LevelOptions[0];
+        SelectedSort = SortOptions[0];
+        _isInitializingFilters = false;
+        RequestReload(resetPage: true);
+    }
+
+    private void OpenSelectedCourse()
+    {
+        if (SelectedCourse is not null)
+        {
+            _openCourse(SelectedCourse);
+        }
+    }
+
+    private void ChangePage(int delta)
+    {
+        if (delta < 0 && !CanGoToPreviousPage)
+        {
+            return;
+        }
+
+        if (delta > 0 && !CanGoToNextPage)
+        {
+            return;
+        }
+
+        CurrentPage += delta;
+        RequestReload(resetPage: false);
+    }
+
+    private void RequestReload(bool resetPage)
+    {
+        if (_isInitializingFilters || !_categoriesLoaded)
+        {
+            return;
+        }
+
+        RaisePropertyChanged(nameof(HasActiveFilters));
+        _clearSearchCommand.RaiseCanExecuteChanged();
+
+        if (IsLoading)
+        {
+            _reloadRequested = true;
+            _resetPageOnReload |= resetPage;
+            return;
+        }
+
+        _ = LoadCoursesPageAsync(resetPage);
+    }
+
+    private async Task LoadCoursesPageAsync(bool resetPage)
+    {
+        if (resetPage)
+        {
+            CurrentPage = 1;
+        }
+
+        IsLoading = true;
+        ErrorMessage = null;
+        Courses.Clear();
+        SelectedCourse = null;
+
+        try
+        {
+            var (sortBy, sortOrder) = ResolveSort();
+            var page = await _coursesClient.GetAllAsync(
+                pageNumber: CurrentPage,
+                pageSize: PageSize,
+                all: false,
+                level: ResolveLevel(),
+                categoryId: ResolveCategoryId(),
+                search: ResolveSearchQuery(),
+                sortBy: sortBy,
+                sortOrder: sortOrder);
+
+            TotalCount = page.TotalCount;
+            TotalPages = Math.Max(1, page.TotalPages);
+
+            foreach (var dto in page.Items)
             {
-                _allCourses.Add(new CourseCardViewModel
-                {
-                    Id = dto.CourseId,
-                    Title = dto.Title,
-                    Description = dto.Description,
-                    CategoryId = dto.CategoryId,
-                    CategoryName = dto.CategoryName ?? "Без категории",
-                    Level = dto.Level,
-                    Price = dto.Price
-                });
+                Courses.Add(MapCourse(dto));
             }
-
-            ApplyFilters();
         }
         catch (ApiException ex)
         {
@@ -217,68 +411,62 @@ public sealed class CoursesViewModel : ViewModelBase
         finally
         {
             IsLoading = false;
+            RaisePropertyChanged(nameof(ResultsCaption));
+            RaisePropertyChanged(nameof(ShowEmptyState));
+            RaisePropertyChanged(nameof(EmptyStateMessage));
+            _clearSearchCommand.RaiseCanExecuteChanged();
+            _openCourseCommand.RaiseCanExecuteChanged();
+
+            if (_reloadRequested)
+            {
+                var pendingReset = _resetPageOnReload;
+                _reloadRequested = false;
+                _resetPageOnReload = false;
+                _ = LoadCoursesPageAsync(pendingReset);
+            }
         }
     }
 
-    private void ApplyFilters()
+    private string? ResolveSearchQuery()
     {
-        var selectedCourseId = SelectedCourse?.Id;
-        IEnumerable<CourseCardViewModel> filteredCourses = _allCourses;
-
-        if (!string.IsNullOrWhiteSpace(SearchQuery))
-        {
-            var query = SearchQuery.Trim();
-            filteredCourses = filteredCourses.Where(course =>
-                course.Title.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
-                course.Description.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
-                course.Level.Contains(query, StringComparison.CurrentCultureIgnoreCase) ||
-                course.CategoryName.Contains(query, StringComparison.CurrentCultureIgnoreCase));
-        }
-
-        if ((SelectedCategory?.CategoryId ?? 0) > 0)
-        {
-            filteredCourses = filteredCourses.Where(course => course.CategoryId == SelectedCategory!.CategoryId);
-        }
-
-        if (!string.Equals(SelectedLevel?.Value, "all", StringComparison.OrdinalIgnoreCase))
-        {
-            filteredCourses = filteredCourses.Where(course =>
-                string.Equals(course.Level, SelectedLevel!.Value, StringComparison.OrdinalIgnoreCase));
-        }
-
-        var filteredList = filteredCourses.ToList();
-        Courses.Clear();
-
-        foreach (var course in filteredList)
-        {
-            Courses.Add(course);
-        }
-
-        if (selectedCourseId is not null)
-        {
-            SelectedCourse = Courses.FirstOrDefault(course => course.Id == selectedCourseId.Value);
-        }
-
-        RaisePropertyChanged(nameof(ShowEmptyState));
-        RaisePropertyChanged(nameof(EmptyStateMessage));
-        RaisePropertyChanged(nameof(HasActiveFilters));
-        _openCourseCommand.RaiseCanExecuteChanged();
-        _clearSearchCommand.RaiseCanExecuteChanged();
+        return string.IsNullOrWhiteSpace(SearchQuery) ? null : SearchQuery.Trim();
     }
 
-    private void ClearFilters()
+    private int? ResolveCategoryId()
     {
-        SearchQuery = string.Empty;
-        SelectedCategory = Categories.FirstOrDefault();
-        SelectedLevel = LevelOptions[0];
-        ApplyFilters();
+        return (SelectedCategory?.CategoryId ?? 0) > 0 ? SelectedCategory!.CategoryId : null;
     }
 
-    private void OpenSelectedCourse()
+    private string? ResolveLevel()
     {
-        if (SelectedCourse is not null)
+        return string.Equals(SelectedLevel?.Value, "all", StringComparison.OrdinalIgnoreCase)
+            ? null
+            : SelectedLevel?.Value;
+    }
+
+    private (string sortBy, string sortOrder) ResolveSort()
+    {
+        return SelectedSort?.Value switch
         {
-            _openCourse(SelectedCourse);
-        }
+            "title_asc" => ("title", "asc"),
+            "price_asc" => ("price", "asc"),
+            "price_desc" => ("price", "desc"),
+            "rating_desc" => ("rating", "desc"),
+            _ => ("createdAt", "desc")
+        };
+    }
+
+    private static CourseCardViewModel MapCourse(CourseResponseDto dto)
+    {
+        return new CourseCardViewModel
+        {
+            Id = dto.CourseId,
+            Title = dto.Title,
+            Description = dto.Description,
+            CategoryId = dto.CategoryId,
+            CategoryName = dto.CategoryName ?? "Без категории",
+            Level = dto.Level,
+            Price = dto.Price
+        };
     }
 }

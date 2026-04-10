@@ -37,7 +37,8 @@
                                TextWrapping="Wrap" />
                 </StackPanel>
 
-                <Button x:Name="MyCoursesButton" Grid.Column="1"
+                <Button x:Name="MyCoursesButton"
+                        Grid.Column="1"
                         Width="170"
                         VerticalAlignment="Center"
                         Style="{StaticResource LltLightButtonStyle}"
@@ -95,10 +96,16 @@
                                   ItemsSource="{Binding Categories}"
                                   SelectedItem="{Binding SelectedCategory}" />
                         <ComboBox Width="220"
+                                  Margin="0,0,12,0"
                                   Style="{StaticResource LltComboBoxStyle}"
                                   DisplayMemberPath="Label"
                                   ItemsSource="{Binding LevelOptions}"
                                   SelectedItem="{Binding SelectedLevel}" />
+                        <ComboBox Width="220"
+                                  Style="{StaticResource LltComboBoxStyle}"
+                                  DisplayMemberPath="Label"
+                                  ItemsSource="{Binding SortOptions}"
+                                  SelectedItem="{Binding SelectedSort}" />
                     </WrapPanel>
                 </StackPanel>
 
@@ -227,11 +234,40 @@
             </Border>
         </Grid>
 
-        <Button Grid.Row="4"
-                Width="220"
-                HorizontalAlignment="Right"
-                Style="{StaticResource LltAccentButtonStyle}"
-                Command="{Binding OpenCourseCommand}"
-                Content="Открыть курс" />
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0"
+                    Width="150"
+                    Style="{StaticResource LltLightButtonStyle}"
+                    Command="{Binding PreviousPageCommand}"
+                    Content="Предыдущая" />
+
+            <Button Grid.Column="1"
+                    Width="150"
+                    Margin="12,0,0,0"
+                    Style="{StaticResource LltLightButtonStyle}"
+                    Command="{Binding NextPageCommand}"
+                    Content="Следующая" />
+
+            <TextBlock Grid.Column="2"
+                       Margin="18,0,18,0"
+                       VerticalAlignment="Center"
+                       Foreground="{StaticResource LltInkSoftBrush}"
+                       Text="{Binding ResultsCaption}"
+                       TextWrapping="Wrap" />
+
+            <Button Grid.Column="3"
+                    Width="220"
+                    HorizontalAlignment="Right"
+                    Style="{StaticResource LltAccentButtonStyle}"
+                    Command="{Binding OpenCourseCommand}"
+                    Content="Открыть курс" />
+        </Grid>
     </Grid>
 </Page>

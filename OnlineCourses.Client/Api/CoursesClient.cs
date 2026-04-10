@@ -14,9 +14,46 @@ public sealed class CoursesClient : ApiClientBase
         int pageNumber = 1,
         int pageSize = 20,
         bool all = false,
+        string? level = null,
+        int? categoryId = null,
+        string? search = null,
+        string? sortBy = null,
+        string? sortOrder = null,
         CancellationToken cancellationToken = default)
     {
-        var url = $"api/courses?pageNumber={pageNumber}&pageSize={pageSize}&all={all.ToString().ToLower()}";
+        var query = new List<string>
+        {
+            $"pageNumber={pageNumber}",
+            $"pageSize={pageSize}",
+            $"all={all.ToString().ToLowerInvariant()}"
+        };
+
+        if (!string.IsNullOrWhiteSpace(level))
+        {
+            query.Add($"level={Uri.EscapeDataString(level)}");
+        }
+
+        if (categoryId is > 0)
+        {
+            query.Add($"categoryId={categoryId.Value}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query.Add($"search={Uri.EscapeDataString(search)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(sortBy))
+        {
+            query.Add($"sortBy={Uri.EscapeDataString(sortBy)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(sortOrder))
+        {
+            query.Add($"sortOrder={Uri.EscapeDataString(sortOrder)}");
+        }
+
+        var url = $"api/courses?{string.Join("&", query)}";
         using var request = await CreateRequestAsync(
             HttpMethod.Get,
             url,
