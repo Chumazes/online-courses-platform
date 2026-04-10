@@ -84,7 +84,7 @@ public partial class MainWindow : Window
 
     private void NavigateToManageCourses()
     {
-        if (MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageLessonsPage or ManageCourseReviewsPage or ManageCourseStudentsPage)
+        if (MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageLessonsPage or ManageCourseReviewsPage or ManageCourseStudentsPage or ManageCourseAnalyticsPage)
         {
             return;
         }
@@ -93,6 +93,7 @@ public partial class MainWindow : Window
             _coursesClient,
             NavigateToManageSections,
             NavigateToManageCourseStudents,
+            NavigateToManageCourseAnalytics,
             NavigateToManageCourseReviews,
             CanModerateReviews()));
         UpdateHeader(loggedIn: true, canGoBack: true);
@@ -119,6 +120,12 @@ public partial class MainWindow : Window
     private void NavigateToManageCourseStudents(ManageCourseItemViewModel course)
     {
         MainFrame.Navigate(new ManageCourseStudentsPage(course, _enrollmentsClient, _filesClient));
+        UpdateHeader(loggedIn: true, canGoBack: true);
+    }
+
+    private void NavigateToManageCourseAnalytics(ManageCourseItemViewModel course)
+    {
+        MainFrame.Navigate(new ManageCourseAnalyticsPage(course, _enrollmentsClient, _reviewsClient, _filesClient));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
@@ -372,7 +379,7 @@ public partial class MainWindow : Window
 
     private bool IsManagementPage()
     {
-        return MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageLessonsPage or ManageCourseReviewsPage or ManageCourseStudentsPage;
+        return MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageLessonsPage or ManageCourseReviewsPage or ManageCourseStudentsPage or ManageCourseAnalyticsPage;
     }
 
     private void MainWindow_OnClosed(object? sender, EventArgs e)

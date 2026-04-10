@@ -10,18 +10,21 @@ public partial class ManageCoursesPage : Page
     private readonly ManageCoursesViewModel _viewModel;
     private readonly Action<ManageCourseItemViewModel> _openSections;
     private readonly Action<ManageCourseItemViewModel> _openStudents;
+    private readonly Action<ManageCourseItemViewModel> _openAnalytics;
     private readonly Action<ManageCourseItemViewModel> _openReviews;
 
     public ManageCoursesPage(
         CoursesClient coursesClient,
         Action<ManageCourseItemViewModel> openSections,
         Action<ManageCourseItemViewModel> openStudents,
+        Action<ManageCourseItemViewModel> openAnalytics,
         Action<ManageCourseItemViewModel> openReviews,
         bool canModerateReviews)
     {
         InitializeComponent();
         _openSections = openSections;
         _openStudents = openStudents;
+        _openAnalytics = openAnalytics;
         _openReviews = openReviews;
         _viewModel = new ManageCoursesViewModel(coursesClient, canModerateReviews);
         DataContext = _viewModel;
@@ -67,6 +70,21 @@ public partial class ManageCoursesPage : Page
         }
 
         _openStudents(_viewModel.SelectedCourse);
+    }
+
+    private void ManageAnalyticsButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_viewModel.SelectedCourse is null)
+        {
+            MessageBox.Show(
+                "Сначала выбери курс, для которого нужно открыть аналитику.",
+                "Курс не выбран",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        _openAnalytics(_viewModel.SelectedCourse);
     }
 
     private void ManageReviewsButton_OnClick(object sender, RoutedEventArgs e)

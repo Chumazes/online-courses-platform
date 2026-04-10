@@ -224,6 +224,14 @@
                             Content="Студенты курса"
                             IsEnabled="{Binding IsExistingCourse}" />
 
+                    <Button Width="190"
+                            Margin="0,12,0,0"
+                            HorizontalAlignment="Left"
+                            Style="{StaticResource LltLightButtonStyle}"
+                            Click="ManageAnalyticsButton_OnClick"
+                            Content="Аналитика курса"
+                            IsEnabled="{Binding IsExistingCourse}" />
+
                     <Button x:Name="ManageReviewsButton"
                             Width="190"
                             Margin="0,12,0,0"
