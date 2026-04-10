@@ -18,6 +18,7 @@ public sealed class ProfileViewModel : ViewModelBase
     private string _fullName;
     private string _email;
     private string _role;
+    private string _roleKey;
     private string _bio;
     private string _initials;
     private ImageSource? _avatarImageSource;
@@ -40,6 +41,7 @@ public sealed class ProfileViewModel : ViewModelBase
         _fullName = "Имя не указано";
         _email = string.Empty;
         _role = string.Empty;
+        _roleKey = string.Empty;
         _bio = string.Empty;
         _initials = "?";
 
@@ -48,6 +50,15 @@ public sealed class ProfileViewModel : ViewModelBase
     }
 
     public string ApiBaseUrl => _apiBaseUrl;
+
+    public bool CanOpenDashboard =>
+        _roleKey.Equals("teacher", StringComparison.OrdinalIgnoreCase) ||
+        _roleKey.Equals("admin", StringComparison.OrdinalIgnoreCase);
+
+    public string DashboardButtonText =>
+        _roleKey.Equals("admin", StringComparison.OrdinalIgnoreCase)
+            ? "Открыть панель администратора"
+            : "Открыть панель преподавателя";
 
     public string FullName
     {
@@ -193,10 +204,13 @@ public sealed class ProfileViewModel : ViewModelBase
     {
         FullName = string.IsNullOrWhiteSpace(user.FullName) ? "Имя не указано" : user.FullName;
         Email = user.Email;
-        Role = FormatRole(user.Role);
+        _roleKey = user.Role ?? string.Empty;
+        Role = FormatRole(user.Role ?? string.Empty);
         Bio = user.Bio ?? string.Empty;
         Initials = GetInitials(FullName);
         AvatarImageSource = ImageSourceFactory.Create(_filesClient.BuildDownloadUrl(user.AvatarUrl));
+        RaisePropertyChanged(nameof(CanOpenDashboard));
+        RaisePropertyChanged(nameof(DashboardButtonText));
     }
 
     private static string FormatRole(string role) =>

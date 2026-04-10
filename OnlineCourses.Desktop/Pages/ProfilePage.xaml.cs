@@ -8,14 +8,18 @@ namespace OnlineCourses.Desktop.Pages;
 
 public partial class ProfilePage : Page
 {
+    private readonly Action? _openDashboard;
+
     public ProfilePage(
         CurrentUserDto user,
         AuthClient authClient,
         FilesClient filesClient,
         string apiBaseUrl,
-        Action<CurrentUserDto> onProfileSaved)
+        Action<CurrentUserDto> onProfileSaved,
+        Action? openDashboard = null)
     {
         InitializeComponent();
+        _openDashboard = openDashboard;
         DataContext = new ProfileViewModel(user, authClient, filesClient, apiBaseUrl, onProfileSaved);
     }
 
@@ -39,5 +43,10 @@ public partial class ProfilePage : Page
         }
 
         await viewModel.UploadAvatarAsync(dialog.FileName);
+    }
+
+    private void OpenDashboardButton_OnClick(object sender, System.Windows.RoutedEventArgs e)
+    {
+        _openDashboard?.Invoke();
     }
 }

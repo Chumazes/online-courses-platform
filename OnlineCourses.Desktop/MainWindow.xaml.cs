@@ -141,6 +141,16 @@ public partial class MainWindow : Window
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
+    private void NavigateToRoleDashboard()
+    {
+        MainFrame.Navigate(new RoleDashboardPage(
+            _coursesClient,
+            showAllCourses: CanModerateReviews(),
+            isAdmin: CanModerateReviews(),
+            openManageCourses: NavigateToManageCourses));
+        UpdateHeader(loggedIn: true, canGoBack: true);
+    }
+
     private void NavigateToCourseDetails(CourseCardViewModel course)
     {
         MainFrame.Navigate(new CourseDetailsPage(
@@ -180,7 +190,13 @@ public partial class MainWindow : Window
             return;
         }
 
-        MainFrame.Navigate(new ProfilePage(user, _authClient, _filesClient, _apiBaseUrl, OnProfileSaved));
+        MainFrame.Navigate(new ProfilePage(
+            user,
+            _authClient,
+            _filesClient,
+            _apiBaseUrl,
+            OnProfileSaved,
+            CanManageCourses() ? NavigateToRoleDashboard : null));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
@@ -391,7 +407,7 @@ public partial class MainWindow : Window
 
     private bool IsManagementPage()
     {
-        return MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageLessonsPage or ManageCourseReviewsPage or ManageCourseStudentsPage or ManageCourseAnalyticsPage;
+        return MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageLessonsPage or ManageCourseReviewsPage or ManageCourseStudentsPage or ManageCourseAnalyticsPage or RoleDashboardPage;
     }
 
     private void MainWindow_OnClosed(object? sender, EventArgs e)
