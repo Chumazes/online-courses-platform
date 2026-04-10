@@ -1,0 +1,80 @@
+<Page x:Class="OnlineCourses.Desktop.Pages.FaqPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      Title="FaqPage">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="26">
+            <StackPanel>
+                <Border Padding="28"
+                        Background="#6F4B96"
+                        BorderBrush="#B494D4"
+                        BorderThickness="1"
+                        CornerRadius="28">
+                    <StackPanel>
+                        <TextBlock FontSize="34"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource LltLightTextBrush}"
+                                   Text="Часто задаваемые вопросы" />
+                        <TextBlock Margin="0,14,0,0"
+                                   FontSize="18"
+                                   Foreground="#EFE5F8"
+                                   Text="Собрали короткие ответы на вопросы, которые чаще всего появляются до регистрации и в самом начале работы с платформой."
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0,18,0,0"
+                        Padding="22"
+                        Background="#F2EDF7"
+                        BorderBrush="#D7C8E7"
+                        BorderThickness="1"
+                        CornerRadius="24">
+                    <StackPanel>
+                        <Expander Margin="0,0,0,12"
+                                  IsExpanded="True"
+                                  Header="Нужно ли уже уметь программировать, чтобы начать?">
+                            <TextBlock Margin="0,10,0,0"
+                                       Foreground="{StaticResource LltInkSoftBrush}"
+                                       Text="Нет. На платформе можно начать с базовых тем и постепенно перейти к более сложным курсам. Маршрут зависит от выбранного направления и уровня."
+                                       TextWrapping="Wrap" />
+                        </Expander>
+
+                        <Expander Margin="0,0,0,12"
+                                  Header="Можно ли учиться в своём темпе?">
+                            <TextBlock Margin="0,10,0,0"
+                                       Foreground="{StaticResource LltInkSoftBrush}"
+                                       Text="Да. У тебя сохраняются записи на курсы, прогресс по урокам и завершённые шаги, поэтому обучение можно продолжать в удобное время."
+                                       TextWrapping="Wrap" />
+                        </Expander>
+
+                        <Expander Margin="0,0,0,12"
+                                  Header="Что видит преподаватель?">
+                            <TextBlock Margin="0,10,0,0"
+                                       Foreground="{StaticResource LltInkSoftBrush}"
+                                       Text="Преподаватель видит свои курсы, студентов, отзывы, аналитику и может управлять контентом через отдельную панель."
+                                       TextWrapping="Wrap" />
+                        </Expander>
+
+                        <Expander Margin="0,0,0,12"
+                                  Header="Зачем нужен администратор?">
+                            <TextBlock Margin="0,10,0,0"
+                                       Foreground="{StaticResource LltInkSoftBrush}"
+                                       Text="Администратор следит за общей картиной по платформе, модерирует отзывы и видит все курсы, а не только авторские."
+                                       TextWrapping="Wrap" />
+                        </Expander>
+
+                        <Expander Header="Что уже можно попробовать прямо сейчас?">
+                            <TextBlock Margin="0,10,0,0"
+                                       Foreground="{StaticResource LltInkSoftBrush}"
+                                       Text="После регистрации можно открыть каталог, записаться на курс, проходить уроки, отмечать прогресс, редактировать профиль и оставлять отзывы."
+                                       TextWrapping="Wrap" />
+                        </Expander>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Page>

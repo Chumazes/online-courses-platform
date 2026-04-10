@@ -39,6 +39,18 @@
                                    Text="Low-Level to Top — это платформа, где студенту понятно, что изучать, преподавателю удобно вести курсы, а администратору видно, как всё растёт."
                                    TextWrapping="Wrap" />
 
+                        <WrapPanel Margin="0,14,0,0">
+                            <Button Width="240"
+                                    Margin="0,0,14,0"
+                                    Style="{StaticResource LltLightButtonStyle}"
+                                    Click="WhyItButton_OnClick"
+                                    Content="Почему стоит попробовать IT?" />
+                            <Button Width="170"
+                                    Style="{StaticResource LltLightButtonStyle}"
+                                    Click="FaqButton_OnClick"
+                                    Content="FAQ по платформе" />
+                        </WrapPanel>
+
                         <WrapPanel Margin="0,20,0,0">
                             <Button Width="210"
                                     Margin="0,0,14,0"

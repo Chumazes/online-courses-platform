@@ -57,11 +57,25 @@ public partial class MainWindow : Window
         var page = new LandingPage(
             _coursesClient,
             openLogin: () => NavigateToLogin(false),
-            openRegister: () => NavigateToLogin(true));
+            openRegister: () => NavigateToLogin(true),
+            openWhyIt: NavigateToWhyIt,
+            openFaq: NavigateToFaq);
         MainFrame.Navigate(page);
         ClearBackStack();
         ClearProfileHeader();
         UpdateHeader(loggedIn: false, canGoBack: false);
+    }
+
+    private void NavigateToWhyIt()
+    {
+        MainFrame.Navigate(new WhyItPage());
+        UpdateHeader(loggedIn: false, canGoBack: true);
+    }
+
+    private void NavigateToFaq()
+    {
+        MainFrame.Navigate(new FaqPage());
+        UpdateHeader(loggedIn: false, canGoBack: true);
     }
 
     private void NavigateToLogin(bool startInRegisterMode = false)
@@ -175,7 +189,7 @@ public partial class MainWindow : Window
     private async void ProfileBadge_OnClick(object sender, RoutedEventArgs e)
     {
         var user = _currentUser ?? await EnsureCurrentUserAsync();
-        if (MainFrame.Content is LoginPage or LandingPage)
+        if (IsPublicPage(MainFrame.Content))
         {
             return;
         }
@@ -244,8 +258,12 @@ public partial class MainWindow : Window
 
     private void MainFrame_OnNavigated(object? sender, System.Windows.Navigation.NavigationEventArgs e)
     {
-        var loggedIn = MainFrame.Content is not LoginPage and not LandingPage;
+        var loggedIn = !IsPublicPage(MainFrame.Content);
         var canGoBack = loggedIn && MainFrame.Content is not CoursesPage && MainFrame.CanGoBack;
+        if (!loggedIn && MainFrame.Content is WhyItPage or FaqPage)
+        {
+            canGoBack = MainFrame.CanGoBack;
+        }
         UpdateCoursesPageRoleVisibility();
         UpdateHeader(loggedIn, canGoBack);
     }
@@ -253,7 +271,7 @@ public partial class MainWindow : Window
     private async Task LoadCurrentUserAsync()
     {
         var user = await EnsureCurrentUserAsync();
-        if (MainFrame.Content is LoginPage or LandingPage)
+        if (IsPublicPage(MainFrame.Content))
         {
             return;
         }
@@ -316,7 +334,7 @@ public partial class MainWindow : Window
         UserInitialsText.Text = GetInitials(displayName);
         ApplyHeaderAvatar(user.AvatarUrl);
         UpdateCoursesPageRoleVisibility();
-        UpdateHeader(loggedIn: true, canGoBack: MainFrame.Content is not LoginPage and not LandingPage and not CoursesPage && MainFrame.CanGoBack);
+        UpdateHeader(loggedIn: true, canGoBack: !IsPublicPage(MainFrame.Content) && MainFrame.Content is not CoursesPage && MainFrame.CanGoBack);
     }
 
     private void OnProfileSaved(CurrentUserDto user)
@@ -410,6 +428,11 @@ public partial class MainWindow : Window
         return MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageLessonsPage or ManageCourseReviewsPage or ManageCourseStudentsPage or ManageCourseAnalyticsPage or RoleDashboardPage;
     }
 
+    private static bool IsPublicPage(object? content)
+    {
+        return content is LoginPage or LandingPage or WhyItPage or FaqPage;
+    }
+
     private void MainWindow_OnClosed(object? sender, EventArgs e)
     {
         SessionEvents.SessionExpired -= OnSessionExpired;
@@ -433,7 +456,7 @@ public partial class MainWindow : Window
         try
         {
             await _authClient.LogoutAsync();
-            if (MainFrame.Content is not LoginPage and not LandingPage)
+            if (!IsPublicPage(MainFrame.Content))
             {
                 NavigateToLanding();
                 MessageBox.Show(

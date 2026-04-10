@@ -10,13 +10,22 @@ public partial class LandingPage : Page
     private readonly LandingViewModel _viewModel;
     private readonly Action _openLogin;
     private readonly Action _openRegister;
+    private readonly Action _openWhyIt;
+    private readonly Action _openFaq;
 
-    public LandingPage(CoursesClient coursesClient, Action openLogin, Action openRegister)
+    public LandingPage(
+        CoursesClient coursesClient,
+        Action openLogin,
+        Action openRegister,
+        Action openWhyIt,
+        Action openFaq)
     {
         InitializeComponent();
         _viewModel = new LandingViewModel(coursesClient);
         _openLogin = openLogin;
         _openRegister = openRegister;
+        _openWhyIt = openWhyIt;
+        _openFaq = openFaq;
         DataContext = _viewModel;
         Loaded += Page_Loaded;
     }
@@ -35,5 +44,15 @@ public partial class LandingPage : Page
     private void RegisterButton_OnClick(object sender, RoutedEventArgs e)
     {
         _openRegister();
+    }
+
+    private void WhyItButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        _openWhyIt();
+    }
+
+    private void FaqButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        _openFaq();
     }
 }
