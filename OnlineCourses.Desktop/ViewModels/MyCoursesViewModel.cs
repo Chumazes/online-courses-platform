@@ -103,7 +103,7 @@ public sealed class MyCoursesViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ex.ResponseBody ?? ex.Message;
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось загрузить ваши курсы.");
         }
         catch (HttpRequestException)
         {

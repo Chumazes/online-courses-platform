@@ -23,6 +23,7 @@ public partial class MainWindow : Window
     private readonly FilesClient _filesClient;
     private readonly string _apiBaseUrl;
     private CurrentUserDto? _currentUser;
+    private bool _isHandlingSessionExpired;
 
     public MainWindow()
     {
@@ -45,6 +46,8 @@ public partial class MainWindow : Window
         _reviewsClient = new ReviewsClient(httpClient, tokenStore);
         _filesClient = new FilesClient(httpClient, tokenStore);
         MainFrame.Navigated += MainFrame_OnNavigated;
+        SessionEvents.SessionExpired += OnSessionExpired;
+        Closed += MainWindow_OnClosed;
 
         NavigateToLogin();
     }
@@ -135,6 +138,11 @@ public partial class MainWindow : Window
     private async void ProfileBadge_OnClick(object sender, RoutedEventArgs e)
     {
         var user = _currentUser ?? await EnsureCurrentUserAsync();
+        if (MainFrame.Content is LoginPage)
+        {
+            return;
+        }
+
         if (user is null)
         {
             MessageBox.Show(
@@ -201,6 +209,11 @@ public partial class MainWindow : Window
     private async Task LoadCurrentUserAsync()
     {
         var user = await EnsureCurrentUserAsync();
+        if (MainFrame.Content is LoginPage)
+        {
+            return;
+        }
+
         if (user is null)
         {
             UserNameText.Text = "Профиль недоступен";
@@ -219,7 +232,7 @@ public partial class MainWindow : Window
         }
         catch (ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
-            await PerformLogoutAsync();
+            SessionEvents.RaiseSessionExpired("Сессия истекла. Выполните вход снова.");
             return null;
         }
         catch
@@ -333,5 +346,44 @@ public partial class MainWindow : Window
     private bool IsManagementPage()
     {
         return MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageLessonsPage or ManageCourseReviewsPage;
+    }
+
+    private void MainWindow_OnClosed(object? sender, EventArgs e)
+    {
+        SessionEvents.SessionExpired -= OnSessionExpired;
+        Closed -= MainWindow_OnClosed;
+    }
+
+    private async void OnSessionExpired(string message)
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            _ = Dispatcher.InvokeAsync(() => OnSessionExpired(message));
+            return;
+        }
+
+        if (_isHandlingSessionExpired)
+        {
+            return;
+        }
+
+        _isHandlingSessionExpired = true;
+        try
+        {
+            await _authClient.LogoutAsync();
+            if (MainFrame.Content is not LoginPage)
+            {
+                NavigateToLogin();
+                MessageBox.Show(
+                    message,
+                    "Сессия завершена",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+        }
+        finally
+        {
+            _isHandlingSessionExpired = false;
+        }
     }
 }

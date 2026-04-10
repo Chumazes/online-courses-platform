@@ -138,7 +138,7 @@ public sealed class ProfileViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ex.ResponseBody ?? ex.Message;
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось загрузить аватар.");
         }
         catch (HttpRequestException)
         {
@@ -173,7 +173,7 @@ public sealed class ProfileViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ex.ResponseBody ?? ex.Message;
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось сохранить профиль.");
         }
         catch (HttpRequestException)
         {

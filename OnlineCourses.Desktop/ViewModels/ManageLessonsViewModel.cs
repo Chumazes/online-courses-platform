@@ -267,7 +267,7 @@ public sealed class ManageLessonsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ExtractApiErrorMessage(ex);
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось загрузить уроки секции.");
         }
         catch (HttpRequestException)
         {
@@ -321,7 +321,7 @@ public sealed class ManageLessonsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ExtractApiErrorMessage(ex);
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось удалить урок.");
         }
         catch (HttpRequestException)
         {
@@ -378,7 +378,7 @@ public sealed class ManageLessonsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ExtractApiErrorMessage(ex);
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось загрузить файл урока.");
         }
         catch (HttpRequestException)
         {
@@ -458,7 +458,7 @@ public sealed class ManageLessonsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ExtractApiErrorMessage(ex);
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось сохранить урок.");
         }
         catch (HttpRequestException)
         {

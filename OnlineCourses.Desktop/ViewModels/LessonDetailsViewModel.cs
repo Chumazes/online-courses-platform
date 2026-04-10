@@ -141,7 +141,7 @@ public sealed class LessonDetailsViewModel : ViewModelBase
         catch (ApiException ex)
         {
             CanTrackProgress = false;
-            ProgressErrorMessage = ex.ResponseBody ?? ex.Message;
+            ProgressErrorMessage = GetFriendlyApiError(ex, "Не удалось загрузить прогресс урока.");
         }
         catch (HttpRequestException)
         {
@@ -175,7 +175,7 @@ public sealed class LessonDetailsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ProgressErrorMessage = ex.ResponseBody ?? ex.Message;
+            ProgressErrorMessage = GetFriendlyApiError(ex, "Не удалось сохранить прогресс.");
         }
         catch (HttpRequestException)
         {

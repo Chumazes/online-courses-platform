@@ -205,7 +205,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ExtractApiErrorMessage(ex);
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось загрузить список курсов.");
         }
         catch (HttpRequestException)
         {
@@ -260,7 +260,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ExtractApiErrorMessage(ex);
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось удалить курс.");
         }
         catch (HttpRequestException)
         {
@@ -338,7 +338,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ExtractApiErrorMessage(ex);
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось сохранить курс.");
         }
         catch (HttpRequestException)
         {

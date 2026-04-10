@@ -135,11 +135,15 @@ public sealed class LoginViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ex.ResponseBody ?? ex.Message;
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось выполнить вход.", notifyUnauthorized: false);
         }
         catch (HttpRequestException)
         {
             ErrorMessage = "Не удалось подключиться к API. Проверь, запущен ли сервер.";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = GetFriendlyUnexpectedError(ex, "Не удалось выполнить вход.");
         }
         finally
         {

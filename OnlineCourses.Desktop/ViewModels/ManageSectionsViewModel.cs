@@ -166,7 +166,7 @@ public sealed class ManageSectionsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ExtractApiErrorMessage(ex);
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось загрузить секции курса.");
         }
         catch (HttpRequestException)
         {
@@ -216,7 +216,7 @@ public sealed class ManageSectionsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ExtractApiErrorMessage(ex);
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось удалить секцию.");
         }
         catch (HttpRequestException)
         {
@@ -292,7 +292,7 @@ public sealed class ManageSectionsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ExtractApiErrorMessage(ex);
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось сохранить секцию.");
         }
         catch (HttpRequestException)
         {

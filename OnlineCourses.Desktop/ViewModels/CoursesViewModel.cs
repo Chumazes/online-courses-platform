@@ -204,7 +204,7 @@ public sealed class CoursesViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ex.ResponseBody ?? ex.Message;
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось загрузить каталог курсов.");
         }
         catch (HttpRequestException)
         {

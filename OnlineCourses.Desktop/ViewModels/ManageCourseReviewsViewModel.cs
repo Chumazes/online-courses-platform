@@ -153,7 +153,7 @@ public sealed class ManageCourseReviewsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ExtractApiErrorMessage(ex);
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось загрузить отзывы курса.");
         }
         catch (HttpRequestException)
         {
@@ -188,7 +188,7 @@ public sealed class ManageCourseReviewsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ExtractApiErrorMessage(ex);
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось изменить статус отзыва.");
         }
         catch (HttpRequestException)
         {
@@ -223,7 +223,7 @@ public sealed class ManageCourseReviewsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ExtractApiErrorMessage(ex);
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось удалить отзыв.");
         }
         catch (HttpRequestException)
         {

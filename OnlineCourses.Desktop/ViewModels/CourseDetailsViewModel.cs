@@ -412,7 +412,7 @@ public sealed class CourseDetailsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ErrorMessage = ex.ResponseBody ?? ex.Message;
+            ErrorMessage = GetFriendlyApiError(ex, "Не удалось загрузить детали курса.");
         }
         catch (HttpRequestException)
         {
@@ -476,7 +476,7 @@ public sealed class CourseDetailsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            EnrollmentErrorMessage = TryExtractApiMessage(ex.ResponseBody) ?? ex.Message;
+            EnrollmentErrorMessage = GetFriendlyApiError(ex, "Не удалось записаться на курс.");
         }
         catch (HttpRequestException)
         {
@@ -549,7 +549,7 @@ public sealed class CourseDetailsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ReviewsErrorMessage = TryExtractApiMessage(ex.ResponseBody) ?? ex.Message;
+            ReviewsErrorMessage = GetFriendlyApiError(ex, "Не удалось загрузить отзывы.");
         }
         catch (HttpRequestException)
         {
@@ -621,7 +621,7 @@ public sealed class CourseDetailsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ReviewErrorMessage = TryExtractApiMessage(ex.ResponseBody) ?? ex.Message;
+            ReviewErrorMessage = GetFriendlyApiError(ex, "Не удалось сохранить отзыв.");
         }
         catch (HttpRequestException)
         {
@@ -657,7 +657,7 @@ public sealed class CourseDetailsViewModel : ViewModelBase
         }
         catch (ApiException ex)
         {
-            ReviewErrorMessage = TryExtractApiMessage(ex.ResponseBody) ?? ex.Message;
+            ReviewErrorMessage = GetFriendlyApiError(ex, "Не удалось удалить отзыв.");
         }
         catch (HttpRequestException)
         {
@@ -746,29 +746,5 @@ public sealed class CourseDetailsViewModel : ViewModelBase
     private static string? NormalizeComment(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
-    }
-
-    private static string? TryExtractApiMessage(string? responseBody)
-    {
-        if (string.IsNullOrWhiteSpace(responseBody))
-        {
-            return null;
-        }
-
-        const string marker = "\"message\":\"";
-        var start = responseBody.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
-        if (start < 0)
-        {
-            return responseBody;
-        }
-
-        start += marker.Length;
-        var end = responseBody.IndexOf('"', start);
-        if (end < 0)
-        {
-            return responseBody;
-        }
-
-        return responseBody[start..end];
     }
 }
