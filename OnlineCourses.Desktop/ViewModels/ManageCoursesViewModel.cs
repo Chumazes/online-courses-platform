@@ -21,9 +21,11 @@ public sealed class ManageCoursesViewModel : ViewModelBase
     private string _level = "beginner";
     private string _price = "0";
     private string _status = "draft";
+    private CourseCategoryDto? _selectedCategory;
     private string? _coverImageUrl;
     private string? _statusMessage;
     private string? _errorMessage;
+    private bool _categoriesLoaded;
 
     public ManageCoursesViewModel(CoursesClient coursesClient, bool showAllCourses)
     {
@@ -32,11 +34,13 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         _saveCommand = new AsyncRelayCommand(SaveAsync, CanSave);
 
         Courses = new ObservableCollection<ManageCourseItemViewModel>();
+        Categories = new ObservableCollection<CourseCategoryDto>();
         Levels = new[] { "beginner", "intermediate", "advanced" };
         Statuses = new[] { "draft", "published", "archived" };
     }
 
     public ObservableCollection<ManageCourseItemViewModel> Courses { get; }
+    public ObservableCollection<CourseCategoryDto> Categories { get; }
     public IReadOnlyList<string> Levels { get; }
     public IReadOnlyList<string> Statuses { get; }
 
@@ -156,6 +160,12 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         set => SetProperty(ref _status, value);
     }
 
+    public CourseCategoryDto? SelectedCategory
+    {
+        get => _selectedCategory;
+        set => SetProperty(ref _selectedCategory, value);
+    }
+
     public string? CoverImageUrl
     {
         get => _coverImageUrl;
@@ -192,6 +202,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
 
         try
         {
+            await LoadCategoriesAsync();
             var courses = await LoadCoursesAsync();
             foreach (var course in courses.OrderByDescending(item => item.CreatedAt))
             {
@@ -231,6 +242,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         Level = Levels[0];
         Price = "0";
         Status = Statuses[0];
+        SelectedCategory = Categories.FirstOrDefault();
         CoverImageUrl = string.Empty;
         StatusMessage = null;
         ErrorMessage = null;
@@ -284,6 +296,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         Level = course.Level;
         Price = course.Price.ToString("0.##", CultureInfo.InvariantCulture);
         Status = course.Status;
+        SelectedCategory = ResolveSelectedCategory(course.CategoryId);
         CoverImageUrl = course.CoverImageUrl;
         StatusMessage = null;
         ErrorMessage = null;
@@ -311,6 +324,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
                     Description = Description.Trim(),
                     Price = parsedPrice,
                     Level = Level,
+                    CategoryId = ResolveSelectedCategoryId(),
                     CoverImageUrl = string.IsNullOrWhiteSpace(CoverImageUrl) ? null : CoverImageUrl.Trim()
                 });
 
@@ -328,6 +342,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
                     Price = parsedPrice,
                     Level = Level,
                     Status = Status,
+                    CategoryId = ResolveSelectedCategoryId(),
                     CoverImageUrl = string.IsNullOrWhiteSpace(CoverImageUrl) ? null : CoverImageUrl.Trim()
                 });
 
@@ -387,6 +402,29 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         return courses;
     }
 
+    private async Task LoadCategoriesAsync()
+    {
+        if (_categoriesLoaded)
+        {
+            return;
+        }
+
+        Categories.Clear();
+        Categories.Add(new CourseCategoryDto
+        {
+            CategoryId = 0,
+            Name = "Без категории"
+        });
+
+        foreach (var category in (await _coursesClient.GetCategoriesAsync()).OrderBy(item => item.Name))
+        {
+            Categories.Add(category);
+        }
+
+        SelectedCategory ??= Categories.FirstOrDefault();
+        _categoriesLoaded = true;
+    }
+
     private bool CanSave()
     {
         return !IsLoading &&
@@ -402,6 +440,21 @@ public sealed class ManageCoursesViewModel : ViewModelBase
         return decimal.TryParse(raw, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out parsedPrice);
     }
 
+    private int? ResolveSelectedCategoryId()
+    {
+        return (SelectedCategory?.CategoryId ?? 0) > 0 ? SelectedCategory!.CategoryId : null;
+    }
+
+    private CourseCategoryDto? ResolveSelectedCategory(int? categoryId)
+    {
+        if ((categoryId ?? 0) > 0)
+        {
+            return Categories.FirstOrDefault(item => item.CategoryId == categoryId) ?? Categories.FirstOrDefault();
+        }
+
+        return Categories.FirstOrDefault();
+    }
+
     private static ManageCourseItemViewModel MapCourse(CourseResponseDto course) =>
         new()
         {
@@ -412,6 +465,8 @@ public sealed class ManageCoursesViewModel : ViewModelBase
             Level = course.Level,
             Price = course.Price,
             Status = string.IsNullOrWhiteSpace(course.Status) ? "draft" : course.Status,
+            CategoryId = course.CategoryId,
+            CategoryName = course.CategoryName,
             CoverImageUrl = course.CoverImageUrl,
             CreatedAt = course.CreatedAt,
             TotalStudents = course.TotalStudents

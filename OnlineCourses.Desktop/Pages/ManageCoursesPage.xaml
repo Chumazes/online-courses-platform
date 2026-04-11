@@ -197,6 +197,14 @@
 
                     <TextBlock Margin="0,18,0,8"
                                Foreground="{StaticResource LltLightTextBrush}"
+                               Text="Категория" />
+                    <ComboBox Style="{StaticResource LltComboBoxStyle}"
+                              DisplayMemberPath="Name"
+                              ItemsSource="{Binding Categories}"
+                              SelectedItem="{Binding SelectedCategory}" />
+
+                    <TextBlock Margin="0,18,0,8"
+                               Foreground="{StaticResource LltLightTextBrush}"
                                Text="Статус" />
                     <ComboBox Style="{StaticResource LltComboBoxStyle}"
                               ItemsSource="{Binding Statuses}"

@@ -9,6 +9,8 @@ public sealed class ManageCourseItemViewModel
     public string Level { get; init; } = "beginner";
     public decimal Price { get; init; }
     public string Status { get; init; } = "draft";
+    public int? CategoryId { get; init; }
+    public string? CategoryName { get; init; }
     public string? CoverImageUrl { get; init; }
     public DateTime CreatedAt { get; init; }
     public int TotalStudents { get; init; }
@@ -32,6 +34,11 @@ public sealed class ManageCourseItemViewModel
                 $"{Price:0.##} ₽",
                 $"{TotalStudents} студентов"
             };
+
+            if (!string.IsNullOrWhiteSpace(CategoryName))
+            {
+                parts.Add($"Категория: {CategoryName}");
+            }
 
             if (!string.IsNullOrWhiteSpace(AuthorName))
             {

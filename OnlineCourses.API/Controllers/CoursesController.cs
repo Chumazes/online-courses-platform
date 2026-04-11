@@ -135,6 +135,10 @@ public class CoursesController : ControllerBase
                 Price = course.Price,
                 Level = course.Level,
                 Status = course.Status,
+                CategoryId = course.CategoryId,
+                CategoryName = course.Category?.Name,
+                AuthorId = course.AuthorId,
+                AuthorName = string.Empty,
                 CoverImageUrl = course.CoverImageUrl,
                 CreatedAt = course.CreatedAt,
                 TotalStudents = studentCount
