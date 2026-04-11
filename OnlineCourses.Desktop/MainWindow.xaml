@@ -7,8 +7,8 @@
         Title="Low-Level to Top"
         Width="1100"
         Height="700"
-        MinWidth="760"
-        MinHeight="520"
+        MinWidth="1100"
+        MinHeight="700"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource LltShellBrush}">
     <Grid Background="{StaticResource LltShellBrush}">
