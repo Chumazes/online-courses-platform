@@ -6,11 +6,13 @@ namespace OnlineCourses.Client.Api;
 
 public sealed class FilesClient : ApiClientBase
 {
+    private readonly HttpClient _httpClient;
     private readonly Uri? _baseAddress;
 
     public FilesClient(HttpClient httpClient, ITokenStore tokenStore)
         : base(httpClient, tokenStore)
     {
+        _httpClient = httpClient;
         _baseAddress = httpClient.BaseAddress;
     }
 
@@ -70,6 +72,48 @@ public sealed class FilesClient : ApiClientBase
 
         var relative = $"api/files/download?fileUrl={Uri.EscapeDataString(fileUrl)}";
         return new Uri(_baseAddress, relative).ToString();
+    }
+
+    public async Task DownloadAsync(
+        string fileUrl,
+        string destinationPath,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(fileUrl))
+        {
+            throw new InvalidOperationException("Файл недоступен для скачивания.");
+        }
+
+        var relativeUrl = $"api/files/download?fileUrl={Uri.EscapeDataString(fileUrl)}";
+        using var request = await CreateRequestAsync(
+            HttpMethod.Get,
+            relativeUrl,
+            cancellationToken: cancellationToken);
+
+        using var response = await _httpClient.SendAsync(
+            request,
+            HttpCompletionOption.ResponseHeadersRead,
+            cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var responseBody = response.Content is null
+                ? null
+                : await response.Content.ReadAsStringAsync(cancellationToken);
+
+            var message = $"API request failed with status {(int)response.StatusCode} ({response.StatusCode}).";
+            throw new ApiException(message, response.StatusCode, responseBody);
+        }
+
+        var targetDirectory = Path.GetDirectoryName(destinationPath);
+        if (!string.IsNullOrWhiteSpace(targetDirectory))
+        {
+            Directory.CreateDirectory(targetDirectory);
+        }
+
+        await using var sourceStream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        await using var destinationStream = File.Create(destinationPath);
+        await sourceStream.CopyToAsync(destinationStream, cancellationToken);
     }
 
     private static string GetMimeType(string filePath)
