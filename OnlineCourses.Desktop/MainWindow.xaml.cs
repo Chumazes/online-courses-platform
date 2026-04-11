@@ -168,7 +168,10 @@ public partial class MainWindow : Window
             _coursesClient,
             showAllCourses: CanModerateReviews(),
             isAdmin: CanModerateReviews(),
-            openManageCourses: NavigateToManageCourses));
+            openManageCourses: NavigateToManageCourses,
+            openStudents: NavigateToManageCourseStudents,
+            openAnalytics: NavigateToManageCourseAnalytics,
+            openReviews: CanModerateReviews() ? NavigateToManageCourseReviews : null));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 

@@ -52,92 +52,158 @@
                        Text="{Binding ErrorMessage}"
                        TextWrapping="Wrap" />
 
-            <WrapPanel Grid.Row="2"
-                       Margin="0,18,0,18">
-                <Border Width="250"
-                        Margin="0,0,16,16"
-                        Padding="18"
-                        Background="#7440A7"
-                        BorderBrush="#A97AD4"
-                        BorderThickness="1"
-                        CornerRadius="24">
-                    <StackPanel>
-                        <TextBlock Foreground="#E7D8F7"
-                                   Text="Курсы" />
-                        <TextBlock Margin="0,10,0,0"
-                                   FontSize="34"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource LltLightTextBrush}"
-                                   Text="{Binding TotalCourses}" />
-                        <TextBlock Margin="0,8,0,0"
-                                   Foreground="#E7D8F7"
-                                   Text="Всего в этой панели" />
-                    </StackPanel>
-                </Border>
+            <StackPanel Grid.Row="2"
+                        Margin="0,18,0,18">
+                <WrapPanel>
+                    <Border Width="250"
+                            Margin="0,0,16,16"
+                            Padding="18"
+                            Background="#7440A7"
+                            BorderBrush="#A97AD4"
+                            BorderThickness="1"
+                            CornerRadius="24">
+                        <StackPanel>
+                            <TextBlock Foreground="#E7D8F7"
+                                       Text="Курсы" />
+                            <TextBlock Margin="0,10,0,0"
+                                       FontSize="34"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LltLightTextBrush}"
+                                       Text="{Binding TotalCourses}" />
+                            <TextBlock Margin="0,8,0,0"
+                                       Foreground="#E7D8F7"
+                                       Text="Всего в этой панели" />
+                        </StackPanel>
+                    </Border>
 
-                <Border Width="250"
-                        Margin="0,0,16,16"
-                        Padding="18"
-                        Background="#7440A7"
-                        BorderBrush="#A97AD4"
-                        BorderThickness="1"
-                        CornerRadius="24">
-                    <StackPanel>
-                        <TextBlock Foreground="#E7D8F7"
-                                   Text="Опубликовано" />
-                        <TextBlock Margin="0,10,0,0"
-                                   FontSize="34"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource LltLightTextBrush}"
-                                   Text="{Binding PublishedCourses}" />
-                        <TextBlock Margin="0,8,0,0"
-                                   Foreground="#E7D8F7"
-                                   Text="{Binding DraftCourses, StringFormat=Черновиков: {0}}" />
-                    </StackPanel>
-                </Border>
+                    <Border Width="250"
+                            Margin="0,0,16,16"
+                            Padding="18"
+                            Background="#7440A7"
+                            BorderBrush="#A97AD4"
+                            BorderThickness="1"
+                            CornerRadius="24">
+                        <StackPanel>
+                            <TextBlock Foreground="#E7D8F7"
+                                       Text="Опубликовано" />
+                            <TextBlock Margin="0,10,0,0"
+                                       FontSize="34"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LltLightTextBrush}"
+                                       Text="{Binding PublishedCourses}" />
+                            <TextBlock Margin="0,8,0,0"
+                                       Foreground="#E7D8F7"
+                                       Text="{Binding DraftCourses, StringFormat=Черновиков: {0}}" />
+                        </StackPanel>
+                    </Border>
 
-                <Border Width="250"
-                        Margin="0,0,16,16"
-                        Padding="18"
-                        Background="#7440A7"
-                        BorderBrush="#A97AD4"
-                        BorderThickness="1"
-                        CornerRadius="24">
-                    <StackPanel>
-                        <TextBlock Foreground="#E7D8F7"
-                                   Text="Студенты" />
-                        <TextBlock Margin="0,10,0,0"
-                                   FontSize="34"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource LltLightTextBrush}"
-                                   Text="{Binding TotalStudents}" />
-                        <TextBlock Margin="0,8,0,0"
-                                   Foreground="#E7D8F7"
-                                   Text="Во всех курсах" />
-                    </StackPanel>
-                </Border>
+                    <Border Width="250"
+                            Margin="0,0,16,16"
+                            Padding="18"
+                            Background="#7440A7"
+                            BorderBrush="#A97AD4"
+                            BorderThickness="1"
+                            CornerRadius="24">
+                        <StackPanel>
+                            <TextBlock Foreground="#E7D8F7"
+                                       Text="Студенты" />
+                            <TextBlock Margin="0,10,0,0"
+                                       FontSize="34"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LltLightTextBrush}"
+                                       Text="{Binding TotalStudents}" />
+                            <TextBlock Margin="0,8,0,0"
+                                       Foreground="#E7D8F7"
+                                       Text="Во всех курсах панели" />
+                        </StackPanel>
+                    </Border>
 
-                <Border Width="250"
-                        Margin="0,0,0,16"
-                        Padding="18"
-                        Background="#7440A7"
-                        BorderBrush="#A97AD4"
+                    <Border Width="250"
+                            Margin="0,0,16,16"
+                            Padding="18"
+                            Background="#7440A7"
+                            BorderBrush="#A97AD4"
+                            BorderThickness="1"
+                            CornerRadius="24">
+                        <StackPanel>
+                            <TextBlock Foreground="#E7D8F7"
+                                       Text="Средний рейтинг" />
+                            <TextBlock Margin="0,10,0,0"
+                                       FontSize="34"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LltLightTextBrush}"
+                                       Text="{Binding AverageRatingCaption}" />
+                            <TextBlock Margin="0,8,0,0"
+                                       Foreground="#E7D8F7"
+                                       Text="По курсам с оценками" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Width="250"
+                            Margin="0,0,0,16"
+                            Padding="18"
+                            Background="#7440A7"
+                            BorderBrush="#A97AD4"
+                            BorderThickness="1"
+                            CornerRadius="24">
+                        <StackPanel>
+                            <TextBlock Foreground="#E7D8F7"
+                                       Text="Требуют внимания" />
+                            <TextBlock Margin="0,10,0,0"
+                                       FontSize="34"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LltLightTextBrush}"
+                                       Text="{Binding AttentionCourses}" />
+                            <TextBlock Margin="0,8,0,0"
+                                       Foreground="#E7D8F7"
+                                       Text="Черновики и пустые опубликованные курсы" />
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <Border Padding="22"
+                        Background="#2A1238"
+                        BorderBrush="#5C3880"
                         BorderThickness="1"
                         CornerRadius="24">
-                    <StackPanel>
-                        <TextBlock Foreground="#E7D8F7"
-                                   Text="Средний рейтинг" />
-                        <TextBlock Margin="0,10,0,0"
-                                   FontSize="34"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource LltLightTextBrush}"
-                                   Text="{Binding AverageRatingCaption}" />
-                        <TextBlock Margin="0,8,0,0"
-                                   Foreground="#E7D8F7"
-                                   Text="По курсам с оценками" />
-                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="340" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0"
+                                    Margin="0,0,18,0">
+                            <TextBlock FontSize="24"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LltLightTextBrush}"
+                                       Text="{Binding FocusTitle}" />
+                            <TextBlock Margin="0,12,0,0"
+                                       Foreground="#DCCCEC"
+                                       Text="{Binding FocusDescription}"
+                                       TextWrapping="Wrap" />
+                        </StackPanel>
+
+                        <Border Grid.Column="1"
+                                Padding="18"
+                                Background="#6F4B96"
+                                BorderBrush="#A97AD4"
+                                BorderThickness="1"
+                                CornerRadius="22">
+                            <StackPanel>
+                                <TextBlock Foreground="#E7D8F7"
+                                           Text="Следующий шаг" />
+                                <TextBlock Margin="0,12,0,0"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Foreground="{StaticResource LltLightTextBrush}"
+                                           Text="{Binding FocusAction}"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
                 </Border>
-            </WrapPanel>
+            </StackPanel>
 
             <Border Grid.Row="3"
                     Padding="22"
@@ -161,44 +227,78 @@
                                         BorderBrush="#B494D4"
                                         BorderThickness="1"
                                         CornerRadius="22">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
 
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock FontSize="22"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource LltLightTextBrush}"
-                                                       Text="{Binding Title}"
-                                                       TextWrapping="Wrap" />
-                                            <TextBlock Margin="0,10,0,0"
-                                                       Foreground="#EEE5F8"
-                                                       Text="{Binding Description}"
-                                                       TextWrapping="Wrap"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       MaxHeight="64" />
-                                            <Border Margin="0,14,0,0"
-                                                    Padding="12"
-                                                    Background="#220A2C"
-                                                    CornerRadius="18">
-                                                <TextBlock Foreground="#E7D8F7"
-                                                           Text="{Binding MetaCaption}"
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock FontSize="22"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{StaticResource LltLightTextBrush}"
+                                                           Text="{Binding Title}"
                                                            TextWrapping="Wrap" />
-                                            </Border>
-                                        </StackPanel>
+                                                <TextBlock Margin="0,10,0,0"
+                                                           Foreground="#EEE5F8"
+                                                           Text="{Binding Description}"
+                                                           TextWrapping="Wrap"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           MaxHeight="64" />
+                                                <Border Margin="0,14,0,0"
+                                                        Padding="12"
+                                                        Background="#220A2C"
+                                                        CornerRadius="18">
+                                                    <TextBlock Foreground="#E7D8F7"
+                                                               Text="{Binding MetaCaption}"
+                                                               TextWrapping="Wrap" />
+                                                </Border>
+                                            </StackPanel>
 
-                                        <Border Grid.Column="1"
-                                                Margin="18,0,0,0"
-                                                Padding="10,4"
-                                                VerticalAlignment="Top"
-                                                Background="#F4EEFA"
-                                                CornerRadius="14">
-                                            <TextBlock Foreground="{StaticResource LltInkBrush}"
-                                                       Text="{Binding StatusText}" />
+                                            <Border Grid.Column="1"
+                                                    Margin="18,0,0,0"
+                                                    Padding="10,4"
+                                                    VerticalAlignment="Top"
+                                                    Background="#F4EEFA"
+                                                    CornerRadius="14">
+                                                <TextBlock Foreground="{StaticResource LltInkBrush}"
+                                                           Text="{Binding StatusText}" />
+                                            </Border>
+                                        </Grid>
+
+                                        <Border Margin="0,16,0,0"
+                                                Padding="14"
+                                                Background="#2A1238"
+                                                BorderBrush="#5C3880"
+                                                BorderThickness="1"
+                                                CornerRadius="18">
+                                            <TextBlock Foreground="#DCCCEC"
+                                                       Text="{Binding ActionHint}"
+                                                       TextWrapping="Wrap" />
                                         </Border>
-                                    </Grid>
+
+                                        <WrapPanel Margin="0,16,0,0">
+                                            <Button Width="170"
+                                                    Margin="0,0,12,0"
+                                                    Style="{StaticResource LltAccentButtonStyle}"
+                                                    Click="OpenStudentsButton_OnClick"
+                                                    Content="Студенты курса"
+                                                    Tag="{Binding}" />
+                                            <Button Width="160"
+                                                    Margin="0,0,12,0"
+                                                    Style="{StaticResource LltLightButtonStyle}"
+                                                    Click="OpenAnalyticsButton_OnClick"
+                                                    Content="Аналитика"
+                                                    Tag="{Binding}" />
+                                            <Button Width="150"
+                                                    Style="{StaticResource LltLightButtonStyle}"
+                                                    Click="OpenReviewsButton_OnClick"
+                                                    Content="Отзывы"
+                                                    Tag="{Binding}"
+                                                    Visibility="{Binding ShowModerationAction, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                        </WrapPanel>
+                                    </StackPanel>
                                 </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
