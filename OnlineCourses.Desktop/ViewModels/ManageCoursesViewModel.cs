@@ -25,7 +25,6 @@ public sealed class ManageCoursesViewModel : ViewModelBase
     private string? _coverImageUrl;
     private string? _statusMessage;
     private string? _errorMessage;
-    private bool _categoriesLoaded;
 
     public ManageCoursesViewModel(CoursesClient coursesClient, bool showAllCourses)
     {
@@ -404,11 +403,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
 
     private async Task LoadCategoriesAsync()
     {
-        if (_categoriesLoaded)
-        {
-            return;
-        }
-
+        var selectedCategoryId = ResolveSelectedCategoryId();
         Categories.Clear();
         Categories.Add(new CourseCategoryDto
         {
@@ -421,8 +416,7 @@ public sealed class ManageCoursesViewModel : ViewModelBase
             Categories.Add(category);
         }
 
-        SelectedCategory ??= Categories.FirstOrDefault();
-        _categoriesLoaded = true;
+        SelectedCategory = ResolveSelectedCategory(selectedCategoryId);
     }
 
     private bool CanSave()

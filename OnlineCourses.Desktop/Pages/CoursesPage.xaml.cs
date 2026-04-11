@@ -21,6 +21,7 @@ public partial class CoursesPage : Page
         _openMyCourses = openMyCourses;
         DataContext = _viewModel;
         Loaded += Page_Loaded;
+        IsVisibleChanged += Page_IsVisibleChanged;
     }
 
     public void SetMyCoursesVisibility(bool isVisible)
@@ -30,8 +31,15 @@ public partial class CoursesPage : Page
 
     private async void Page_Loaded(object sender, RoutedEventArgs e)
     {
-        Loaded -= Page_Loaded;
         await _viewModel.LoadCoursesAsync();
+    }
+
+    private async void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (IsLoaded && IsVisible)
+        {
+            await _viewModel.LoadCoursesAsync();
+        }
     }
 
     private void CoursesList_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)

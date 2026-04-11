@@ -1,10 +1,10 @@
-<Page x:Class="OnlineCourses.Desktop.Pages.ManageCoursesPage"
+<Page x:Class="OnlineCourses.Desktop.Pages.ManageCategoriesPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
-      Title="ManageCoursesPage">
+      Title="ManageCategoriesPage">
     <Grid Margin="26">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.05*" />
@@ -30,26 +30,17 @@
                         <TextBlock FontSize="30"
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource LltLightTextBrush}"
-                                   Text="Управление курсами" />
+                                   Text="Категории платформы" />
                         <TextBlock Margin="0,8,0,0"
                                    Foreground="#E7D8F7"
-                                   Text="{Binding HeaderSubtitle}" />
+                                   Text="Администратор управляет структурами каталога и фильтрами витрины." />
                     </StackPanel>
 
-                    <StackPanel DockPanel.Dock="Right"
-                                Orientation="Horizontal">
-                        <Button x:Name="ManageCategoriesButton"
-                                Width="160"
-                                Margin="0,0,12,0"
-                                Style="{StaticResource LltLightButtonStyle}"
-                                Click="ManageCategoriesButton_OnClick"
-                                Content="Категории"
-                                Visibility="Collapsed" />
-                        <Button Width="170"
-                                Style="{StaticResource LltLightButtonStyle}"
-                                Click="CreateCourseButton_OnClick"
-                                Content="Новый курс" />
-                    </StackPanel>
+                    <Button DockPanel.Dock="Right"
+                            Width="170"
+                            Style="{StaticResource LltLightButtonStyle}"
+                            Click="CreateCategoryButton_OnClick"
+                            Content="Новая категория" />
                 </DockPanel>
             </Border>
 
@@ -61,9 +52,8 @@
 
             <Grid Grid.Row="2"
                   Margin="0,18,0,0">
-                <ListBox x:Name="CoursesList"
-                         ItemsSource="{Binding Courses}"
-                         SelectedItem="{Binding SelectedCourse}">
+                <ListBox ItemsSource="{Binding Categories}"
+                         SelectedItem="{Binding SelectedCategory}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Border Padding="18"
@@ -73,27 +63,14 @@
                                     BorderThickness="1"
                                     CornerRadius="24">
                                 <StackPanel>
-                                    <DockPanel LastChildFill="False">
-                                        <TextBlock DockPanel.Dock="Left"
-                                                   FontSize="22"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{StaticResource LltLightTextBrush}"
-                                                   Text="{Binding Title}" />
-                                        <Border DockPanel.Dock="Right"
-                                                Padding="10,4"
-                                                Background="#F4EEFA"
-                                                CornerRadius="14">
-                                            <TextBlock Foreground="{StaticResource LltInkBrush}"
-                                                       Text="{Binding StatusText}" />
-                                        </Border>
-                                    </DockPanel>
-
+                                    <TextBlock FontSize="22"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource LltLightTextBrush}"
+                                               Text="{Binding Name}" />
                                     <TextBlock Margin="0,12,0,0"
                                                Foreground="#EEE5F8"
-                                               Text="{Binding Description}"
-                                               TextTrimming="CharacterEllipsis"
+                                               Text="{Binding DescriptionText}"
                                                TextWrapping="Wrap" />
-
                                     <Border Margin="0,14,0,0"
                                             Padding="12"
                                             Background="#220A2C"
@@ -118,7 +95,7 @@
                                VerticalAlignment="Center"
                                FontSize="18"
                                Foreground="{StaticResource LltInkSoftBrush}"
-                               Text="{Binding EmptyStateText}"
+                               Text="Категории пока не созданы. Добавь первую, чтобы каталог стал управляемым."
                                TextAlignment="Center"
                                TextWrapping="Wrap" />
                 </Border>
@@ -133,7 +110,7 @@
                                VerticalAlignment="Center"
                                FontSize="18"
                                Foreground="{StaticResource LltInkSoftBrush}"
-                               Text="{Binding LoadingText}"
+                               Text="Загружаем категории..."
                                TextAlignment="Center"
                                TextWrapping="Wrap" />
                 </Border>
@@ -165,99 +142,33 @@
 
                     <TextBlock Margin="0,20,0,8"
                                Foreground="{StaticResource LltLightTextBrush}"
-                               Text="Название" />
+                               Text="Название категории" />
                     <TextBox Style="{StaticResource LltTextBoxStyle}"
-                             Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
+                             Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
 
                     <TextBlock Margin="0,18,0,8"
                                Foreground="{StaticResource LltLightTextBrush}"
                                Text="Описание" />
-                    <TextBox MinHeight="130"
+                    <TextBox MinHeight="180"
                              Style="{StaticResource LltTextBoxStyle}"
                              AcceptsReturn="True"
                              Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
                              TextWrapping="Wrap"
                              VerticalScrollBarVisibility="Auto" />
 
-                    <Grid Margin="0,18,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0"
-                                    Margin="0,0,10,0">
-                            <TextBlock Foreground="{StaticResource LltLightTextBrush}"
-                                       Text="Уровень" />
-                            <ComboBox Margin="0,8,0,0"
-                                      Style="{StaticResource LltComboBoxStyle}"
-                                      ItemsSource="{Binding Levels}"
-                                      SelectedItem="{Binding Level}" />
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1"
-                                    Margin="10,0,0,0">
-                            <TextBlock Foreground="{StaticResource LltLightTextBrush}"
-                                       Text="Цена" />
-                            <TextBox Margin="0,8,0,0"
-                                     Style="{StaticResource LltTextBoxStyle}"
-                                     Text="{Binding Price, UpdateSourceTrigger=PropertyChanged}" />
-                        </StackPanel>
-                    </Grid>
-
-                    <TextBlock Margin="0,18,0,8"
-                               Foreground="{StaticResource LltLightTextBrush}"
-                               Text="Категория" />
-                    <ComboBox Style="{StaticResource LltComboBoxStyle}"
-                              DisplayMemberPath="Name"
-                              ItemsSource="{Binding Categories}"
-                              SelectedItem="{Binding SelectedCategory}" />
-
-                    <TextBlock Margin="0,18,0,8"
-                               Foreground="{StaticResource LltLightTextBrush}"
-                               Text="Статус" />
-                    <ComboBox Style="{StaticResource LltComboBoxStyle}"
-                              ItemsSource="{Binding Statuses}"
-                              SelectedItem="{Binding Status}" />
-
-                    <Button Width="190"
-                            Margin="0,20,0,0"
-                            HorizontalAlignment="Left"
-                            Style="{StaticResource LltLightButtonStyle}"
-                            Click="ManageSectionsButton_OnClick"
-                            Content="Секции курса"
-                            IsEnabled="{Binding IsExistingCourse}" />
-
-                    <Button Width="190"
-                            Margin="0,12,0,0"
-                            HorizontalAlignment="Left"
-                            Style="{StaticResource LltLightButtonStyle}"
-                            Click="ManageStudentsButton_OnClick"
-                            Content="Студенты курса"
-                            IsEnabled="{Binding IsExistingCourse}" />
-
-                    <Button Width="190"
-                            Margin="0,12,0,0"
-                            HorizontalAlignment="Left"
-                            Style="{StaticResource LltLightButtonStyle}"
-                            Click="ManageAnalyticsButton_OnClick"
-                            Content="Аналитика курса"
-                            IsEnabled="{Binding IsExistingCourse}" />
-
-                    <Button x:Name="ManageReviewsButton"
-                            Width="190"
-                            Margin="0,12,0,0"
-                            HorizontalAlignment="Left"
-                            Style="{StaticResource LltLightButtonStyle}"
-                            Click="ManageReviewsButton_OnClick"
-                            Content="Отзывы курса"
-                            IsEnabled="{Binding IsExistingCourse}"
-                            Visibility="Collapsed" />
+                    <Border Margin="0,18,0,0"
+                            Padding="14"
+                            Background="#220A2C"
+                            CornerRadius="18">
+                        <TextBlock Foreground="#E7D8F7"
+                                   Text="Категории используются в фильтрах каталога, карточках курсов и аналитике. Если категория уже назначена курсам, удаление может быть недоступно."
+                                   TextWrapping="Wrap" />
+                    </Border>
 
                     <DockPanel Margin="0,24,0,0"
                                LastChildFill="False">
                         <Button DockPanel.Dock="Left"
-                                Width="180"
+                                Width="190"
                                 Style="{StaticResource LltAccentButtonStyle}"
                                 Command="{Binding SaveCommand}"
                                 Content="{Binding SaveButtonText}" />
@@ -265,9 +176,9 @@
                                 Width="170"
                                 Margin="10,0,0,0"
                                 Style="{StaticResource LltDangerButtonStyle}"
-                                Click="DeleteCourseButton_OnClick"
-                                Content="Удалить курс"
-                                IsEnabled="{Binding IsExistingCourse}" />
+                                Click="DeleteCategoryButton_OnClick"
+                                Content="Удалить категорию"
+                                IsEnabled="{Binding IsExistingCategory}" />
                     </DockPanel>
                 </StackPanel>
             </ScrollViewer>

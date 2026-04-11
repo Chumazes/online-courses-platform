@@ -128,7 +128,15 @@ public partial class MainWindow : Window
             NavigateToManageCourseStudents,
             NavigateToManageCourseAnalytics,
             NavigateToManageCourseReviews,
+            NavigateToManageCategories,
+            CanModerateReviews(),
             CanModerateReviews()));
+        UpdateHeader(loggedIn: true, canGoBack: true);
+    }
+
+    private void NavigateToManageCategories()
+    {
+        MainFrame.Navigate(new ManageCategoriesPage(_coursesClient));
         UpdateHeader(loggedIn: true, canGoBack: true);
     }
 
@@ -435,7 +443,7 @@ public partial class MainWindow : Window
 
     private bool IsManagementPage()
     {
-        return MainFrame.Content is ManageCoursesPage or ManageSectionsPage or ManageLessonsPage or ManageCourseReviewsPage or ManageCourseStudentsPage or ManageCourseAnalyticsPage or RoleDashboardPage;
+        return MainFrame.Content is ManageCoursesPage or ManageCategoriesPage or ManageSectionsPage or ManageLessonsPage or ManageCourseReviewsPage or ManageCourseStudentsPage or ManageCourseAnalyticsPage or RoleDashboardPage;
     }
 
     private static bool IsPublicPage(object? content)

@@ -253,10 +253,7 @@ public sealed class CoursesViewModel : ViewModelBase
 
     public async Task LoadCoursesAsync()
     {
-        if (!_categoriesLoaded)
-        {
-            await LoadCategoriesAsync();
-        }
+        await LoadCategoriesAsync();
 
         if (string.IsNullOrWhiteSpace(ErrorMessage))
         {
@@ -266,6 +263,7 @@ public sealed class CoursesViewModel : ViewModelBase
 
     private async Task LoadCategoriesAsync()
     {
+        var selectedCategoryId = ResolveCategoryId();
         IsLoading = true;
         ErrorMessage = null;
         Categories.Clear();
@@ -284,9 +282,14 @@ public sealed class CoursesViewModel : ViewModelBase
             }
 
             _isInitializingFilters = true;
-            SelectedCategory = Categories.FirstOrDefault();
-            SelectedLevel = LevelOptions[0];
-            SelectedSort = SortOptions[0];
+            SelectedCategory = Categories.FirstOrDefault(item => item.CategoryId == selectedCategoryId) ?? Categories.FirstOrDefault();
+
+            if (!_categoriesLoaded)
+            {
+                SelectedLevel = LevelOptions[0];
+                SelectedSort = SortOptions[0];
+            }
+
             _categoriesLoaded = true;
         }
         catch (ApiException ex)

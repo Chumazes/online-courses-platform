@@ -12,6 +12,7 @@ public partial class ManageCoursesPage : Page
     private readonly Action<ManageCourseItemViewModel> _openStudents;
     private readonly Action<ManageCourseItemViewModel> _openAnalytics;
     private readonly Action<ManageCourseItemViewModel> _openReviews;
+    private readonly Action _openCategories;
 
     public ManageCoursesPage(
         CoursesClient coursesClient,
@@ -19,17 +20,21 @@ public partial class ManageCoursesPage : Page
         Action<ManageCourseItemViewModel> openStudents,
         Action<ManageCourseItemViewModel> openAnalytics,
         Action<ManageCourseItemViewModel> openReviews,
-        bool canModerateReviews)
+        Action openCategories,
+        bool canModerateReviews,
+        bool canManageCategories)
     {
         InitializeComponent();
         _openSections = openSections;
         _openStudents = openStudents;
         _openAnalytics = openAnalytics;
         _openReviews = openReviews;
+        _openCategories = openCategories;
         _viewModel = new ManageCoursesViewModel(coursesClient, canModerateReviews);
         DataContext = _viewModel;
         Loaded += Page_Loaded;
         ManageReviewsButton.Visibility = canModerateReviews ? Visibility.Visible : Visibility.Collapsed;
+        ManageCategoriesButton.Visibility = canManageCategories ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private async void Page_Loaded(object sender, RoutedEventArgs e)
@@ -40,6 +45,11 @@ public partial class ManageCoursesPage : Page
     private void CreateCourseButton_OnClick(object sender, RoutedEventArgs e)
     {
         _viewModel.StartCreating();
+    }
+
+    private void ManageCategoriesButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        _openCategories();
     }
 
     private void ManageSectionsButton_OnClick(object sender, RoutedEventArgs e)
