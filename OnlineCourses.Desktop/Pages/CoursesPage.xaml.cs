@@ -8,6 +8,7 @@ namespace OnlineCourses.Desktop.Pages;
 
 public partial class CoursesPage : Page
 {
+    private bool _allowVisibleRefresh;
     private readonly CoursesViewModel _viewModel;
     private readonly Action _openMyCourses;
 
@@ -32,11 +33,12 @@ public partial class CoursesPage : Page
     private async void Page_Loaded(object sender, RoutedEventArgs e)
     {
         await _viewModel.LoadCoursesAsync();
+        _allowVisibleRefresh = true;
     }
 
     private async void Page_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
-        if (IsLoaded && IsVisible)
+        if (_allowVisibleRefresh && IsLoaded && IsVisible)
         {
             await _viewModel.LoadCoursesAsync();
         }
