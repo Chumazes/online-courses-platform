@@ -192,6 +192,8 @@ public sealed class CoursesViewModel : ViewModelBase
         {
             if (SetProperty(ref _currentPage, value))
             {
+                RaisePropertyChanged(nameof(PageCaption));
+                RaisePropertyChanged(nameof(PaginationHint));
                 RaisePropertyChanged(nameof(ResultsCaption));
                 RaisePropertyChanged(nameof(CanGoToPreviousPage));
                 RaisePropertyChanged(nameof(CanGoToNextPage));
@@ -208,6 +210,8 @@ public sealed class CoursesViewModel : ViewModelBase
         {
             if (SetProperty(ref _totalPages, value))
             {
+                RaisePropertyChanged(nameof(PageCaption));
+                RaisePropertyChanged(nameof(PaginationHint));
                 RaisePropertyChanged(nameof(ResultsCaption));
                 RaisePropertyChanged(nameof(CanGoToNextPage));
                 _nextPageCommand.RaiseCanExecuteChanged();
@@ -222,6 +226,8 @@ public sealed class CoursesViewModel : ViewModelBase
         {
             if (SetProperty(ref _totalCount, value))
             {
+                RaisePropertyChanged(nameof(PageCaption));
+                RaisePropertyChanged(nameof(PaginationHint));
                 RaisePropertyChanged(nameof(ResultsCaption));
             }
         }
@@ -245,7 +251,16 @@ public sealed class CoursesViewModel : ViewModelBase
     public string ResultsCaption =>
         TotalCount == 0
             ? "Курсов пока нет."
-            : $"Страница {CurrentPage} из {TotalPages} • Найдено курсов: {TotalCount}";
+            : $"Найдено курсов: {TotalCount}";
+
+    public string PageCaption => $"Страница {CurrentPage} из {TotalPages}";
+
+    public string PaginationHint =>
+        TotalCount == 0
+            ? "Когда в каталоге появятся курсы, здесь отобразится навигация."
+            : TotalPages <= 1
+                ? "Сейчас весь каталог помещается на одной странице."
+                : "Используй кнопки «Предыдущая» и «Следующая», чтобы листать каталог.";
 
     public bool CanGoToPreviousPage => !IsLoading && CurrentPage > 1;
 
@@ -414,6 +429,8 @@ public sealed class CoursesViewModel : ViewModelBase
         finally
         {
             IsLoading = false;
+            RaisePropertyChanged(nameof(PageCaption));
+            RaisePropertyChanged(nameof(PaginationHint));
             RaisePropertyChanged(nameof(ResultsCaption));
             RaisePropertyChanged(nameof(ShowEmptyState));
             RaisePropertyChanged(nameof(EmptyStateMessage));

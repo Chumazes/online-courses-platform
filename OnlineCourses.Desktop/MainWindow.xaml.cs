@@ -87,7 +87,7 @@ public partial class MainWindow : Window
 
     private void NavigateToLogin(bool startInRegisterMode = false)
     {
-        var page = new LoginPage(_authClient, NavigateToCourses, startInRegisterMode);
+        var page = new LoginPage(_authClient, NavigateToCourses, NavigateToLanding, startInRegisterMode);
         MainFrame.Navigate(page);
         ClearBackStack();
         ClearProfileHeader();
@@ -208,6 +208,11 @@ public partial class MainWindow : Window
     {
         var user = _currentUser ?? await EnsureCurrentUserAsync();
         if (IsPublicPage(MainFrame.Content))
+        {
+            return;
+        }
+
+        if (MainFrame.Content is ProfilePage)
         {
             return;
         }

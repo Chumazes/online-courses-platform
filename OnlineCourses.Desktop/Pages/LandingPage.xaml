@@ -5,6 +5,78 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       mc:Ignorable="d"
       Title="LandingPage">
+    <Page.Resources>
+        <Style x:Key="LandingLightButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource LltLightButtonStyle}">
+            <Setter Property="MinWidth" Value="160" />
+            <Setter Property="Height" Value="46" />
+            <Setter Property="Padding" Value="18,10" />
+            <Setter Property="Margin" Value="0,0,12,12" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#EDE4F7" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#E3D4F1" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="LandingAccentButtonStyle"
+               TargetType="Button"
+               BasedOn="{StaticResource LltAccentButtonStyle}">
+            <Setter Property="MinWidth" Value="170" />
+            <Setter Property="Height" Value="48" />
+            <Setter Property="Padding" Value="18,10" />
+            <Setter Property="Margin" Value="0,0,12,12" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#74F03D" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="#5EDA27" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Margin="26">
             <Grid.RowDefinitions>
@@ -24,51 +96,48 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="320" />
+                        <ColumnDefinition Width="28" />
+                        <ColumnDefinition Width="300" />
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Column="0"
-                                Margin="0,0,24,0">
-                        <TextBlock FontSize="40"
+                    <StackPanel Grid.Column="0">
+                        <TextBlock FontSize="34"
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource LltLightTextBrush}"
-                                   Text="Старт в IT без лишнего шума" />
+                                   Text="Старт в IT без лишнего шума"
+                                   TextWrapping="Wrap" />
+
                         <TextBlock Margin="0,14,0,0"
-                                   FontSize="18"
+                                   Width="680"
+                                   HorizontalAlignment="Left"
+                                   FontSize="17"
                                    Foreground="#EFE5F8"
+                                   TextAlignment="Left"
                                    Text="Low-Level to Top — это платформа, где студенту понятно, что изучать, преподавателю удобно вести курсы, а администратору видно, как всё растёт."
                                    TextWrapping="Wrap" />
 
-                        <WrapPanel Margin="0,14,0,0">
-                            <Button Width="240"
-                                    Margin="0,0,14,0"
-                                    Style="{StaticResource LltLightButtonStyle}"
+                        <WrapPanel Margin="0,20,0,0">
+                            <Button Style="{StaticResource LandingLightButtonStyle}"
                                     Click="WhyItButton_OnClick"
                                     Content="Почему стоит попробовать IT?" />
-                            <Button Width="170"
-                                    Margin="0,0,14,0"
-                                    Style="{StaticResource LltLightButtonStyle}"
+                            <Button Style="{StaticResource LandingLightButtonStyle}"
                                     Click="FaqButton_OnClick"
                                     Content="FAQ по платформе" />
-                            <Button Width="220"
-                                    Style="{StaticResource LltLightButtonStyle}"
+                            <Button Style="{StaticResource LandingLightButtonStyle}"
                                     Click="StoriesButton_OnClick"
                                     Content="Отзывы и истории" />
                         </WrapPanel>
 
-                        <WrapPanel Margin="0,20,0,0">
-                            <Button Width="210"
-                                    Margin="0,0,14,0"
-                                    Style="{StaticResource LltAccentButtonStyle}"
+                        <WrapPanel Margin="0,6,0,0">
+                            <Button Style="{StaticResource LandingAccentButtonStyle}"
                                     Click="LoginButton_OnClick"
                                     Content="Войти в платформу" />
-                            <Button Width="220"
-                                    Style="{StaticResource LltLightButtonStyle}"
+                            <Button Style="{StaticResource LandingLightButtonStyle}"
                                     Click="RegisterButton_OnClick"
                                     Content="Создать аккаунт" />
                         </WrapPanel>
 
-                        <WrapPanel Margin="0,20,0,0">
+                        <WrapPanel Margin="0,12,0,0">
                             <Border Margin="0,0,12,12"
                                     Padding="14,10"
                                     Background="#2A1238"
@@ -119,8 +188,10 @@
                         </WrapPanel>
                     </StackPanel>
 
-                    <Border Grid.Column="1"
+                    <Border Grid.Column="2"
                             Padding="18"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
                             Background="#190A20"
                             BorderBrush="#B596D1"
                             BorderThickness="1"
@@ -296,36 +367,26 @@
                     BorderBrush="#5C3880"
                     BorderThickness="1"
                     CornerRadius="24">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock FontSize="24"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource LltLightTextBrush}"
+                               Text="Хочешь увидеть весь путь внутри платформы?"
+                               TextWrapping="Wrap" />
+                    <TextBlock Margin="0,10,0,0"
+                               Foreground="#DCCCEC"
+                               Text="Создай аккаунт, открой курс, проходи уроки, оставляй отзывы и следи за прогрессом в одном месте."
+                               TextWrapping="Wrap" />
 
-                    <StackPanel Grid.Column="0">
-                        <TextBlock FontSize="24"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource LltLightTextBrush}"
-                                   Text="Хочешь увидеть весь путь внутри платформы?" />
-                        <TextBlock Margin="0,10,0,0"
-                                   Foreground="#DCCCEC"
-                                   Text="Создай аккаунт, открой курс, проходи уроки, оставляй отзывы и следи за прогрессом в одном месте."
-                                   TextWrapping="Wrap" />
-                    </StackPanel>
-
-                    <WrapPanel Grid.Column="1"
-                               VerticalAlignment="Center">
-                        <Button Width="190"
-                                Margin="0,0,12,0"
-                                Style="{StaticResource LltAccentButtonStyle}"
+                    <WrapPanel Margin="0,18,0,0">
+                        <Button Style="{StaticResource LandingAccentButtonStyle}"
                                 Click="RegisterButton_OnClick"
                                 Content="Начать бесплатно" />
-                        <Button Width="160"
-                                Style="{StaticResource LltLightButtonStyle}"
+                        <Button Style="{StaticResource LandingLightButtonStyle}"
                                 Click="LoginButton_OnClick"
                                 Content="Уже есть аккаунт" />
                     </WrapPanel>
-                </Grid>
+                </StackPanel>
             </Border>
         </Grid>
     </ScrollViewer>

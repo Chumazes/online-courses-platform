@@ -255,12 +255,22 @@
                     Command="{Binding NextPageCommand}"
                     Content="Следующая" />
 
-            <TextBlock Grid.Column="2"
-                       Margin="18,0,18,0"
-                       VerticalAlignment="Center"
-                       Foreground="{StaticResource LltInkSoftBrush}"
-                       Text="{Binding ResultsCaption}"
-                       TextWrapping="Wrap" />
+            <StackPanel Grid.Column="2"
+                        Margin="18,0,18,0"
+                        VerticalAlignment="Center">
+                <TextBlock Foreground="{StaticResource LltInkBrush}"
+                           FontWeight="SemiBold"
+                           Text="{Binding PageCaption}"
+                           TextWrapping="Wrap" />
+                <TextBlock Margin="0,2,0,0"
+                           Foreground="{StaticResource LltInkSoftBrush}"
+                           Text="{Binding PaginationHint}"
+                           TextWrapping="Wrap" />
+                <TextBlock Margin="0,2,0,0"
+                           Foreground="{StaticResource LltInkSoftBrush}"
+                           Text="{Binding ResultsCaption}"
+                           TextWrapping="Wrap" />
+            </StackPanel>
 
             <Button Grid.Column="3"
                     Width="220"

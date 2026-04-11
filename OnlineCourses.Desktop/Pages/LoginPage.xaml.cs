@@ -8,10 +8,12 @@ namespace OnlineCourses.Desktop.Pages;
 public partial class LoginPage : Page
 {
     private readonly LoginViewModel _viewModel;
+    private readonly Action? _onBack;
 
-    public LoginPage(AuthClient authClient, Action onAuthorized, bool startInRegisterMode = false)
+    public LoginPage(AuthClient authClient, Action onAuthorized, Action? onBack = null, bool startInRegisterMode = false)
     {
         InitializeComponent();
+        _onBack = onBack;
         _viewModel = new LoginViewModel(authClient, onAuthorized, startInRegisterMode);
         DataContext = _viewModel;
     }
@@ -22,5 +24,10 @@ public partial class LoginPage : Page
         {
             _viewModel.Password = passwordBox.Password;
         }
+    }
+
+    private void BackButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        _onBack?.Invoke();
     }
 }
