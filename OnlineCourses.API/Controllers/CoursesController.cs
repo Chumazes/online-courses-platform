@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OnlineCourses.API.Services.Interfaces;
 using OnlineCourses.Data.Repositories.Interfaces;
 using OnlineCourses.Models.DTOs;
@@ -159,7 +160,7 @@ public class CoursesController : ControllerBase
         _logger.LogInformation("Getting all categories");
         
         var cacheKey = "categories_list";
-        var cachedCategories = _cacheService.Get<List<object>>(cacheKey);
+        var cachedCategories = _cacheService.Get<List<CourseCategoryDto>>(cacheKey);
         
         if (cachedCategories != null)
         {
@@ -173,6 +174,92 @@ public class CoursesController : ControllerBase
         _logger.LogInformation("Found {Count} categories", categories.Count());
         
         return Ok(categories);
+    }
+
+    [Authorize(Roles = "admin")]
+    [HttpPost("categories")]
+    public async Task<IActionResult> CreateCategory([FromBody] CreateCourseCategoryDto createDto)
+    {
+        if (string.IsNullOrWhiteSpace(createDto.Name))
+        {
+            return BadRequest(new { message = "Название категории обязательно." });
+        }
+
+        if (await _courseRepository.CategoryNameExistsAsync(createDto.Name))
+        {
+            return Conflict(new { message = "Категория с таким названием уже существует." });
+        }
+
+        var category = new Category
+        {
+            Name = createDto.Name.Trim(),
+            Description = string.IsNullOrWhiteSpace(createDto.Description) ? null : createDto.Description.Trim(),
+            ParentCategoryId = createDto.ParentCategoryId
+        };
+
+        var created = await _courseRepository.CreateCategoryAsync(category);
+        InvalidateCategoryCaches();
+
+        return Ok(new CourseCategoryDto
+        {
+            CategoryId = created.CategoryId,
+            Name = created.Name,
+            Description = created.Description,
+            ParentCategoryId = created.ParentCategoryId
+        });
+    }
+
+    [Authorize(Roles = "admin")]
+    [HttpPut("categories/{id}")]
+    public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCourseCategoryDto updateDto)
+    {
+        if (string.IsNullOrWhiteSpace(updateDto.Name))
+        {
+            return BadRequest(new { message = "Название категории обязательно." });
+        }
+
+        var category = await _courseRepository.GetCategoryByIdAsync(id);
+        if (category == null)
+        {
+            return NotFound(new { message = "Категория не найдена." });
+        }
+
+        if (await _courseRepository.CategoryNameExistsAsync(updateDto.Name, id))
+        {
+            return Conflict(new { message = "Категория с таким названием уже существует." });
+        }
+
+        category.Name = updateDto.Name.Trim();
+        category.Description = string.IsNullOrWhiteSpace(updateDto.Description) ? null : updateDto.Description.Trim();
+        category.ParentCategoryId = updateDto.ParentCategoryId;
+
+        await _courseRepository.UpdateCategoryAsync(category);
+        InvalidateCategoryCaches();
+
+        return Ok(new { message = "Категория обновлена." });
+    }
+
+    [Authorize(Roles = "admin")]
+    [HttpDelete("categories/{id}")]
+    public async Task<IActionResult> DeleteCategory(int id)
+    {
+        var category = await _courseRepository.GetCategoryByIdAsync(id);
+        if (category == null)
+        {
+            return NotFound(new { message = "Категория не найдена." });
+        }
+
+        try
+        {
+            await _courseRepository.DeleteCategoryAsync(category);
+            InvalidateCategoryCaches();
+        }
+        catch (DbUpdateException)
+        {
+            return Conflict(new { message = "Нельзя удалить категорию, пока она используется курсами." });
+        }
+
+        return Ok(new { message = "Категория удалена." });
     }
     
     // POST: api/courses
@@ -332,5 +419,14 @@ public class CoursesController : ControllerBase
             CreatedAt = course.CreatedAt,
             TotalStudents = studentCount
         };
+    }
+
+    private void InvalidateCategoryCaches()
+    {
+        _cacheService.Remove("categories_list");
+        _cacheService.RemoveByPrefix("courses_filtered_");
+        _cacheService.RemoveByPrefix("courses_all_");
+        _cacheService.RemoveByPrefix("course_");
+        _cacheService.RemoveByPrefix("my_courses_");
     }
 }

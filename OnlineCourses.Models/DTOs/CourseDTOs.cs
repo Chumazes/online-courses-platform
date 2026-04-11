@@ -43,5 +43,20 @@ public class CourseCategoryDto
 {
     public int CategoryId { get; set; }
     public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public int? ParentCategoryId { get; set; }
+}
+
+public class CreateCourseCategoryDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public int? ParentCategoryId { get; set; }
+}
+
+public class UpdateCourseCategoryDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
     public int? ParentCategoryId { get; set; }
 }

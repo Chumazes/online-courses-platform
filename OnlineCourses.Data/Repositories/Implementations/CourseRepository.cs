@@ -152,10 +152,51 @@ public class CourseRepository : ICourseRepository
             .CountAsync(e => e.CourseId == courseId && e.Status == "active");
     }
     
-    public async Task<IEnumerable<object>> GetCategoriesAsync()
+    public async Task<IEnumerable<CourseCategoryDto>> GetCategoriesAsync()
     {
         return await _context.Categories
-            .Select(c => new { c.CategoryId, c.Name, c.ParentCategoryId })
+            .OrderBy(c => c.Name)
+            .Select(c => new CourseCategoryDto
+            {
+                CategoryId = c.CategoryId,
+                Name = c.Name,
+                Description = c.Description,
+                ParentCategoryId = c.ParentCategoryId
+            })
             .ToListAsync();
+    }
+
+    public async Task<Category?> GetCategoryByIdAsync(int id)
+    {
+        return await _context.Categories.FirstOrDefaultAsync(c => c.CategoryId == id);
+    }
+
+    public async Task<Category> CreateCategoryAsync(Category category)
+    {
+        category.CreatedAt = DateTime.UtcNow;
+        _context.Categories.Add(category);
+        await _context.SaveChangesAsync();
+        return category;
+    }
+
+    public async Task UpdateCategoryAsync(Category category)
+    {
+        _context.Categories.Update(category);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteCategoryAsync(Category category)
+    {
+        _context.Categories.Remove(category);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<bool> CategoryNameExistsAsync(string name, int? excludeCategoryId = null)
+    {
+        var normalized = name.Trim().ToLower();
+
+        return await _context.Categories.AnyAsync(c =>
+            c.Name.ToLower() == normalized &&
+            (!excludeCategoryId.HasValue || c.CategoryId != excludeCategoryId.Value));
     }
 }

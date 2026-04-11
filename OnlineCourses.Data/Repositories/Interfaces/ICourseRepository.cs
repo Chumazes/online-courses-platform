@@ -15,5 +15,10 @@ public interface ICourseRepository
     Task DeleteAsync(Course course);
     Task<bool> ExistsAsync(int id);
     Task<int> GetStudentsCountAsync(int courseId);
-    Task<IEnumerable<object>> GetCategoriesAsync();
+    Task<IEnumerable<CourseCategoryDto>> GetCategoriesAsync();
+    Task<Category?> GetCategoryByIdAsync(int id);
+    Task<Category> CreateCategoryAsync(Category category);
+    Task UpdateCategoryAsync(Category category);
+    Task DeleteCategoryAsync(Category category);
+    Task<bool> CategoryNameExistsAsync(string name, int? excludeCategoryId = null);
 }
