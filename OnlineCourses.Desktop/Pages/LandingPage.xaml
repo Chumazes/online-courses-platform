@@ -46,9 +46,14 @@
                                     Click="WhyItButton_OnClick"
                                     Content="Почему стоит попробовать IT?" />
                             <Button Width="170"
+                                    Margin="0,0,14,0"
                                     Style="{StaticResource LltLightButtonStyle}"
                                     Click="FaqButton_OnClick"
                                     Content="FAQ по платформе" />
+                            <Button Width="220"
+                                    Style="{StaticResource LltLightButtonStyle}"
+                                    Click="StoriesButton_OnClick"
+                                    Content="Отзывы и истории" />
                         </WrapPanel>
 
                         <WrapPanel Margin="0,20,0,0">

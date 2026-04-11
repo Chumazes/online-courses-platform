@@ -59,7 +59,8 @@ public partial class MainWindow : Window
             openLogin: () => NavigateToLogin(false),
             openRegister: () => NavigateToLogin(true),
             openWhyIt: NavigateToWhyIt,
-            openFaq: NavigateToFaq);
+            openFaq: NavigateToFaq,
+            openStories: NavigateToStudentStories);
         MainFrame.Navigate(page);
         ClearBackStack();
         ClearProfileHeader();
@@ -75,6 +76,12 @@ public partial class MainWindow : Window
     private void NavigateToFaq()
     {
         MainFrame.Navigate(new FaqPage());
+        UpdateHeader(loggedIn: false, canGoBack: true);
+    }
+
+    private void NavigateToStudentStories()
+    {
+        MainFrame.Navigate(new StudentStoriesPage(_coursesClient, _reviewsClient, _filesClient));
         UpdateHeader(loggedIn: false, canGoBack: true);
     }
 
@@ -260,7 +267,7 @@ public partial class MainWindow : Window
     {
         var loggedIn = !IsPublicPage(MainFrame.Content);
         var canGoBack = loggedIn && MainFrame.Content is not CoursesPage && MainFrame.CanGoBack;
-        if (!loggedIn && MainFrame.Content is WhyItPage or FaqPage)
+        if (!loggedIn && MainFrame.Content is WhyItPage or FaqPage or StudentStoriesPage)
         {
             canGoBack = MainFrame.CanGoBack;
         }
@@ -430,7 +437,7 @@ public partial class MainWindow : Window
 
     private static bool IsPublicPage(object? content)
     {
-        return content is LoginPage or LandingPage or WhyItPage or FaqPage;
+        return content is LoginPage or LandingPage or WhyItPage or FaqPage or StudentStoriesPage;
     }
 
     private void MainWindow_OnClosed(object? sender, EventArgs e)
