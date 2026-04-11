@@ -252,12 +252,18 @@
                                 <TextBlock Margin="0,8,0,0"
                                            Foreground="#E7D8F7"
                                            Text="{Binding UploadedFileSizeText}" />
-                                <Button Width="170"
-                                        Margin="0,12,0,0"
-                                        HorizontalAlignment="Left"
-                                        Style="{StaticResource LltPrimaryButtonStyle}"
-                                        Click="OpenUploadedFileButton_OnClick"
-                                        Content="Открыть файл" />
+
+                                <WrapPanel Margin="0,12,0,0">
+                                    <Button Width="170"
+                                            Margin="0,0,10,0"
+                                            Style="{StaticResource LltPrimaryButtonStyle}"
+                                            Click="OpenUploadedFileButton_OnClick"
+                                            Content="Открыть файл" />
+                                    <Button Width="170"
+                                            Style="{StaticResource LltLightButtonStyle}"
+                                            Click="DownloadUploadedFileButton_OnClick"
+                                            Content="Скачать файл" />
+                                </WrapPanel>
                             </StackPanel>
                         </StackPanel>
                     </Border>

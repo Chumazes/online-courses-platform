@@ -103,12 +103,17 @@
                                Foreground="{StaticResource LltInkSoftBrush}"
                                Text="{Binding AttachmentSizeText}" />
 
-                    <Button Width="180"
-                            Margin="0,14,0,0"
-                            HorizontalAlignment="Left"
-                            Style="{StaticResource LltPrimaryButtonStyle}"
-                            Click="OpenAttachmentButton_OnClick"
-                            Content="Открыть файл" />
+                    <WrapPanel Margin="0,14,0,0">
+                        <Button Width="180"
+                                Margin="0,0,10,0"
+                                Style="{StaticResource LltPrimaryButtonStyle}"
+                                Click="OpenAttachmentButton_OnClick"
+                                Content="Открыть файл" />
+                        <Button Width="180"
+                                Style="{StaticResource LltLightButtonStyle}"
+                                Click="DownloadAttachmentButton_OnClick"
+                                Content="Скачать файл" />
+                    </WrapPanel>
                 </StackPanel>
             </Border>
 

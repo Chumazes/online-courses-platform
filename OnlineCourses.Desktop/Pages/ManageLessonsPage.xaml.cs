@@ -1,19 +1,21 @@
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
 using OnlineCourses.Client.Api;
+using OnlineCourses.Desktop.Infrastructure;
 using OnlineCourses.Desktop.ViewModels;
 
 namespace OnlineCourses.Desktop.Pages;
 
 public partial class ManageLessonsPage : Page
 {
+    private readonly FilesClient _filesClient;
     private readonly ManageLessonsViewModel _viewModel;
 
     public ManageLessonsPage(ManageSectionItemViewModel section, LessonsClient lessonsClient, FilesClient filesClient)
     {
         InitializeComponent();
+        _filesClient = filesClient;
         _viewModel = new ManageLessonsViewModel(section.SectionId, section.Title, lessonsClient, filesClient);
         DataContext = _viewModel;
         Loaded += Page_Loaded;
@@ -61,20 +63,46 @@ public partial class ManageLessonsPage : Page
 
     private void OpenUploadedFileButton_OnClick(object sender, RoutedEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(_viewModel.UploadedFileDisplayUrl))
+        var errorMessage = FileActionHelper.TryOpen(_viewModel.UploadedFileDisplayUrl);
+        if (string.IsNullOrWhiteSpace(errorMessage))
+        {
+            return;
+        }
+
+        MessageBox.Show(
+            errorMessage,
+            "Файл недоступен",
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
+    }
+
+    private async void DownloadUploadedFileButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var result = await FileActionHelper.TryDownloadAsync(
+            _filesClient,
+            _viewModel.UploadedFileUrl,
+            _viewModel.UploadedFileName);
+
+        if (result.Success)
         {
             MessageBox.Show(
-                "Ссылка на загруженный файл пока недоступна.",
-                "Файл недоступен",
+                $"Файл сохранён:\n{result.SavedPath}",
+                "Скачивание завершено",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
             return;
         }
 
-        Process.Start(new ProcessStartInfo(_viewModel.UploadedFileDisplayUrl)
+        if (string.IsNullOrWhiteSpace(result.ErrorMessage))
         {
-            UseShellExecute = true
-        });
+            return;
+        }
+
+        MessageBox.Show(
+            result.ErrorMessage,
+            "Не удалось скачать файл",
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
     }
 
     private async void DeleteLessonButton_OnClick(object sender, RoutedEventArgs e)

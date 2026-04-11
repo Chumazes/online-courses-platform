@@ -36,6 +36,7 @@ public sealed class LessonDetailsViewModel : ViewModelBase
             ? "Содержимое урока пока не заполнено."
             : lesson.Content;
         AttachmentName = lesson.FileName;
+        AttachmentFileUrl = lesson.FileUrl;
         AttachmentSizeText = lesson.FileSize.HasValue ? FormatFileSize(lesson.FileSize.Value) : null;
         AttachmentDisplayUrl = filesClient.BuildDownloadUrl(lesson.FileUrl);
         CanTrackProgress = true;
@@ -47,6 +48,7 @@ public sealed class LessonDetailsViewModel : ViewModelBase
     public string AccessText { get; }
     public string Content { get; }
     public string? AttachmentName { get; }
+    public string? AttachmentFileUrl { get; }
     public string? AttachmentSizeText { get; }
     public string? AttachmentDisplayUrl { get; }
     public bool HasAttachment => !string.IsNullOrWhiteSpace(AttachmentDisplayUrl);
