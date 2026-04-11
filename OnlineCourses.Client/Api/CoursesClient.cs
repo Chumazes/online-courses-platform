@@ -138,4 +138,46 @@ public sealed class CoursesClient : ApiClientBase
 
         return await SendAsync<List<CourseCategoryDto>>(request, cancellationToken);
     }
+
+    public async Task<CourseCategoryDto> CreateCategoryAsync(
+        CreateCourseCategoryDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateRequestAsync(
+            HttpMethod.Post,
+            "api/courses/categories",
+            dto,
+            withBearerToken: true,
+            cancellationToken: cancellationToken);
+
+        return await SendAsync<CourseCategoryDto>(request, cancellationToken);
+    }
+
+    public async Task UpdateCategoryAsync(
+        int categoryId,
+        UpdateCourseCategoryDto dto,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateRequestAsync(
+            HttpMethod.Put,
+            $"api/courses/categories/{categoryId}",
+            dto,
+            withBearerToken: true,
+            cancellationToken: cancellationToken);
+
+        await SendAsync(request, cancellationToken);
+    }
+
+    public async Task DeleteCategoryAsync(
+        int categoryId,
+        CancellationToken cancellationToken = default)
+    {
+        using var request = await CreateRequestAsync(
+            HttpMethod.Delete,
+            $"api/courses/categories/{categoryId}",
+            withBearerToken: true,
+            cancellationToken: cancellationToken);
+
+        await SendAsync(request, cancellationToken);
+    }
 }
