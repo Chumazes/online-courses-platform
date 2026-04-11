@@ -14,17 +14,20 @@ public class ReviewsController : ControllerBase
 {
     private readonly IReviewRepository _reviewRepository;
     private readonly ICourseRepository _courseRepository;
+    private readonly IEnrollmentRepository _enrollmentRepository;
     private readonly ICacheService _cacheService;
     private readonly ILogger<ReviewsController> _logger;
 
     public ReviewsController(
         IReviewRepository reviewRepository,
         ICourseRepository courseRepository,
+        IEnrollmentRepository enrollmentRepository,
         ICacheService cacheService,
         ILogger<ReviewsController> logger)
     {
         _reviewRepository = reviewRepository;
         _courseRepository = courseRepository;
+        _enrollmentRepository = enrollmentRepository;
         _cacheService = cacheService;
         _logger = logger;
     }
@@ -166,6 +169,11 @@ public class ReviewsController : ControllerBase
         if (course == null)
         {
             return NotFound(new { message = "Course not found" });
+        }
+
+        if (!await _enrollmentRepository.IsUserEnrolledAsync(userId, courseId))
+        {
+            return BadRequest(new { message = "Оставить отзыв можно только после записи на курс." });
         }
 
         var existingReview = await _reviewRepository.GetByUserAndCourseAsync(userId, courseId);

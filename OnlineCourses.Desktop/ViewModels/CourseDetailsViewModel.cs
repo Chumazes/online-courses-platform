@@ -73,7 +73,7 @@ public sealed class CourseDetailsViewModel : ViewModelBase
         _authorName = "Автор загружается...";
         _categoryName = "Категория загружается...";
         _enrollCommand = new AsyncRelayCommand(EnrollAsync, () => !IsEnrolled && !IsEnrolling);
-        _saveReviewCommand = new AsyncRelayCommand(SaveReviewAsync, () => !IsSavingReview && SelectedRating is >= 1 and <= 5);
+        _saveReviewCommand = new AsyncRelayCommand(SaveReviewAsync, CanSaveReview);
         _deleteReviewCommand = new AsyncRelayCommand(DeleteReviewAsync, () => HasOwnReview && !IsDeletingReview);
 
         Sections = new ObservableCollection<CourseSectionViewModel>();
@@ -157,7 +157,10 @@ public sealed class CourseDetailsViewModel : ViewModelBase
             {
                 RaisePropertyChanged(nameof(EnrollButtonText));
                 RaisePropertyChanged(nameof(ShowCourseProgress));
+                RaisePropertyChanged(nameof(OwnReviewStateText));
+                RaisePropertyChanged(nameof(ReviewButtonText));
                 _enrollCommand.RaiseCanExecuteChanged();
+                _saveReviewCommand.RaiseCanExecuteChanged();
             }
         }
     }
@@ -588,6 +591,13 @@ public sealed class CourseDetailsViewModel : ViewModelBase
 
     private async Task SaveReviewAsync()
     {
+        if (!IsEnrolled)
+        {
+            ReviewStatusMessage = null;
+            ReviewErrorMessage = "Оставить отзыв можно только после записи на курс.";
+            return;
+        }
+
         IsSavingReview = true;
         ReviewStatusMessage = null;
         ReviewErrorMessage = null;
@@ -715,6 +725,13 @@ public sealed class CourseDetailsViewModel : ViewModelBase
             .OrderByDescending(item => GetEnrollmentPriority(item.Status))
             .ThenByDescending(item => item.EnrollmentDate)
             .FirstOrDefault();
+    }
+
+    private bool CanSaveReview()
+    {
+        return IsEnrolled &&
+            !IsSavingReview &&
+            SelectedRating is >= 1 and <= 5;
     }
 
     private static int GetEnrollmentPriority(string? status)
