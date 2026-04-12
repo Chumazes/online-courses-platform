@@ -1626,7 +1626,9 @@ textarea.input {
   .topbar__actions {
     width: 100%;
     justify-self: stretch;
-    justify-content: space-between;
+    justify-content: stretch;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .topbar__nav-actions,
@@ -1640,6 +1642,12 @@ textarea.input {
 
   .topbar__user-actions {
     justify-content: space-between;
+  }
+
+  .topbar__nav-actions .btn,
+  .topbar__user-actions .btn,
+  .topbar__user-actions .user-chip {
+    width: 100%;
   }
 
   .topbar__user-actions .btn,
@@ -1726,5 +1734,48 @@ textarea.input {
   .management-card__actions a,
   .management-form__actions a {
     width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .brand {
+    gap: 10px;
+  }
+
+  .brand-logo {
+    width: 54px;
+    height: 54px;
+  }
+
+  .brand-title {
+    font-size: 1.45rem;
+  }
+
+  .brand-subtitle {
+    font-size: 0.78rem;
+  }
+
+  .page {
+    padding: 10px;
+  }
+
+  .panel,
+  .card,
+  .auth-card {
+    padding: 14px;
+  }
+
+  .catalog-head h1,
+  .panel h1 {
+    font-size: 1.9rem;
+  }
+
+  .course-card__main h3,
+  .landing-feature-card h3 {
+    font-size: 1.2rem;
+  }
+
+  .management-summary__card {
+    flex: 1 1 100%;
   }
 }
