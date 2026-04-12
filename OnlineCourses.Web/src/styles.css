@@ -767,6 +767,197 @@ textarea.input {
   width: fit-content;
 }
 
+.course-detail-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 18px;
+  align-items: stretch;
+}
+
+.course-detail-hero__main {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+
+.course-detail-hero__main h1 {
+  font-size: clamp(2rem, 3vw, 3.15rem);
+  line-height: 1.08;
+}
+
+.course-detail-hero__description {
+  max-width: 760px;
+  line-height: 1.55;
+}
+
+.course-detail-hero__meta {
+  margin: 0;
+  color: #ece1fb;
+}
+
+.course-detail-hero__side {
+  display: grid;
+}
+
+.course-progress-card {
+  height: 100%;
+  border-radius: 22px;
+  border: 1px solid #61418a;
+  background: #250235;
+  color: #f4e9ff;
+  padding: 20px;
+  display: grid;
+  align-content: center;
+  gap: 12px;
+}
+
+.course-progress-card h3,
+.course-progress-card p,
+.course-progress-card span {
+  margin: 0;
+}
+
+.course-progress-card span {
+  color: #d3c3e8;
+}
+
+.course-sections {
+  display: grid;
+  gap: 14px;
+}
+
+.section-card {
+  display: grid;
+  gap: 12px;
+}
+
+.lesson-link {
+  align-items: center;
+  gap: 12px;
+}
+
+.lesson-link strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.lesson-link__hint {
+  display: block;
+  margin-top: 6px;
+  color: #d8c8eb;
+  font-size: 0.92rem;
+}
+
+.course-empty-state {
+  color: #4a3e63;
+  text-align: center;
+}
+
+.reviews-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rating-box {
+  min-width: 220px;
+  border-radius: 20px;
+  border: 1px solid #9d7cc3;
+  background: #6f4b96;
+  color: #f8f3fd;
+  padding: 18px;
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+  text-align: right;
+}
+
+.rating-box strong {
+  font-size: clamp(1.7rem, 2vw, 2.5rem);
+  line-height: 1.05;
+}
+
+.rating-box span {
+  color: #e9dbf8;
+}
+
+.review-editor {
+  display: grid;
+  gap: 10px;
+}
+
+.review-editor__form {
+  grid-template-columns: 180px minmax(0, 1fr);
+  gap: 14px 18px;
+}
+
+.review-editor__comment {
+  grid-column: 2 / 3;
+}
+
+.review-editor__note {
+  margin: 0;
+  color: #ece1fb;
+}
+
+.review-list {
+  display: grid;
+  gap: 14px;
+}
+
+.public-review-card {
+  display: grid;
+  gap: 14px;
+}
+
+.public-review-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.public-review-card__comment {
+  margin: 0;
+  color: #2f2444;
+  line-height: 1.55;
+  font-size: 1.02rem;
+}
+
+.review-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.review-author strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.review-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid #9a7cc0;
+  object-fit: cover;
+}
+
+.review-avatar--fallback {
+  display: grid;
+  place-items: center;
+  background: #7641aa;
+  color: #f8f3fd;
+  font-weight: 700;
+}
+
+.review-stars {
+  color: #c89200;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+}
+
 .list {
   display: grid;
   gap: 8px;
@@ -1065,6 +1256,138 @@ textarea.input {
   object-fit: cover;
 }
 
+.management-hero {
+  padding: 22px;
+}
+
+.management-hero__row {
+  align-items: flex-start;
+}
+
+.management-hero__copy {
+  display: grid;
+  gap: 8px;
+}
+
+.management-hero__subtitle {
+  margin: 0;
+  color: #f4e9ff;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.management-hero__meta {
+  margin: 0;
+  color: #ece1fb;
+  line-height: 1.45;
+}
+
+.management-hero__actions {
+  justify-content: flex-end;
+}
+
+.management-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.management-summary__card {
+  min-width: 170px;
+  border-radius: 18px;
+  border: 1px solid #5c3880;
+  background: #2a1238;
+  color: #f4ebff;
+  padding: 14px;
+  display: grid;
+  gap: 4px;
+}
+
+.management-summary__card strong {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.management-summary__card span {
+  color: #dcccec;
+  font-size: 0.92rem;
+}
+
+.management-column {
+  align-content: start;
+}
+
+.management-card {
+  display: grid;
+  gap: 12px;
+}
+
+.management-card--selected {
+  box-shadow: inset 0 0 0 2px #d5bcf1;
+}
+
+.management-card__actions {
+  margin-top: 2px;
+}
+
+.management-strip {
+  border-radius: 16px;
+  border: 1px solid #593880;
+  background: #2b0440;
+  color: #e9ddf7;
+  padding: 10px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.management-form {
+  padding: 20px;
+}
+
+.management-form__hint {
+  margin: -2px 0 6px;
+  color: #ece1fb;
+  line-height: 1.5;
+}
+
+.management-form__actions {
+  margin-top: 6px;
+}
+
+.management-file-box {
+  border-radius: 18px;
+  border: 1px solid #593880;
+  background: #2b0440;
+  color: #f0e8ff;
+  padding: 14px 16px;
+  display: grid;
+  gap: 6px;
+}
+
+.management-empty {
+  text-align: center;
+}
+
+.management-metrics {
+  align-items: stretch;
+}
+
+.management-metric {
+  min-height: 170px;
+}
+
+.management-metric h3 {
+  font-size: clamp(1.9rem, 3vw, 3rem);
+  line-height: 1.1;
+  word-break: break-word;
+}
+
+.management-metric span {
+  color: #d8c8eb;
+}
+
 .progress-track {
   margin-top: 10px;
   width: 100%;
@@ -1146,8 +1469,39 @@ textarea.input {
     grid-template-columns: 1fr;
   }
 
+  .management-hero__actions {
+    justify-content: flex-start;
+  }
+
   .profile-shell {
     grid-template-columns: 1fr;
+  }
+
+  .course-detail-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .course-progress-card {
+    min-height: 180px;
+  }
+
+  .reviews-summary {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .rating-box {
+    width: 100%;
+    justify-items: start;
+    text-align: left;
+  }
+
+  .review-editor__form {
+    grid-template-columns: 1fr;
+  }
+
+  .review-editor__comment {
+    grid-column: auto;
   }
 
   .catalog-footer {
@@ -1208,6 +1562,15 @@ textarea.input {
 
   .landing-hero__text {
     max-width: none;
+  }
+
+  .landing-hero__content {
+    gap: 12px;
+  }
+
+  .public-review-card__head {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .filters-label {

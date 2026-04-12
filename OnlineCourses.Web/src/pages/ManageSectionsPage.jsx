@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { ErrorBanner } from "../components/ErrorBanner";
 import { coursesApi, formatApiError, sectionsApi } from "../lib/api";
 
@@ -24,15 +24,17 @@ export function ManageSectionsPage() {
   async function loadData() {
     setError("");
     setIsLoading(true);
+
     try {
       const [courseData, sectionData] = await Promise.all([
         coursesApi.getById(numericCourseId),
         sectionsApi.getByCourseId(numericCourseId)
       ]);
+
       setCourse(courseData);
       setSections(sectionData ?? []);
     } catch (err) {
-      setError(formatApiError(err, "Не удалось загрузить секции."));
+      setError(formatApiError(err, "Не удалось загрузить секции курса."));
     } finally {
       setIsLoading(false);
     }
@@ -44,6 +46,7 @@ export function ManageSectionsPage() {
       setIsLoading(false);
       return;
     }
+
     loadData();
   }, [numericCourseId]);
 
@@ -104,6 +107,7 @@ export function ManageSectionsPage() {
 
     setError("");
     setSuccess("");
+
     try {
       await sectionsApi.remove(numericCourseId, sectionId);
       setSuccess("Секция удалена.");
@@ -119,47 +123,68 @@ export function ManageSectionsPage() {
 
   return (
     <section className="stack">
-      <section className="panel">
-        <div className="panel-row">
-          <div>
+      <section className="panel management-hero">
+        <div className="panel-row management-hero__row">
+          <div className="management-hero__copy">
             <h1>Секции курса</h1>
-            <p className="muted">{course?.title ?? `Курс #${numericCourseId}`}</p>
+            <p className="management-hero__subtitle">{course?.title ?? `Курс #${numericCourseId}`}</p>
+            <p className="management-hero__meta">
+              Здесь собирается программа курса: порядок секций, краткие описания и переход к урокам.
+            </p>
           </div>
-          <div className="card-actions">
-            <Link className="btn btn--ghost btn--fit" to="/manage/courses">
-              Назад к курсам
-            </Link>
-            <button className="btn btn--primary btn--fit" onClick={startCreate} type="button">
+
+          <div className="card-actions management-hero__actions">
+            <button className="btn btn--ghost btn--fit" onClick={startCreate} type="button">
               Новая секция
             </button>
           </div>
+        </div>
+
+        <div className="management-summary">
+          <article className="management-summary__card">
+            <strong>{sections.length}</strong>
+            <span>Секций в этом курсе</span>
+          </article>
+          <article className="management-summary__card">
+            <strong>{Math.max(0, ...sections.map((section) => Number(section.lessonsCount ?? 0)))}</strong>
+            <span>Максимум уроков в секции</span>
+          </article>
         </div>
       </section>
 
       <ErrorBanner message={error} />
       {success ? <div className="success-banner">{success}</div> : null}
 
-      <section className="manage-split">
-        <div className="stack">
-          {sections.length === 0 ? <div className="panel panel--light">Секций пока нет.</div> : null}
+      <section className="manage-split management-split">
+        <div className="stack management-column">
+          {sections.length === 0 ? (
+            <div className="panel panel--light management-empty">У курса пока нет секций. Начни с первой структуры.</div>
+          ) : null}
+
           {sections.map((section) => (
-            <article className="panel" key={section.sectionId}>
+            <article className={`panel management-card${editingId === section.sectionId ? " management-card--selected" : ""}`} key={section.sectionId}>
               <div className="panel-row">
                 <div>
                   <h3>
                     {section.sectionOrder}. {section.title}
                   </h3>
-                  <p className="muted">{section.description || "Без описания."}</p>
+                  <p className="muted">{section.description || "Без описания. Добавь короткое пояснение для структуры курса."}</p>
                 </div>
                 <span className="chip">Уроков: {section.lessonsCount ?? 0}</span>
               </div>
-              <div className="card-actions">
+
+              <div className="management-strip">
+                <span>Порядок: {section.sectionOrder}</span>
+                <span>Уроков внутри: {section.lessonsCount ?? 0}</span>
+              </div>
+
+              <div className="card-actions management-card__actions">
                 <button className="btn btn--ghost btn--fit" onClick={() => startEdit(section)} type="button">
                   Редактировать
                 </button>
-                <Link className="btn btn--primary btn--fit" to={`/manage/sections/${section.sectionId}/lessons`}>
+                <a className="btn btn--chrome btn--fit" href={`/manage/sections/${section.sectionId}/lessons`}>
                   Уроки
-                </Link>
+                </a>
                 <button className="btn btn--danger btn--fit" onClick={() => handleDelete(section.sectionId)} type="button">
                   Удалить
                 </button>
@@ -168,10 +193,14 @@ export function ManageSectionsPage() {
           ))}
         </div>
 
-        <form className="panel form" onSubmit={handleSubmit}>
-          <h2>{editingId ? "Редактирование секции" : "Создание секции"}</h2>
+        <form className="panel form management-form" onSubmit={handleSubmit}>
+          <h2>{editingId ? "Редактирование секции" : "Новая секция"}</h2>
+          <p className="management-form__hint">
+            Секция задаёт блок программы. Здесь важно коротко и ясно объяснить, что студент изучит перед переходом к урокам.
+          </p>
+
           <label className="label">
-            Название
+            Название секции
             <input
               className="input"
               onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
@@ -186,13 +215,13 @@ export function ManageSectionsPage() {
             <textarea
               className="input"
               onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
-              rows={6}
+              rows={8}
               value={form.description}
             />
           </label>
 
           <label className="label">
-            Порядок
+            Порядок в курсе
             <input
               className="input"
               min={1}
@@ -203,15 +232,15 @@ export function ManageSectionsPage() {
             />
           </label>
 
-          <div className="card-actions">
+          <div className="card-actions management-form__actions">
             <button className="btn btn--primary btn--fit" disabled={isSubmitting} type="submit">
-              {isSubmitting ? "Сохраняем..." : "Сохранить секцию"}
+              {isSubmitting ? "Сохраняем..." : editingId ? "Сохранить секцию" : "Создать секцию"}
             </button>
-            {editingId && (
+            {editingId ? (
               <button className="btn btn--ghost btn--fit" onClick={startCreate} type="button">
                 Отмена
               </button>
-            )}
+            ) : null}
           </div>
         </form>
       </section>

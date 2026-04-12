@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
 import { ErrorBanner } from "../components/ErrorBanner";
-import { enrollmentsApi, formatApiError, reviewsApi } from "../lib/api";
-import { formatCourseStatus } from "../lib/format";
+import { coursesApi, enrollmentsApi, filesApi, formatApiError, reviewsApi } from "../lib/api";
+import { formatDate, formatLevel, formatMoney } from "../lib/format";
 
 export function ManageCourseAnalyticsPage() {
-  const { courseId } = useParams();
-  const numericCourseId = Number(courseId);
+  const numericCourseId = Number(window.location.pathname.split("/")[3]);
+  const [course, setCourse] = useState(null);
   const [students, setStudents] = useState([]);
   const [rating, setRating] = useState(null);
   const [error, setError] = useState("");
@@ -18,19 +17,24 @@ export function ManageCourseAnalyticsPage() {
     async function loadData() {
       setError("");
       setIsLoading(true);
+
       try {
-        const [studentsData, ratingData] = await Promise.all([
+        const [courseData, studentsData, ratingData] = await Promise.all([
+          coursesApi.getById(numericCourseId),
           enrollmentsApi.getByCourse(numericCourseId),
           reviewsApi.getRating(numericCourseId).catch(() => null)
         ]);
 
-        if (active) {
-          setStudents(studentsData ?? []);
-          setRating(ratingData);
+        if (!active) {
+          return;
         }
+
+        setCourse(courseData);
+        setStudents(studentsData ?? []);
+        setRating(ratingData);
       } catch (err) {
         if (active) {
-          setError(formatApiError(err, "Не удалось загрузить аналитику."));
+          setError(formatApiError(err, "Не удалось загрузить аналитику курса."));
         }
       } finally {
         if (active) {
@@ -80,50 +84,42 @@ export function ManageCourseAnalyticsPage() {
 
   return (
     <section className="stack">
-      <section className="panel">
-        <div className="panel-row">
-          <div>
-            <h1>Аналитика курса</h1>
-            <p className="muted">Курс #{numericCourseId}</p>
-          </div>
-          <div className="card-actions">
-            <Link className="btn btn--ghost btn--fit" to="/manage/courses">
-              Назад к курсам
-            </Link>
-            <Link className="btn btn--ghost btn--fit" to={`/manage/courses/${numericCourseId}/students`}>
-              Студенты курса
-            </Link>
-          </div>
+      <section className="panel management-hero">
+        <div className="management-hero__copy">
+          <h1>Аналитика курса</h1>
+          <p className="management-hero__subtitle">{course?.title ?? `Курс #${numericCourseId}`}</p>
+          <p className="management-hero__meta">
+            {formatLevel(course?.level)} • {formatMoney(course?.price ?? 0)} • {students.length} студентов
+          </p>
         </div>
       </section>
 
       <ErrorBanner message={error} />
 
-      <section className="feature-grid">
-        <article className="panel">
+      <section className="feature-grid management-metrics">
+        <article className="panel management-metric">
+          <p className="muted">Студенты</p>
           <h3>{summary.students}</h3>
-          <p>Студентов</p>
+          <span>Все актуальные записи на курс</span>
         </article>
-        <article className="panel">
+        <article className="panel management-metric">
+          <p className="muted">Средний прогресс</p>
           <h3>{summary.avgProgress}%</h3>
-          <p>Средний прогресс</p>
+          <span>По всем студентам на курсе</span>
         </article>
-        <article className="panel">
-          <h3>{summary.completed}</h3>
-          <p>Завершили курс</p>
-        </article>
-        <article className="panel">
+        <article className="panel management-metric">
+          <p className="muted">Завершение</p>
           <h3>{summary.completionRate}%</h3>
-          <p>Доля завершения</p>
+          <span>Завершили: {summary.completed}</span>
         </article>
-        <article className="panel">
-          <h3>{Number(rating?.averageRating ?? 0).toFixed(1)}</h3>
-          <p>Средний рейтинг</p>
-          <p className="muted">Отзывов: {rating?.totalReviews ?? 0}</p>
+        <article className="panel management-metric">
+          <p className="muted">Рейтинг</p>
+          <h3>{Number(rating?.totalReviews ?? 0) > 0 ? Number(rating?.averageRating ?? 0).toFixed(1) : "Пока без оценок"}</h3>
+          <span>{rating?.totalReviews ?? 0} отзыв(ов)</span>
         </article>
       </section>
 
-      <section className="panel panel--light">
+      <section className="panel">
         <h2>Распределение оценок</h2>
         <div className="chip-row">
           <span className="chip">5*: {rating?.ratingDistribution?.[5] ?? 0}</span>
@@ -134,23 +130,35 @@ export function ManageCourseAnalyticsPage() {
         </div>
       </section>
 
-      <section className="stack">
-        {students.length === 0 ? (
-          <div className="panel panel--light">По этому курсу пока нет данных студентов.</div>
-        ) : (
-          students.map((student) => (
-            <article className="panel" key={student.enrollmentId}>
-              <div className="panel-row">
-                <strong>{student.userName}</strong>
-                <span className="chip">{formatCourseStatus(student.status)}</span>
-              </div>
-              <p className="muted">Прогресс: {student.overallProgress ?? 0}%</p>
-              <div className="progress-track">
-                <div className="progress-value" style={{ width: `${Math.min(100, Math.max(0, Number(student.overallProgress ?? 0)))}%` }} />
-              </div>
-            </article>
-          ))
-        )}
+      <section className="panel">
+        <h2>Студенты и прогресс</h2>
+        <div className="stack">
+          {students.length === 0 ? (
+            <div className="panel panel--inner management-empty">По этому курсу пока нет данных студентов.</div>
+          ) : (
+            students.map((student) => (
+              <article className="panel panel--inner management-card" key={student.enrollmentId}>
+                <div className="student-row">
+                  <img
+                    alt={student.userName ?? "Student"}
+                    className="mini-avatar"
+                    src={student.userAvatarUrl ? filesApi.buildFileUrl(student.userAvatarUrl) : "https://placehold.co/64x64?text=U"}
+                  />
+                  <div>
+                    <h3>{student.userName}</h3>
+                    <p className="muted">Записан: {formatDate(student.enrollmentDate)}</p>
+                    <p className="muted">Прогресс: {student.overallProgress ?? 0}%</p>
+                  </div>
+                  <span className="chip">{student.status || "active"}</span>
+                </div>
+
+                <div className="progress-track">
+                  <div className="progress-value" style={{ width: `${Math.min(100, Math.max(0, Number(student.overallProgress ?? 0)))}%` }} />
+                </div>
+              </article>
+            ))
+          )}
+        </div>
       </section>
     </section>
   );

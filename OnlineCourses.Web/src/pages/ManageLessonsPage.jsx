@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { ErrorBanner } from "../components/ErrorBanner";
 import { filesApi, formatApiError, lessonsApi } from "../lib/api";
 
@@ -28,14 +28,17 @@ export function ManageLessonsPage() {
   async function loadLessons() {
     setError("");
     setIsLoading(true);
+
     try {
       const data = await lessonsApi.getBySectionId(numericSectionId);
       const items = data ?? [];
       setLessons(items);
+
       if (items.length > 0 && !items.some((item) => item.lessonId === selectedLessonId)) {
         setSelectedLessonId(items[0].lessonId);
         fillForm(items[0]);
       }
+
       if (items.length === 0) {
         setSelectedLessonId(null);
       }
@@ -52,6 +55,7 @@ export function ManageLessonsPage() {
       setIsLoading(false);
       return;
     }
+
     loadLessons();
   }, [numericSectionId]);
 
@@ -124,6 +128,7 @@ export function ManageLessonsPage() {
 
     setError("");
     setSuccess("");
+
     try {
       await lessonsApi.remove(numericSectionId, lessonId);
       setSuccess("Урок удалён.");
@@ -160,58 +165,77 @@ export function ManageLessonsPage() {
     return <div className="page-state">Загружаем уроки...</div>;
   }
 
+  const selectedLesson = lessons.find((lesson) => lesson.lessonId === selectedLessonId) ?? null;
+
   return (
     <section className="stack">
-      <section className="panel">
-        <div className="panel-row">
-          <div>
+      <section className="panel management-hero">
+        <div className="panel-row management-hero__row">
+          <div className="management-hero__copy">
             <h1>Уроки секции</h1>
-            <p className="muted">
-              Секция #{numericSectionId}
-              {lessons[0]?.sectionTitle ? ` • ${lessons[0].sectionTitle}` : ""}
+            <p className="management-hero__subtitle">{selectedLesson?.sectionTitle || `Секция #${numericSectionId}`}</p>
+            <p className="management-hero__meta">
+              Здесь преподаватель управляет содержимым секции: уроками, порядком, доступностью и файлами.
             </p>
           </div>
-          <div className="card-actions">
-            <Link className="btn btn--ghost btn--fit" to="/manage/courses">
-              Назад к курсам
-            </Link>
-            <button className="btn btn--primary btn--fit" onClick={startCreate} type="button">
+
+          <div className="card-actions management-hero__actions">
+            <button className="btn btn--ghost btn--fit" onClick={startCreate} type="button">
               Новый урок
             </button>
           </div>
+        </div>
+
+        <div className="management-summary">
+          <article className="management-summary__card">
+            <strong>{lessons.length}</strong>
+            <span>Уроков в секции</span>
+          </article>
+          <article className="management-summary__card">
+            <strong>{lessons.filter((lesson) => lesson.fileUrl).length}</strong>
+            <span>С прикреплённым файлом</span>
+          </article>
         </div>
       </section>
 
       <ErrorBanner message={error} />
       {success ? <div className="success-banner">{success}</div> : null}
 
-      <section className="manage-split">
-        <div className="stack">
-          {lessons.length === 0 ? <div className="panel panel--light">Уроков пока нет.</div> : null}
+      <section className="manage-split management-split">
+        <div className="stack management-column">
+          {lessons.length === 0 ? (
+            <div className="panel panel--light management-empty">Уроков пока нет. Начни с вводного или практического материала.</div>
+          ) : null}
+
           {lessons.map((lesson) => (
-            <article className="panel" key={lesson.lessonId}>
+            <article className={`panel management-card${selectedLessonId === lesson.lessonId ? " management-card--selected" : ""}`} key={lesson.lessonId}>
               <div className="panel-row">
                 <div>
                   <h3>
                     {lesson.lessonOrder}. {lesson.title}
                   </h3>
-                  <p className="muted">
-                    {lesson.lessonType} {lesson.durationMinutes ? `• ${lesson.durationMinutes} мин` : ""}{" "}
-                    {lesson.isFree ? "• бесплатный" : ""}
-                  </p>
+                  <p className="muted">{lesson.content || "Без краткого содержания. Добавь короткое описание урока для панели."}</p>
                 </div>
                 <span className="chip">{lesson.fileName ? "Файл прикреплён" : "Без файла"}</span>
               </div>
 
-              <div className="card-actions">
+              <div className="management-strip">
+                <span>{lesson.lessonType === "video" ? "Видео" : "Текст"}</span>
+                <span>{lesson.durationMinutes ? `${lesson.durationMinutes} мин` : "Без длительности"}</span>
+                <span>{lesson.isFree ? "Бесплатный" : "Платный"}</span>
+              </div>
+
+              <div className="card-actions management-card__actions">
                 <button className="btn btn--ghost btn--fit" onClick={() => startEdit(lesson)} type="button">
                   Редактировать
                 </button>
-                <label className="btn btn--ghost btn--fit">
+
+                <label className="btn btn--chrome btn--fit">
                   {isUploadingId === lesson.lessonId ? "Загрузка..." : "Загрузить файл"}
                   <input hidden onChange={(event) => handleUploadFile(lesson.lessonId, event.target.files?.[0])} type="file" />
                 </label>
-                {lesson.fileUrl && (
+
+                {lesson.fileUrl ? (
                   <>
                     <a className="btn btn--ghost btn--fit" href={filesApi.buildFileUrl(lesson.fileUrl)} rel="noreferrer" target="_blank">
                       Открыть файл
@@ -220,7 +244,8 @@ export function ManageLessonsPage() {
                       Скачать
                     </a>
                   </>
-                )}
+                ) : null}
+
                 <button className="btn btn--danger btn--fit" onClick={() => handleDelete(lesson.lessonId)} type="button">
                   Удалить
                 </button>
@@ -229,10 +254,14 @@ export function ManageLessonsPage() {
           ))}
         </div>
 
-        <form className="panel form" onSubmit={handleSubmit}>
-          <h2>{selectedLessonId ? "Редактирование урока" : "Создание урока"}</h2>
+        <form className="panel form management-form" onSubmit={handleSubmit}>
+          <h2>{selectedLessonId ? "Редактирование урока" : "Новый урок"}</h2>
+          <p className="management-form__hint">
+            Урок должен быть понятен и преподавателю, и студенту: структура, тип материала, порядок и вложения видны сразу.
+          </p>
+
           <label className="label">
-            Название
+            Название урока
             <input
               className="input"
               onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
@@ -243,30 +272,30 @@ export function ManageLessonsPage() {
           </label>
 
           <label className="label">
-            Содержимое
+            Содержимое урока
             <textarea
               className="input"
               onChange={(event) => setForm((current) => ({ ...current, content: event.target.value }))}
-              rows={7}
+              rows={8}
               value={form.content}
             />
           </label>
 
           <div className="grid-2">
-              <label className="label">
-                Тип
-                <select
-                  className="input"
-                  onChange={(event) => setForm((current) => ({ ...current, lessonType: event.target.value }))}
-                  value={form.lessonType}
-                >
-                  <option value="text">Текст</option>
-                  <option value="video">Видео</option>
-                </select>
-              </label>
+            <label className="label">
+              Тип урока
+              <select
+                className="input"
+                onChange={(event) => setForm((current) => ({ ...current, lessonType: event.target.value }))}
+                value={form.lessonType}
+              >
+                <option value="text">Текст</option>
+                <option value="video">Видео</option>
+              </select>
+            </label>
 
-              <label className="label">
-                Порядок
+            <label className="label">
+              Порядок в секции
               <input
                 className="input"
                 min={1}
@@ -291,7 +320,7 @@ export function ManageLessonsPage() {
             </label>
 
             <label className="label">
-              Ссылка на видео
+              Видео URL
               <input
                 className="input"
                 onChange={(event) => setForm((current) => ({ ...current, videoUrl: event.target.value }))}
@@ -310,15 +339,20 @@ export function ManageLessonsPage() {
             Бесплатный урок
           </label>
 
-          <div className="card-actions">
+          <div className="management-file-box">
+            <strong>Файл урока</strong>
+            <span>{selectedLesson?.fileName || "Для этого урока файл пока не прикреплён."}</span>
+          </div>
+
+          <div className="card-actions management-form__actions">
             <button className="btn btn--primary btn--fit" disabled={isSubmitting} type="submit">
-              {isSubmitting ? "Сохраняем..." : "Сохранить урок"}
+              {isSubmitting ? "Сохраняем..." : selectedLessonId ? "Сохранить урок" : "Создать урок"}
             </button>
-            {selectedLessonId && (
+            {selectedLessonId ? (
               <button className="btn btn--ghost btn--fit" onClick={startCreate} type="button">
                 Отмена
               </button>
-            )}
+            ) : null}
           </div>
         </form>
       </section>
