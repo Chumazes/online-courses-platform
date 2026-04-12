@@ -59,7 +59,7 @@ export function LoginPage() {
       <p className="muted" />
       <ErrorBanner message={error} />
 
-      <form className="form" onSubmit={handleSubmit}>
+      <form className="form" noValidate onSubmit={handleSubmit}>
         <label className="label">
           Email
           <input
@@ -90,7 +90,7 @@ export function LoginPage() {
       </form>
 
       <p className="muted">
-        Нет аккаунта? <Link to="/register">Регистрация</Link> • <Link to="/">Назад на главную</Link>
+        Нет аккаунта? <Link to="/register">Регистрация</Link>
       </p>
     </section>
   );

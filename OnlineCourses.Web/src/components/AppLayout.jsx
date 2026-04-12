@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import mascot from "../assets/mascot.jpg";
 import { useAuth } from "../context/AuthContext";
@@ -39,9 +40,15 @@ export function AppLayout() {
   const { isAuthenticated, role, user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const navigationLockRef = useRef(false);
 
-  const showBackButton = location.pathname !== "/";
+  const isMainAuthenticatedPage = isAuthenticated && (location.pathname === "/catalog" || location.pathname === "/dashboard");
+  const showBackButton = location.pathname !== "/" && !isMainAuthenticatedPage;
   const canManageCourses = isAuthenticated && (role === "teacher" || role === "admin");
+
+  useEffect(() => {
+    navigationLockRef.current = false;
+  }, [location.pathname]);
 
   async function handleLogout() {
     await signOut();
@@ -53,18 +60,20 @@ export function AppLayout() {
   }
 
   function handleProfileOpen() {
-    if (location.pathname === "/profile") {
+    if (location.pathname === "/profile" || navigationLockRef.current) {
       return;
     }
 
+    navigationLockRef.current = true;
     navigate("/profile");
   }
 
   function handleManageOpen() {
-    if (!canManageCourses || location.pathname === "/manage/courses") {
+    if (!canManageCourses || location.pathname === "/manage/courses" || navigationLockRef.current) {
       return;
     }
 
+    navigationLockRef.current = true;
     navigate("/manage/courses");
   }
 
