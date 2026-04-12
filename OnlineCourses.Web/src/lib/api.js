@@ -26,7 +26,7 @@ function toQueryString(query = {}) {
   return raw ? `?${raw}` : "";
 }
 
-function extractMessage(payload, fallback = "Request failed") {
+function extractMessage(payload, fallback = "Ошибка запроса") {
   if (!payload) {
     return fallback;
   }
@@ -255,4 +255,3 @@ export function formatApiError(error, fallback = "Произошла ошибк�
 
   return fallback;
 }
-

@@ -24,3 +24,46 @@ export function formatDate(value) {
   }).format(date);
 }
 
+export function formatLevel(value) {
+  if (!value) {
+    return "Не указан";
+  }
+
+  const normalized = String(value).toLowerCase();
+  if (normalized === "beginner") {
+    return "Начальный";
+  }
+  if (normalized === "intermediate") {
+    return "Средний";
+  }
+  if (normalized === "advanced") {
+    return "Продвинутый";
+  }
+
+  return value;
+}
+
+export function formatCourseStatus(value) {
+  if (!value) {
+    return "Не указан";
+  }
+
+  const normalized = String(value).toLowerCase();
+  if (normalized === "draft") {
+    return "Черновик";
+  }
+  if (normalized === "published") {
+    return "Опубликован";
+  }
+  if (normalized === "archived") {
+    return "Архив";
+  }
+  if (normalized === "active") {
+    return "Активный";
+  }
+  if (normalized === "expired") {
+    return "Завершён";
+  }
+
+  return value;
+}

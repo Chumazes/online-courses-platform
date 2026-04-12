@@ -1,28 +1,32 @@
-import { useDeferredValue, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import mascot from "../assets/mascot.jpg";
 import { ErrorBanner } from "../components/ErrorBanner";
 import { useAuth } from "../context/AuthContext";
 import { coursesApi, enrollmentsApi, formatApiError } from "../lib/api";
-import { formatMoney } from "../lib/format";
+import { formatLevel, formatMoney } from "../lib/format";
 
 const levelOptions = [
-  { value: "", label: "Любой уровень" },
-  { value: "beginner", label: "Beginner" },
-  { value: "intermediate", label: "Intermediate" },
-  { value: "advanced", label: "Advanced" }
+  { value: "", label: "Все уровни" },
+  { value: "beginner", label: "Начальный" },
+  { value: "intermediate", label: "Средний" },
+  { value: "advanced", label: "Продвинутый" }
 ];
 
 const sortOptions = [
-  { value: "createdAt_desc", label: "Новые" },
-  { value: "rating_desc", label: "Рейтинг" },
-  { value: "price_asc", label: "Цена: по возрастанию" },
-  { value: "price_desc", label: "Цена: по убыванию" }
+  { value: "createdAt_desc", label: "Сначала новые" },
+  { value: "rating_desc", label: "По рейтингу" },
+  { value: "title_asc", label: "По названию" },
+  { value: "price_asc", label: "Цена по возрастанию" },
+  { value: "price_desc", label: "Цена по убыванию" }
 ];
 
 export function CoursesPage() {
   const { isAuthenticated, role } = useAuth();
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [items, setItems] = useState([]);
+  const [selectedCourseId, setSelectedCourseId] = useState(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isEnrollingId, setIsEnrollingId] = useState(null);
@@ -78,13 +82,20 @@ export function CoursesPage() {
         });
 
         if (!cancelled) {
-          setItems(response?.items ?? []);
+          const nextItems = response?.items ?? [];
+          setItems(nextItems);
           setMeta({
             hasPrevious: Boolean(response?.hasPrevious),
             hasNext: Boolean(response?.hasNext),
             totalPages: response?.totalPages ?? 1,
             totalCount: response?.totalCount ?? 0
           });
+
+          if (nextItems.length === 0) {
+            setSelectedCourseId(null);
+          } else if (!nextItems.some((course) => course.courseId === selectedCourseId)) {
+            setSelectedCourseId(nextItems[0].courseId);
+          }
         }
       } catch (err) {
         if (!cancelled) {
@@ -102,7 +113,12 @@ export function CoursesPage() {
     return () => {
       cancelled = true;
     };
-  }, [deferredSearch, filters.categoryId, filters.level, filters.sort, page]);
+  }, [deferredSearch, filters.categoryId, filters.level, filters.sort, page, selectedCourseId]);
+
+  const selectedCourse = useMemo(
+    () => items.find((course) => course.courseId === selectedCourseId) ?? null,
+    [items, selectedCourseId]
+  );
 
   function updateFilter(name, value) {
     setPage(1);
@@ -110,6 +126,16 @@ export function CoursesPage() {
       ...current,
       [name]: value
     }));
+  }
+
+  function resetFilters() {
+    setPage(1);
+    setFilters({
+      search: "",
+      categoryId: "",
+      level: "",
+      sort: "createdAt_desc"
+    });
   }
 
   async function handleEnroll(courseId) {
@@ -125,74 +151,117 @@ export function CoursesPage() {
     }
   }
 
+  function openSelectedCourse() {
+    if (!selectedCourseId) {
+      return;
+    }
+
+    navigate(`/courses/${selectedCourseId}`);
+  }
+
   return (
     <section className="stack">
-      <div className="section-head">
+      <section className="panel catalog-head">
         <div>
           <h1>Каталог курсов</h1>
-          <p className="muted">Найдено курсов: {meta.totalCount}</p>
+          <p className="muted">Выбирай направление, фильтруй каталог и собирай свой маршрут от low-level to top.</p>
         </div>
-      </div>
+        {isAuthenticated && role === "student" && (
+          <Link className="btn btn--ghost" to="/my-courses">
+            Мои курсы
+          </Link>
+        )}
+      </section>
 
       <ErrorBanner message={error} />
 
-      <div className="panel filters">
-        <input
-          className="input"
-          onChange={(event) => updateFilter("search", event.target.value)}
-          placeholder="Поиск по названию или описанию"
-          type="text"
-          value={filters.search}
-        />
+      <section className="panel panel--light filters-wrap">
+        <div className="filters-label">Поиск и фильтры</div>
 
-        <select className="input" onChange={(event) => updateFilter("categoryId", event.target.value)} value={filters.categoryId}>
-          <option value="">Все категории</option>
-          {categories.map((item) => (
-            <option key={item.categoryId} value={item.categoryId}>
-              {item.name}
-            </option>
-          ))}
-        </select>
+        <div className="filters-layout">
+          <img alt="LLT" className="filters-logo" src={mascot} />
 
-        <select className="input" onChange={(event) => updateFilter("level", event.target.value)} value={filters.level}>
-          {levelOptions.map((item) => (
-            <option key={item.value || "all"} value={item.value}>
-              {item.label}
-            </option>
-          ))}
-        </select>
+          <div className="filters-content">
+            <div className="filters-first-row">
+              <input
+                className="input"
+                onChange={(event) => updateFilter("search", event.target.value)}
+                placeholder="Поиск по названию или описанию"
+                type="text"
+                value={filters.search}
+              />
+              <button className="btn btn--ghost btn--fit" onClick={resetFilters} type="button">
+                Очистить
+              </button>
+            </div>
 
-        <select className="input" onChange={(event) => updateFilter("sort", event.target.value)} value={filters.sort}>
-          {sortOptions.map((item) => (
-            <option key={item.value} value={item.value}>
-              {item.label}
-            </option>
-          ))}
-        </select>
-      </div>
+            <div className="filters-second-row">
+              <select className="input" onChange={(event) => updateFilter("categoryId", event.target.value)} value={filters.categoryId}>
+                <option value="">Все категории</option>
+                {categories.map((item) => (
+                  <option key={item.categoryId} value={item.categoryId}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+
+              <select className="input" onChange={(event) => updateFilter("level", event.target.value)} value={filters.level}>
+                {levelOptions.map((item) => (
+                  <option key={item.value || "all"} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+
+              <select className="input" onChange={(event) => updateFilter("sort", event.target.value)} value={filters.sort}>
+                {sortOptions.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {isLoading ? (
         <div className="page-state">Загружаем курсы...</div>
       ) : (
-        <div className="courses-grid">
+        <div className="stack">
           {items.map((course) => (
-            <article className="card course-card" key={course.courseId}>
-              <p className="chip">{course.level}</p>
-              <h3>{course.title}</h3>
-              <p className="muted">{course.description}</p>
-              <p className="muted">Категория: {course.categoryName ?? "—"}</p>
-              <p className="price">{formatMoney(course.price)}</p>
+            <article
+              className={`card course-card course-card--wide${selectedCourseId === course.courseId ? " course-card--selected" : ""}`}
+              key={course.courseId}
+              onClick={() => setSelectedCourseId(course.courseId)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  setSelectedCourseId(course.courseId);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+            >
+              <div className="course-card__main">
+                <h3>{course.title}</h3>
+                <p className="muted">{course.description}</p>
+                <div className="chip-row">
+                  <span className="chip">{course.categoryName ?? "Без категории"}</span>
+                  <span className="chip">{formatLevel(course.level)}</span>
+                  <span className="chip chip--price">{formatMoney(course.price)}</span>
+                </div>
+              </div>
 
-              <div className="card-actions">
-                <Link className="btn btn--ghost" to={`/courses/${course.courseId}`}>
-                  Открыть
-                </Link>
-
+              <div className="course-card__side">
+                <div className="course-avatar">LLT</div>
                 {isAuthenticated && role === "student" && (
                   <button
-                    className="btn btn--primary"
+                    className="btn btn--primary btn--fit"
                     disabled={isEnrollingId === course.courseId}
-                    onClick={() => handleEnroll(course.courseId)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      handleEnroll(course.courseId);
+                    }}
                     type="button"
                   >
                     {isEnrollingId === course.courseId ? "Запись..." : "Записаться"}
@@ -206,13 +275,19 @@ export function CoursesPage() {
 
       <div className="pagination">
         <button className="btn btn--ghost" disabled={!meta.hasPrevious} onClick={() => setPage((p) => Math.max(1, p - 1))} type="button">
-          Назад
+          Предыдущая
+        </button>
+        <button className="btn btn--ghost" disabled={!meta.hasNext} onClick={() => setPage((p) => p + 1)} type="button">
+          Следующая
         </button>
         <span>
-          Страница {page} из {meta.totalPages}
+          Страница {page} из {meta.totalPages} · Найдено курсов: {meta.totalCount}
         </span>
-        <button className="btn btn--ghost" disabled={!meta.hasNext} onClick={() => setPage((p) => p + 1)} type="button">
-          Дальше
+      </div>
+
+      <div className="floating-action">
+        <button className="btn btn--primary" disabled={!selectedCourse} onClick={openSelectedCourse} type="button">
+          Открыть курс
         </button>
       </div>
     </section>
