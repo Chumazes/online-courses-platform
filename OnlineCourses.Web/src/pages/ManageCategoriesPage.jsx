@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { ErrorBanner } from "../components/ErrorBanner";
 import { coursesApi, formatApiError } from "../lib/api";
 
@@ -74,6 +75,7 @@ export function ManageCategoriesPage() {
 
     setError("");
     setSuccess("");
+
     try {
       await coursesApi.removeCategory(id);
       setSuccess("Категория удалена.");
@@ -98,7 +100,14 @@ export function ManageCategoriesPage() {
             <h1>Категории платформы</h1>
             <p className="management-hero__subtitle">Администратор управляет структурами каталога и фильтрами витрины.</p>
           </div>
+
           <div className="card-actions management-hero__actions">
+            <Link className="btn btn--ghost btn--fit" to="/dashboard">
+              Панель
+            </Link>
+            <Link className="btn btn--ghost btn--fit" to="/manage/courses">
+              Курсы
+            </Link>
             <button className="btn btn--ghost btn--fit" onClick={resetForm} type="button">
               Новая категория
             </button>

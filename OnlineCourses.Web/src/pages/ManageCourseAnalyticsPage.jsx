@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ErrorBanner } from "../components/ErrorBanner";
 import { coursesApi, enrollmentsApi, filesApi, formatApiError, reviewsApi } from "../lib/api";
 import { formatDate, formatLevel, formatMoney } from "../lib/format";
@@ -87,12 +87,26 @@ export function ManageCourseAnalyticsPage() {
   return (
     <section className="stack">
       <section className="panel management-hero">
-        <div className="management-hero__copy">
-          <h1>Аналитика курса</h1>
-          <p className="management-hero__subtitle">{course?.title ?? `Курс #${numericCourseId}`}</p>
-          <p className="management-hero__meta">
-            {formatLevel(course?.level)} • {formatMoney(course?.price ?? 0)} • {students.length} студентов
-          </p>
+        <div className="panel-row management-hero__row">
+          <div className="management-hero__copy">
+            <h1>Аналитика курса</h1>
+            <p className="management-hero__subtitle">{course?.title ?? `Курс #${numericCourseId}`}</p>
+            <p className="management-hero__meta">
+              {formatLevel(course?.level)} • {formatMoney(course?.price ?? 0)} • {students.length} студентов
+            </p>
+          </div>
+
+          <div className="card-actions management-hero__actions">
+            <Link className="btn btn--ghost btn--fit" to="/dashboard">
+              Панель
+            </Link>
+            <Link className="btn btn--ghost btn--fit" to="/manage/courses">
+              Курсы
+            </Link>
+            <Link className="btn btn--ghost btn--fit" to={`/manage/courses/${numericCourseId}/students`}>
+              Студенты
+            </Link>
+          </div>
         </div>
       </section>
 

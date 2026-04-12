@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ErrorBanner } from "../components/ErrorBanner";
 import { coursesApi, filesApi, formatApiError, reviewsApi } from "../lib/api";
 import { formatDate } from "../lib/format";
@@ -112,14 +112,28 @@ export function ManageCourseReviewsPage() {
   return (
     <section className="stack">
       <section className="panel management-hero">
-        <div className="management-hero__copy">
-          <h1>Отзывы курса</h1>
-          <p className="management-hero__subtitle">{course?.title ?? `Курс #${numericCourseId}`}</p>
-          <p className="management-hero__meta">
-            {Number(rating?.totalReviews ?? 0) > 0
-              ? `Средняя оценка ${Number(rating?.averageRating ?? 0).toFixed(1)} из 5`
-              : "Пока нет отзывов"}
-          </p>
+        <div className="panel-row management-hero__row">
+          <div className="management-hero__copy">
+            <h1>Отзывы курса</h1>
+            <p className="management-hero__subtitle">{course?.title ?? `Курс #${numericCourseId}`}</p>
+            <p className="management-hero__meta">
+              {Number(rating?.totalReviews ?? 0) > 0
+                ? `Средняя оценка ${Number(rating?.averageRating ?? 0).toFixed(1)} из 5`
+                : "Пока нет отзывов"}
+            </p>
+          </div>
+
+          <div className="card-actions management-hero__actions">
+            <Link className="btn btn--ghost btn--fit" to="/dashboard">
+              Панель
+            </Link>
+            <Link className="btn btn--ghost btn--fit" to="/manage/courses">
+              Курсы
+            </Link>
+            <Link className="btn btn--ghost btn--fit" to={`/manage/courses/${numericCourseId}/analytics`}>
+              Аналитика
+            </Link>
+          </div>
         </div>
       </section>
 
