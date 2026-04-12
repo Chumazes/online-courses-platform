@@ -48,8 +48,13 @@ export function ManageCoursesPage() {
       setCategories(categoryList ?? []);
 
       if (nextCourses.length > 0 && !nextCourses.some((course) => course.courseId === selectedCourseId)) {
-        setSelectedCourseId(nextCourses[0].courseId);
+        const nextSelected = nextCourses[0];
+        setSelectedCourseId(nextSelected.courseId);
+        if (!editCourseId) {
+          startEdit(nextSelected);
+        }
       }
+
       if (nextCourses.length === 0) {
         setSelectedCourseId(null);
       }
@@ -84,6 +89,7 @@ export function ManageCoursesPage() {
 
   function startCreate() {
     setEditCourseId(null);
+    setSelectedCourseId(null);
     setCourseForm(emptyCourseForm);
   }
 
@@ -106,10 +112,10 @@ export function ManageCoursesPage() {
     try {
       if (editCourseId) {
         await coursesApi.update(editCourseId, payload);
-        setSuccess("Course updated.");
+        setSuccess("Курс обновлён.");
       } else {
         await coursesApi.create(payload);
-        setSuccess("Course created.");
+        setSuccess("Курс создан.");
       }
 
       await loadInitial();
@@ -130,7 +136,7 @@ export function ManageCoursesPage() {
     setSuccess("");
     try {
       await coursesApi.remove(courseId);
-      setSuccess("Course deleted.");
+      setSuccess("Курс удалён.");
       await loadInitial();
       if (selectedCourseId === courseId) {
         setSelectedCourseId(null);
@@ -146,24 +152,22 @@ export function ManageCoursesPage() {
 
   return (
     <section className="stack">
-      <section className="panel">
-        <div className="panel-row">
-          <div>
+      <section className="panel management-hero">
+        <div className="panel-row management-hero__row">
+          <div className="management-hero__copy">
             <h1>Управление курсами</h1>
-            <p className="muted">
-              {role === "admin" ? "Админ видит все курсы платформы." : "Преподаватель видит только свои курсы."}
+            <p className="management-hero__subtitle">
+              {role === "admin" ? "Администратор видит курсы всех преподавателей." : "Авторская панель Low-Level to Top"}
             </p>
           </div>
-          <div className="card-actions">
-            <Link className="btn btn--ghost btn--fit" to="/dashboard">
-              Панель
-            </Link>
-            {role === "admin" && (
+
+          <div className="card-actions management-hero__actions">
+            {role === "admin" ? (
               <Link className="btn btn--ghost btn--fit" to="/manage/categories">
                 Категории
               </Link>
-            )}
-            <button className="btn btn--primary btn--fit" onClick={startCreate} type="button">
+            ) : null}
+            <button className="btn btn--ghost btn--fit" onClick={startCreate} type="button">
               Новый курс
             </button>
           </div>
@@ -173,48 +177,47 @@ export function ManageCoursesPage() {
       <ErrorBanner message={error} />
       {success ? <div className="success-banner">{success}</div> : null}
 
-      <section className="manage-split">
-        <div className="stack">
-          {courses.length === 0 ? <div className="panel panel--light">Курсы пока не найдены.</div> : null}
+      <section className="manage-split management-split">
+        <div className="stack management-column">
+          {courses.length === 0 ? <div className="panel panel--light management-empty">Курсы пока не найдены.</div> : null}
+
           {courses.map((course) => (
             <article
-              className={`panel clickable${selectedCourseId === course.courseId ? " panel--selected" : ""}`}
+              className={`panel management-card clickable${selectedCourseId === course.courseId ? " management-card--selected" : ""}`}
               key={course.courseId}
-              onClick={() => setSelectedCourseId(course.courseId)}
+              onClick={() => startEdit(course)}
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
-                  setSelectedCourseId(course.courseId);
+                  startEdit(course);
                 }
               }}
               role="button"
               tabIndex={0}
             >
               <div className="panel-row">
-                <h3>{course.title}</h3>
+                <div>
+                  <h3>{course.title}</h3>
+                  <p className="muted">{course.description || "Добавь короткое описание, чтобы курс выглядел убедительнее в каталоге."}</p>
+                </div>
                 <span className="chip">{formatCourseStatus(course.status)}</span>
               </div>
-              <p className="muted">{course.description}</p>
-              <div className="chip-row">
-                <span className="chip">{formatLevel(course.level)}</span>
-                <span className="chip">{course.categoryName ?? "Без категории"}</span>
-                <span className="chip">Студентов: {course.totalStudents ?? 0}</span>
-              </div>
-              <p className="price">{formatMoney(course.price)}</p>
-              <div className="card-actions">
-                <button className="btn btn--ghost btn--fit" onClick={() => startEdit(course)} type="button">
-                  Редактировать
-                </button>
-                <button className="btn btn--danger btn--fit" onClick={() => removeCourse(course.courseId)} type="button">
-                  Удалить
-                </button>
+
+              <div className="management-strip">
+                <span>{formatLevel(course.level)}</span>
+                <span>{formatMoney(course.price)}</span>
+                <span>{course.totalStudents ?? 0} студентов</span>
+                {role === "admin" ? <span>Автор: {course.authorName ?? "Не указан"}</span> : null}
               </div>
             </article>
           ))}
         </div>
 
         <div className="stack">
-          <form className="panel form" onSubmit={submitCourse}>
-            <h2>{editCourseId ? "Редактирование курса" : "Создание курса"}</h2>
+          <form className="panel form management-form" onSubmit={submitCourse}>
+            <h2>{editCourseId ? "Редактирование курса" : "Новый курс"}</h2>
+            <p className="management-form__hint">
+              Это главный редактор курса: отсюда задаются статус, цена, категория и основные переходы к секциям, студентам и аналитике.
+            </p>
 
             <label className="label">
               Название
@@ -233,12 +236,25 @@ export function ManageCoursesPage() {
                 className="input"
                 onChange={(event) => setCourseForm((current) => ({ ...current, description: event.target.value }))}
                 required
-                rows={4}
+                rows={6}
                 value={courseForm.description}
               />
             </label>
 
             <div className="grid-2">
+              <label className="label">
+                Уровень
+                <select
+                  className="input"
+                  onChange={(event) => setCourseForm((current) => ({ ...current, level: event.target.value }))}
+                  value={courseForm.level}
+                >
+                  <option value="beginner">beginner</option>
+                  <option value="intermediate">intermediate</option>
+                  <option value="advanced">advanced</option>
+                </select>
+              </label>
+
               <label className="label">
                 Цена
                 <input
@@ -249,88 +265,78 @@ export function ManageCoursesPage() {
                   value={courseForm.price}
                 />
               </label>
-
-              <label className="label">
-                Уровень
-                <select
-                  className="input"
-                  onChange={(event) => setCourseForm((current) => ({ ...current, level: event.target.value }))}
-                  value={courseForm.level}
-                >
-                  <option value="beginner">Начальный</option>
-                  <option value="intermediate">Средний</option>
-                  <option value="advanced">Продвинутый</option>
-                </select>
-              </label>
             </div>
 
-            <div className="grid-2">
-              <label className="label">
-                Статус
-                <select
-                  className="input"
-                  onChange={(event) => setCourseForm((current) => ({ ...current, status: event.target.value }))}
-                  value={courseForm.status}
-                >
-                  <option value="draft">Черновик</option>
-                  <option value="published">Опубликован</option>
-                  <option value="archived">Архив</option>
-                </select>
-              </label>
+            <label className="label">
+              Категория
+              <select
+                className="input"
+                onChange={(event) => setCourseForm((current) => ({ ...current, categoryId: event.target.value }))}
+                value={courseForm.categoryId}
+              >
+                <option value="">Без категории</option>
+                {categories.map((category) => (
+                  <option key={category.categoryId} value={category.categoryId}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-              <label className="label">
-                Категория
-                <select
-                  className="input"
-                  onChange={(event) => setCourseForm((current) => ({ ...current, categoryId: event.target.value }))}
-                  value={courseForm.categoryId}
-                >
-                  <option value="">Без категории</option>
-                  {categories.map((category) => (
-                    <option key={category.categoryId} value={category.categoryId}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
+            <label className="label">
+              Статус
+              <select
+                className="input"
+                onChange={(event) => setCourseForm((current) => ({ ...current, status: event.target.value }))}
+                value={courseForm.status}
+              >
+                <option value="draft">draft</option>
+                <option value="published">published</option>
+                <option value="archived">archived</option>
+              </select>
+            </label>
 
-            <div className="card-actions">
+            <div className="card-actions management-form__actions">
               <button className="btn btn--primary btn--fit" disabled={isSubmitting} type="submit">
-                {isSubmitting ? "Сохраняем..." : editCourseId ? "Сохранить изменения" : "Создать курс"}
+                {isSubmitting ? "Сохраняем..." : editCourseId ? "Сохранить курс" : "Создать курс"}
               </button>
-              {editCourseId && (
-                <button className="btn btn--ghost btn--fit" onClick={startCreate} type="button">
-                  Отмена
+              {editCourseId ? (
+                <button className="btn btn--danger btn--fit" onClick={() => removeCourse(editCourseId)} type="button">
+                  Удалить курс
                 </button>
-              )}
+              ) : null}
             </div>
           </form>
 
-          <section className="panel panel--inner">
+          <section className="panel management-form">
             <h2>Рабочая зона курса</h2>
             {selectedCourse ? (
               <>
-                <p className="muted">Выбран курс: {selectedCourse.title}</p>
-                <div className="card-actions">
+                <div className="management-strip">
+                  <span>{selectedCourse.title}</span>
+                  <span>{formatCourseStatus(selectedCourse.status)}</span>
+                  <span>{selectedCourse.categoryName ?? "Без категории"}</span>
+                </div>
+
+                <div className="card-actions management-form__actions">
                   <Link className="btn btn--ghost btn--fit" to={`/manage/courses/${selectedCourse.courseId}/sections`}>
-                    Секции
+                    Секции курса
                   </Link>
                   <Link className="btn btn--ghost btn--fit" to={`/manage/courses/${selectedCourse.courseId}/students`}>
-                    Студенты
+                    Студенты курса
                   </Link>
                   <Link className="btn btn--ghost btn--fit" to={`/manage/courses/${selectedCourse.courseId}/analytics`}>
-                    Аналитика
+                    Аналитика курса
                   </Link>
-                  {role === "admin" && (
-                    <Link className="btn btn--danger btn--fit" to={`/manage/courses/${selectedCourse.courseId}/reviews`}>
-                      Отзывы
+                  {role === "admin" ? (
+                    <Link className="btn btn--ghost btn--fit" to={`/manage/courses/${selectedCourse.courseId}/reviews`}>
+                      Отзывы курса
                     </Link>
-                  )}
+                  ) : null}
                 </div>
               </>
             ) : (
-              <p className="muted">Выбери курс в списке слева.</p>
+              <p className="muted">Выбери курс слева или начни с создания нового.</p>
             )}
           </section>
         </div>
