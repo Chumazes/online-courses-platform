@@ -7,7 +7,6 @@ import { authApi, filesApi, formatApiError } from "../lib/api";
 export function ProfilePage() {
   const { user, role, refreshUser } = useAuth();
   const navigate = useNavigate();
-  const [fullName, setFullName] = useState("");
   const [bio, setBio] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -30,7 +29,6 @@ export function ProfilePage() {
   }, [user?.fullName]);
 
   useEffect(() => {
-    setFullName(user?.fullName ?? "");
     setBio(user?.bio ?? "");
   }, [user]);
 
@@ -41,7 +39,7 @@ export function ProfilePage() {
     setIsSaving(true);
 
     try {
-      await authApi.updateMe({ fullName, bio });
+      await authApi.updateMe({ fullName: user?.fullName ?? "", bio });
       await refreshUser();
       setSuccess("Профиль обновлён.");
     } catch (err) {
@@ -85,7 +83,7 @@ export function ProfilePage() {
             <div className="profile-avatar profile-avatar--fallback">{initials}</div>
           )}
 
-          <div className="profile-pill profile-pill--title">{fullName || "Профиль"}</div>
+          <div className="profile-pill profile-pill--title">{user?.fullName || "Профиль"}</div>
           <div className="profile-pill profile-pill--role">{user?.role ?? role}</div>
 
           <label className="btn btn--chrome profile-shell__button">
@@ -110,33 +108,6 @@ export function ProfilePage() {
               <strong>{user?.role ?? role}</strong>
             </div>
           </div>
-
-          <div className="profile-card">
-            <h2>Рабочая связка</h2>
-            <p className="muted">
-              Из профиля можно сразу перейти в каталог, панель и управление, без лишних кругов по истории переходов.
-            </p>
-            <div className="card-actions">
-              <button className="btn btn--ghost btn--fit" onClick={() => navigate("/catalog")} type="button">
-                Открыть каталог
-              </button>
-              {canOpenDashboard ? (
-                <>
-                  <button className="btn btn--chrome btn--fit" onClick={() => navigate("/dashboard")} type="button">
-                    Перейти в панель
-                  </button>
-                  <button className="btn btn--ghost btn--fit" onClick={() => navigate("/manage/courses")} type="button">
-                    Открыть управление
-                  </button>
-                </>
-              ) : null}
-            </div>
-          </div>
-
-          <label className="label">
-            Имя
-            <input className="input" onChange={(event) => setFullName(event.target.value)} type="text" value={fullName} />
-          </label>
 
           <label className="label">
             О пользователе

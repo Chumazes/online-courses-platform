@@ -14,7 +14,6 @@ export function RegisterPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -42,11 +41,6 @@ export function RegisterPage() {
       return;
     }
 
-    if (password !== confirmPassword) {
-      setError("Пароли не совпадают.");
-      return;
-    }
-
     setIsLoading(true);
 
     try {
@@ -62,7 +56,6 @@ export function RegisterPage() {
   return (
     <section className="auth-card">
       <h2>Регистрация</h2>
-      <p className="muted" />
       <ErrorBanner message={error} />
 
       <form className="form" noValidate onSubmit={handleSubmit}>
@@ -79,11 +72,6 @@ export function RegisterPage() {
         <label className="label">
           Пароль
           <input className="input" onChange={(event) => setPassword(event.target.value)} type="password" value={password} />
-        </label>
-
-        <label className="label">
-          Повторите пароль
-          <input className="input" onChange={(event) => setConfirmPassword(event.target.value)} type="password" value={confirmPassword} />
         </label>
 
         <button className="btn btn--primary btn--full" disabled={isLoading} type="submit">

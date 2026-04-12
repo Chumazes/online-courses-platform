@@ -142,9 +142,7 @@ export function ManageCourseReviewsPage() {
 
       <section className="manage-split management-split">
         <div className="stack management-column">
-          {reviews.length === 0 ? (
-            <div className="panel panel--light management-empty">Отзывов на модерацию пока нет.</div>
-          ) : null}
+          {reviews.length === 0 ? <div className="panel panel--light management-empty">Отзывов на модерацию пока нет.</div> : null}
 
           {reviews.map((review) => (
             <article
@@ -161,7 +159,11 @@ export function ManageCourseReviewsPage() {
             >
               <div className="panel-row">
                 <div className="review-author">
-                  <span className="review-avatar review-avatar--fallback">{(review.userName ?? "U").slice(0, 2).toUpperCase()}</span>
+                  {review.userAvatar ? (
+                    <img alt={review.userName} className="review-avatar" src={filesApi.buildFileUrl(review.userAvatar)} />
+                  ) : (
+                    <span className="review-avatar review-avatar--fallback">{String(review.userName ?? "U").slice(0, 2).toUpperCase()}</span>
+                  )}
                   <div>
                     <strong>{review.userName}</strong>
                     <p className="muted">{formatDate(review.reviewDate)}</p>
@@ -189,11 +191,11 @@ export function ManageCourseReviewsPage() {
 
               <article className="panel panel--inner management-card">
                 <div className="review-author">
-                  <img
-                    alt={selectedReview.userName}
-                    className="review-avatar"
-                    src={selectedReview.userAvatar ? filesApi.buildFileUrl(selectedReview.userAvatar) : "https://placehold.co/64x64?text=U"}
-                  />
+                  {selectedReview.userAvatar ? (
+                    <img alt={selectedReview.userName} className="review-avatar" src={filesApi.buildFileUrl(selectedReview.userAvatar)} />
+                  ) : (
+                    <span className="review-avatar review-avatar--fallback">{String(selectedReview.userName ?? "U").slice(0, 2).toUpperCase()}</span>
+                  )}
                   <div>
                     <strong>{selectedReview.userName}</strong>
                     <p className="muted">{formatDate(selectedReview.reviewDate)}</p>
