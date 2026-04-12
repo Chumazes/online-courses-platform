@@ -49,7 +49,7 @@ export function MyCoursesPage() {
   }
 
   if (isLoading) {
-    return <div className="page-state">Загружаем...</div>;
+    return <div className="page-state">Загружаем страницу...</div>;
   }
 
   return (

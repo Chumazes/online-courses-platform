@@ -113,7 +113,9 @@ export function ProfilePage() {
 
           <div className="profile-card">
             <h2>Рабочая связка</h2>
-            <p className="muted">Из профиля можно сразу перейти в каталог, панель или управление, без лишних возвратов по истории.</p>
+            <p className="muted">
+              Из профиля можно сразу перейти в каталог, панель и управление, без лишних кругов по истории переходов.
+            </p>
             <div className="card-actions">
               <button className="btn btn--ghost btn--fit" onClick={() => navigate("/catalog")} type="button">
                 Открыть каталог
