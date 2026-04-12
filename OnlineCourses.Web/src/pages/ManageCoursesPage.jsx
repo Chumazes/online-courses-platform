@@ -200,7 +200,9 @@ export function ManageCoursesPage() {
               <div className="panel-row">
                 <div>
                   <h3>{course.title}</h3>
-                  <p className="muted">{course.description || "Добавь короткое описание, чтобы курс выглядел убедительнее в каталоге."}</p>
+                  <p className="muted">
+                    {course.description || "Добавь короткое описание, чтобы курс выглядел увереннее и читался лучше в каталоге."}
+                  </p>
                 </div>
                 <span className="chip">{formatCourseStatus(course.status)}</span>
               </div>
@@ -219,7 +221,7 @@ export function ManageCoursesPage() {
           <form className="panel form management-form" onSubmit={submitCourse}>
             <h2>{editCourseId ? "Редактирование курса" : "Новый курс"}</h2>
             <p className="management-form__hint">
-              Это главный редактор курса: отсюда задаются статус, цена, категория и основные переходы к секциям, студентам и аналитике.
+              Это главный редактор курса: здесь задаются статус, цена, категория и основные переходы к секциям, студентам и аналитике.
             </p>
 
             <label className="label">

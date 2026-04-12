@@ -17,6 +17,7 @@ export function DashboardPage() {
     async function loadData() {
       setError("");
       setIsLoading(true);
+
       try {
         const response =
           role === "admin"
@@ -91,7 +92,7 @@ export function DashboardPage() {
           <div className="management-hero__copy">
             <h1>{role === "admin" ? "Панель администратора" : "Панель преподавателя"}</h1>
             <p className="management-hero__subtitle">
-              Сводка по твоим курсам, студентам и следующему действию без лишних переходов между экранами.
+              Сводка по курсам, студентам и следующему рабочему шагу без лишних переходов.
             </p>
           </div>
 
@@ -112,7 +113,7 @@ export function DashboardPage() {
         <article className="panel management-metric">
           <p className="muted">Курсы</p>
           <h3>{summary.totalCourses}</h3>
-          <span>Всего в этой панели</span>
+          <span>Всего в панели</span>
         </article>
         <article className="panel management-metric">
           <p className="muted">Опубликовано</p>
@@ -127,7 +128,7 @@ export function DashboardPage() {
         <article className="panel management-metric">
           <p className="muted">Средний рейтинг</p>
           <h3>{summary.avgRating ? summary.avgRating : "Без оценок"}</h3>
-          <span>По курсам с оценками</span>
+          <span>По курсам с отзывами</span>
         </article>
         <article className="panel management-metric">
           <p className="muted">Требуют внимания</p>
@@ -154,20 +155,22 @@ export function DashboardPage() {
             <span className="muted">Следующий шаг</span>
             <strong>
               {focusCourse.status === "draft"
-                ? "Следующий шаг: открой управление курсами и доведи черновик до публикации."
-                : "Следующий шаг: открой аналитику или управление курсом и проверь, как его можно сделать понятнее для студента."}
+                ? "Открой управление курсами и доведи черновик до публикации."
+                : "Открой аналитику или управление курсом и проверь, как сделать его понятнее для студента."}
             </strong>
           </div>
         </section>
       ) : (
-        <section className="panel panel--light management-empty">Курсов пока нет. Создай первый курс в разделе управления.</section>
+        <section className="panel panel--light management-empty">
+          Курсов пока нет. Начни с создания первого курса в разделе управления.
+        </section>
       )}
 
       <section className="panel panel--light dashboard-surface">
         <div className="panel-row">
           <div>
             <h2>Курсы в работе</h2>
-            <p className="muted">Ниже собраны курсы с быстрыми действиями без захода в лишние промежуточные экраны.</p>
+            <p className="muted">Ниже собраны курсы с быстрыми переходами к управлению, студентам и аналитике.</p>
           </div>
           <Link className="btn btn--ghost btn--fit" to="/manage/courses">
             Рабочая зона
@@ -180,7 +183,9 @@ export function DashboardPage() {
               <div className="panel-row">
                 <div>
                   <h3>{course.title}</h3>
-                  <p className="muted">{course.description || "Добавь описание, чтобы преподавательская панель выглядела законченной."}</p>
+                  <p className="muted">
+                    {course.description || "Добавь описание, чтобы карточка курса читалась увереннее и выглядела законченной."}
+                  </p>
                 </div>
                 <span className="chip">{formatCourseStatus(course.status)}</span>
               </div>
@@ -188,16 +193,16 @@ export function DashboardPage() {
               <div className="management-strip">
                 <span>{formatLevel(course.level)}</span>
                 <span>{formatMoney(course.price ?? 0)}</span>
-                <span>{Number(course.totalStudents ?? 0)} студент</span>
+                <span>{Number(course.totalStudents ?? 0)} студент(ов)</span>
                 <span>{Number(course.avgRating ?? 0) > 0 ? `${Number(course.avgRating).toFixed(1)} рейтинг` : "Без оценок"}</span>
               </div>
 
               <p className="muted">
                 {course.status === "draft"
-                  ? "Это черновик: сначала проверь описание, статус и секции."
+                  ? "Это черновик: сначала проверь описание, статус и структуру секций."
                   : Number(course.totalStudents ?? 0) > 0
-                    ? "Студенты уже есть, но отзывы пока не собраны."
-                    : "Курс опубликован, но студентов пока нет. Есть смысл проверить карточку в каталоге."}
+                    ? "Студенты уже есть. Можно перейти к аналитике и отзывам."
+                    : "Курс опубликован, но пока без студентов. Есть смысл проверить карточку в каталоге и общий сценарий."}
               </p>
 
               <div className="card-actions management-card__actions">
