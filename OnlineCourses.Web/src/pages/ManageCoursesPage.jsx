@@ -162,6 +162,9 @@ export function ManageCoursesPage() {
           </div>
 
           <div className="card-actions management-hero__actions">
+            <Link className="btn btn--ghost btn--fit" to="/dashboard">
+              Панель
+            </Link>
             {role === "admin" ? (
               <Link className="btn btn--ghost btn--fit" to="/manage/categories">
                 Категории
@@ -319,6 +322,9 @@ export function ManageCoursesPage() {
                 </div>
 
                 <div className="card-actions management-form__actions">
+                  <Link className="btn btn--chrome btn--fit" to="/profile">
+                    Профиль
+                  </Link>
                   <Link className="btn btn--ghost btn--fit" to={`/manage/courses/${selectedCourse.courseId}/sections`}>
                     Секции курса
                   </Link>
