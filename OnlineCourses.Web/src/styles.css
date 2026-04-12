@@ -1388,6 +1388,44 @@ textarea.input {
   color: #d8c8eb;
 }
 
+.dashboard-focus {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 18px;
+  align-items: center;
+}
+
+.dashboard-focus__main {
+  display: grid;
+  gap: 10px;
+}
+
+.dashboard-focus__main p {
+  margin: 0;
+  color: #efe4fb;
+  line-height: 1.55;
+  max-width: 700px;
+}
+
+.dashboard-focus__aside {
+  border-radius: 22px;
+  border: 1px solid #8f67b8;
+  background: #8157a9;
+  padding: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.dashboard-focus__aside strong {
+  color: #f8f3fd;
+  line-height: 1.45;
+}
+
+.dashboard-surface {
+  display: grid;
+  gap: 16px;
+}
+
 .progress-track {
   margin-top: 10px;
   width: 100%;
@@ -1471,6 +1509,10 @@ textarea.input {
 
   .management-hero__actions {
     justify-content: flex-start;
+  }
+
+  .dashboard-focus {
+    grid-template-columns: 1fr;
   }
 
   .profile-shell {
