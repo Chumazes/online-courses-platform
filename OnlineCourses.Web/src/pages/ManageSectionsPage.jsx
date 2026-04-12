@@ -134,6 +134,12 @@ export function ManageSectionsPage() {
           </div>
 
           <div className="card-actions management-hero__actions">
+            <Link className="btn btn--ghost btn--fit" to="/dashboard">
+              Панель
+            </Link>
+            <Link className="btn btn--ghost btn--fit" to="/manage/courses">
+              Курсы
+            </Link>
             <button className="btn btn--ghost btn--fit" onClick={startCreate} type="button">
               Новая секция
             </button>

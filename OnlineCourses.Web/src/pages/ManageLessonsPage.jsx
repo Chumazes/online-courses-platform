@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ErrorBanner } from "../components/ErrorBanner";
 import { filesApi, formatApiError, lessonsApi } from "../lib/api";
 
@@ -180,6 +180,12 @@ export function ManageLessonsPage() {
           </div>
 
           <div className="card-actions management-hero__actions">
+            <Link className="btn btn--ghost btn--fit" to="/dashboard">
+              Панель
+            </Link>
+            <Link className="btn btn--ghost btn--fit" to="/manage/courses">
+              Курсы
+            </Link>
             <button className="btn btn--ghost btn--fit" onClick={startCreate} type="button">
               Новый урок
             </button>
