@@ -38,7 +38,7 @@ export function RegisterPage() {
   return (
     <section className="auth-card">
       <h2>Регистрация</h2>
-      <p className="muted">Новый аккаунт по умолчанию получает роль student.</p>
+      <p className="muted"></p>
       <ErrorBanner message={error} />
 
       <form className="form" onSubmit={handleSubmit}>
@@ -61,18 +61,6 @@ export function RegisterPage() {
             required
             type="password"
             value={password}
-          />
-        </label>
-
-        <label className="label">
-          Подтвердите пароль
-          <input
-            className="input"
-            minLength={6}
-            onChange={(event) => setConfirmPassword(event.target.value)}
-            required
-            type="password"
-            value={confirmPassword}
           />
         </label>
 

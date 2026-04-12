@@ -33,7 +33,7 @@ export function LoginPage() {
   return (
     <section className="auth-card">
       <h2>Вход</h2>
-      <p className="muted">Используй student/teacher/admin аккаунты, чтобы проверить роли.</p>
+      <p className="muted"></p>
       <ErrorBanner message={error} />
 
       <form className="form" onSubmit={handleSubmit}>

@@ -2,6 +2,26 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import mascot from "../assets/mascot.jpg";
 import { coursesApi } from "../lib/api";
+import { formatLevel, formatMoney } from "../lib/format";
+
+function getPriceCaption(course) {
+  const price = Number(course?.price ?? 0);
+  return price > 0 ? formatMoney(price) : "Бесплатно";
+}
+
+function getMetaCaption(course) {
+  const parts = [];
+
+  if (course?.authorName) {
+    parts.push(`Автор: ${course.authorName}`);
+  }
+
+  if (course?.status) {
+    parts.push(`Статус: ${course.status}`);
+  }
+
+  return parts.join(" • ");
+}
 
 export function LandingPage() {
   const [courseCount, setCourseCount] = useState(0);
@@ -23,12 +43,13 @@ export function LandingPage() {
         }
 
         setCourseCount(courses?.totalCount ?? 0);
-        setCategories((categoryList ?? []).slice(0, 6));
+        setCategories(categoryList ?? []);
         setFeaturedCourses(courses?.items ?? []);
       } catch {
         if (!active) {
           return;
         }
+
         setCourseCount(0);
         setCategories([]);
         setFeaturedCourses([]);
@@ -43,66 +64,68 @@ export function LandingPage() {
 
   return (
     <section className="stack">
-      <section className="hero">
-        <div className="hero__content">
+      <section className="landing-hero panel">
+        <div className="landing-hero__content">
           <h1>Старт в IT без лишнего шума</h1>
-          <p className="hero__text">
-            Low-Level to Top помогает студенту видеть следующий шаг, преподавателю управлять курсами без хаоса, а
-            администратору контролировать качество и рост платформы.
+          <p className="landing-hero__text">
+            Low-Level to Top — это платформа, где студенту понятно, что изучать, преподавателю удобно вести курсы, а
+            администратору видно, как всё растёт.
           </p>
 
-          <div className="hero__actions hero__actions--small">
-            <Link className="btn btn--ghost" to="/why-it">
-              Почему IT?
+          <div className="landing-hero__buttons">
+            <Link className="btn btn--ghost landing-hero__button" to="/why-it">
+              Почему стоит попробовать IT?
             </Link>
-            <Link className="btn btn--ghost" to="/faq">
-              FAQ
+            <Link className="btn btn--ghost landing-hero__button" to="/faq">
+              FAQ по платформе
             </Link>
-            <Link className="btn btn--ghost" to="/stories">
+            <Link className="btn btn--ghost landing-hero__button" to="/stories">
               Отзывы и истории
             </Link>
           </div>
 
-          <div className="hero__actions">
-            <Link className="btn btn--primary" to="/catalog">
+          <div className="landing-hero__buttons landing-hero__buttons--primary">
+            <Link className="btn btn--primary landing-hero__button landing-hero__button--accent" to="/login">
               Войти в платформу
             </Link>
-            <Link className="btn btn--ghost" to="/register">
+            <Link className="btn btn--ghost landing-hero__button" to="/register">
               Создать аккаунт
             </Link>
           </div>
 
-          <div className="stats-row">
-            <article className="stat-card">
+          <div className="landing-stats">
+            <article className="landing-stat">
               <strong>{courseCount}</strong>
               <span>Курсов в каталоге</span>
             </article>
-            <article className="stat-card">
+            <article className="landing-stat">
               <strong>{categories.length}</strong>
               <span>Направлений</span>
             </article>
-            <article className="stat-card">
+            <article className="landing-stat">
               <strong>3</strong>
               <span>Роли в системе</span>
             </article>
           </div>
         </div>
 
-        <div className="hero__media">
-          <div className="hero__media-label">LLT</div>
-          <img alt="Mascot" src={mascot} />
-          <div className="hero__media-foot">Low-Level to Top</div>
-        </div>
+        <aside className="landing-hero__media">
+          <div className="landing-hero__media-label">LLT</div>
+          <div className="landing-hero__media-frame">
+            <img alt="LLT mascot" src={mascot} />
+          </div>
+          <div className="landing-hero__media-foot">Low-Level to Top</div>
+        </aside>
       </section>
 
       <section className="panel panel--light">
         <h2>Маршруты, которые уже доступны</h2>
-        <div className="chip-row">
+        <div className="landing-categories">
           {categories.length === 0 ? (
-            <span className="chip">Категории скоро появятся</span>
+            <span className="landing-category-chip">Категории скоро появятся</span>
           ) : (
             categories.map((category) => (
-              <span className="chip" key={category.categoryId}>
+              <span className="landing-category-chip" key={category.categoryId}>
                 {category.name}
               </span>
             ))
@@ -112,24 +135,42 @@ export function LandingPage() {
 
       <section className="panel panel--light">
         <h2>Что можно начать уже сейчас</h2>
-        <div className="landing-cards">
+
+        <div className="landing-course-grid">
           {featuredCourses.length === 0 ? (
-            <p className="muted">Публичных курсов пока нет.</p>
+            <div className="landing-loading-state">Публичная витрина скоро появится.</div>
           ) : (
             featuredCourses.map((course) => (
-              <article className="landing-course" key={course.courseId}>
+              <article className="landing-feature-card" key={course.courseId}>
                 <h3>{course.title}</h3>
-                <p className="muted">{course.description}</p>
-                <div className="chip-row">
-                  <span className="chip">{course.level}</span>
+                <p>{course.description}</p>
+
+                <div className="landing-feature-card__chips">
                   <span className="chip">{course.categoryName ?? "Без категории"}</span>
+                  <span className="chip">{formatLevel(course.level)}</span>
+                  <span className="chip chip--price">{getPriceCaption(course)}</span>
                 </div>
-                <Link className="btn btn--ghost btn--fit" to={`/courses/${course.courseId}`}>
-                  Открыть курс
-                </Link>
+
+                <span className="landing-feature-card__meta">{getMetaCaption(course) || "Маршрут уже доступен в каталоге"}</span>
               </article>
             ))
           )}
+        </div>
+      </section>
+
+      <section className="landing-cta panel panel--inner">
+        <h2>Хочешь увидеть весь путь внутри платформы?</h2>
+        <p>
+          Создай аккаунт, открой курс, проходи уроки, оставляй отзывы и следи за прогрессом в одном месте.
+        </p>
+
+        <div className="landing-hero__buttons landing-hero__buttons--primary">
+          <Link className="btn btn--primary landing-hero__button landing-hero__button--accent" to="/register">
+            Начать бесплатно
+          </Link>
+          <Link className="btn btn--ghost landing-hero__button" to="/login">
+            Уже есть аккаунт
+          </Link>
         </div>
       </section>
     </section>
