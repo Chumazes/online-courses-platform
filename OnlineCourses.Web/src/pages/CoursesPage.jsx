@@ -1,7 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import mascot from "../assets/mascot.jpg";
-import { ErrorBanner } from "../components/ErrorBanner";
 import { useAuth } from "../context/AuthContext";
 import { coursesApi, enrollmentsApi, formatApiError } from "../lib/api";
 import { formatLevel, formatMoney } from "../lib/format";
@@ -17,9 +16,14 @@ const sortOptions = [
   { value: "createdAt_desc", label: "Сначала новые" },
   { value: "rating_desc", label: "По рейтингу" },
   { value: "title_asc", label: "По названию" },
-  { value: "price_asc", label: "Цена по возрастанию" },
-  { value: "price_desc", label: "Цена по убыванию" }
+  { value: "price_asc", label: "Сначала дешевле" },
+  { value: "price_desc", label: "Сначала дороже" }
 ];
+
+function getPriceCaption(price) {
+  const value = Number(price ?? 0);
+  return value > 0 ? `от ${formatMoney(value)}` : "Бесплатно";
+}
 
 export function CoursesPage() {
   const { isAuthenticated, role } = useAuth();
@@ -81,21 +85,23 @@ export function CoursesPage() {
           sortOrder
         });
 
-        if (!cancelled) {
-          const nextItems = response?.items ?? [];
-          setItems(nextItems);
-          setMeta({
-            hasPrevious: Boolean(response?.hasPrevious),
-            hasNext: Boolean(response?.hasNext),
-            totalPages: response?.totalPages ?? 1,
-            totalCount: response?.totalCount ?? 0
-          });
+        if (cancelled) {
+          return;
+        }
 
-          if (nextItems.length === 0) {
-            setSelectedCourseId(null);
-          } else if (!nextItems.some((course) => course.courseId === selectedCourseId)) {
-            setSelectedCourseId(nextItems[0].courseId);
-          }
+        const nextItems = response?.items ?? [];
+        setItems(nextItems);
+        setMeta({
+          hasPrevious: Boolean(response?.hasPrevious),
+          hasNext: Boolean(response?.hasNext),
+          totalPages: response?.totalPages ?? 1,
+          totalCount: response?.totalCount ?? 0
+        });
+
+        if (nextItems.length === 0) {
+          setSelectedCourseId(null);
+        } else if (!nextItems.some((course) => course.courseId === selectedCourseId)) {
+          setSelectedCourseId(nextItems[0].courseId);
         }
       } catch (err) {
         if (!cancelled) {
@@ -164,16 +170,15 @@ export function CoursesPage() {
       <section className="panel catalog-head">
         <div>
           <h1>Каталог курсов</h1>
-          <p className="muted">Выбирай направление, фильтруй каталог и собирай свой маршрут от low-level to top.</p>
+          <p className="muted">Выбирай направление, фильтруй каталог и собирай свой маршрут от low-level к top.</p>
         </div>
+
         {isAuthenticated && role === "student" && (
           <Link className="btn btn--ghost" to="/my-courses">
             Мои курсы
           </Link>
         )}
       </section>
-
-      <ErrorBanner message={error} />
 
       <section className="panel panel--light filters-wrap">
         <div className="filters-label">Поиск и фильтры</div>
@@ -190,6 +195,7 @@ export function CoursesPage() {
                 type="text"
                 value={filters.search}
               />
+
               <button className="btn btn--ghost btn--fit" onClick={resetFilters} type="button">
                 Очистить
               </button>
@@ -225,71 +231,86 @@ export function CoursesPage() {
         </div>
       </section>
 
-      {isLoading ? (
-        <div className="page-state">Загружаем курсы...</div>
-      ) : (
-        <div className="stack">
-          {items.map((course) => (
-            <article
-              className={`card course-card course-card--wide${selectedCourseId === course.courseId ? " course-card--selected" : ""}`}
-              key={course.courseId}
-              onClick={() => setSelectedCourseId(course.courseId)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  setSelectedCourseId(course.courseId);
-                }
-              }}
-              role="button"
-              tabIndex={0}
-            >
-              <div className="course-card__main">
-                <h3>{course.title}</h3>
-                <p className="muted">{course.description}</p>
-                <div className="chip-row">
-                  <span className="chip">{course.categoryName ?? "Без категории"}</span>
-                  <span className="chip">{formatLevel(course.level)}</span>
-                  <span className="chip chip--price">{formatMoney(course.price)}</span>
+      {error ? <div className="catalog-error">{error}</div> : null}
+
+      <section className="catalog-results">
+        {isLoading ? (
+          <div className="page-state">Загружаем курсы...</div>
+        ) : items.length === 0 ? (
+          <div className="page-state">По текущим фильтрам курсы не найдены.</div>
+        ) : (
+          <div className="courses-grid">
+            {items.map((course) => (
+              <article
+                className={`card course-card course-card--wide${selectedCourseId === course.courseId ? " course-card--selected" : ""}`}
+                key={course.courseId}
+                onClick={() => setSelectedCourseId(course.courseId)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    setSelectedCourseId(course.courseId);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+              >
+                <div className="course-card__main">
+                  <h3>{course.title}</h3>
+                  <p className="muted">{course.description}</p>
+
+                  <div className="chip-row">
+                    <span className="chip">{course.categoryName ?? "Без категории"}</span>
+                    <span className="chip">{formatLevel(course.level)}</span>
+                    <span className="chip chip--price">{getPriceCaption(course.price)}</span>
+                  </div>
                 </div>
-              </div>
 
-              <div className="course-card__side">
-                <div className="course-avatar">LLT</div>
-                {isAuthenticated && role === "student" && (
-                  <button
-                    className="btn btn--primary btn--fit"
-                    disabled={isEnrollingId === course.courseId}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      handleEnroll(course.courseId);
-                    }}
-                    type="button"
-                  >
-                    {isEnrollingId === course.courseId ? "Запись..." : "Записаться"}
-                  </button>
-                )}
-              </div>
-            </article>
-          ))}
+                <div className="course-card__side">
+                  <div className="course-avatar">LLT</div>
+
+                  {isAuthenticated && role === "student" && (
+                    <button
+                      className="btn btn--primary btn--fit"
+                      disabled={isEnrollingId === course.courseId}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleEnroll(course.courseId);
+                      }}
+                      type="button"
+                    >
+                      {isEnrollingId === course.courseId ? "Запись..." : "Записаться"}
+                    </button>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="catalog-footer panel panel--light">
+        <div className="pagination">
+          <button className="btn btn--ghost" disabled={!meta.hasPrevious} onClick={() => setPage((p) => Math.max(1, p - 1))} type="button">
+            Предыдущая
+          </button>
+          <button className="btn btn--ghost" disabled={!meta.hasNext} onClick={() => setPage((p) => p + 1)} type="button">
+            Следующая
+          </button>
         </div>
-      )}
 
-      <div className="pagination">
-        <button className="btn btn--ghost" disabled={!meta.hasPrevious} onClick={() => setPage((p) => Math.max(1, p - 1))} type="button">
-          Предыдущая
-        </button>
-        <button className="btn btn--ghost" disabled={!meta.hasNext} onClick={() => setPage((p) => p + 1)} type="button">
-          Следующая
-        </button>
-        <span>
-          Страница {page} из {meta.totalPages} · Найдено курсов: {meta.totalCount}
-        </span>
-      </div>
+        <div className="catalog-footer__meta">
+          <strong>
+            Страница {page} из {meta.totalPages}
+          </strong>
+          <span>Переключай страницы кнопками и сохраняй выбранные фильтры.</span>
+          <span>Найдено курсов: {meta.totalCount}</span>
+        </div>
 
-      <div className="floating-action">
-        <button className="btn btn--primary" disabled={!selectedCourse} onClick={openSelectedCourse} type="button">
-          Открыть курс
-        </button>
-      </div>
+        <div className="floating-action">
+          <button className="btn btn--primary" disabled={!selectedCourse} onClick={openSelectedCourse} type="button">
+            Открыть курс
+          </button>
+        </div>
+      </section>
     </section>
   );
 }
