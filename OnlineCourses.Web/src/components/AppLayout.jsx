@@ -92,20 +92,22 @@ export function AppLayout() {
           <span className="brand-center">Online Courses Platform</span>
 
           <div className="topbar__actions">
-            {showBackButton ? (
-              <button className="btn btn--ghost" onClick={handleBack} type="button">
-                Назад
-              </button>
-            ) : null}
+            <div className="topbar__nav-actions">
+              {showBackButton ? (
+                <button className="btn btn--ghost" onClick={handleBack} type="button">
+                  Назад
+                </button>
+              ) : null}
+
+              {isAuthenticated && canManageCourses ? (
+                <button className="btn btn--chrome" onClick={handleManageOpen} type="button">
+                  Управление
+                </button>
+              ) : null}
+            </div>
 
             {isAuthenticated ? (
-              <>
-                {canManageCourses ? (
-                  <button className="btn btn--chrome" onClick={handleManageOpen} type="button">
-                    Управление
-                  </button>
-                ) : null}
-
+              <div className="topbar__user-actions">
                 <button className="user-chip user-chip--clickable" onClick={handleProfileOpen} type="button">
                   {user?.avatarUrl ? (
                     <img alt={user?.fullName ?? "Профиль"} className="user-chip__avatar" src={filesApi.buildFileUrl(user.avatarUrl)} />
@@ -121,16 +123,16 @@ export function AppLayout() {
                 <button className="btn btn--ghost" onClick={handleLogout} type="button">
                   Выйти
                 </button>
-              </>
+              </div>
             ) : (
-              <>
+              <div className="topbar__user-actions">
                 <Link className="btn btn--ghost" to="/login">
                   Войти
                 </Link>
                 <Link className="btn btn--primary" to="/register">
                   Регистрация
                 </Link>
-              </>
+              </div>
             )}
           </div>
         </div>

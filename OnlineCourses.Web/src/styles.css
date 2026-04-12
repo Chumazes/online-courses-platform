@@ -155,6 +155,18 @@ a {
   justify-content: flex-end;
 }
 
+.topbar__nav-actions,
+.topbar__user-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.topbar__user-actions {
+  justify-content: flex-end;
+}
+
 .user-chip {
   min-height: 54px;
   border-radius: var(--radius-pill);
@@ -1155,6 +1167,10 @@ textarea.input {
   align-content: start;
 }
 
+.profile-shell__content > .btn {
+  align-self: start;
+}
+
 .profile-avatar {
   width: 110px;
   height: 110px;
@@ -1360,6 +1376,10 @@ textarea.input {
   margin-top: 6px;
 }
 
+.management-form > .card-actions {
+  align-items: flex-start;
+}
+
 .management-file-box {
   border-radius: 18px;
   border: 1px solid #593880;
@@ -1515,6 +1535,16 @@ textarea.input {
     justify-content: flex-start;
   }
 
+  .management-hero__row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .management-summary__card {
+    min-width: 0;
+    flex: 1 1 220px;
+  }
+
   .dashboard-focus {
     grid-template-columns: 1fr;
   }
@@ -1525,6 +1555,11 @@ textarea.input {
 
   .course-detail-hero {
     grid-template-columns: 1fr;
+  }
+
+  .profile-card__grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .course-progress-card {
@@ -1589,7 +1624,44 @@ textarea.input {
   }
 
   .topbar__actions {
-    justify-self: start;
+    width: 100%;
+    justify-self: stretch;
+    justify-content: space-between;
+  }
+
+  .topbar__nav-actions,
+  .topbar__user-actions {
+    width: 100%;
+  }
+
+  .topbar__nav-actions {
+    justify-content: flex-start;
+  }
+
+  .topbar__user-actions {
+    justify-content: space-between;
+  }
+
+  .topbar__user-actions .btn,
+  .topbar__nav-actions .btn {
+    flex: 0 1 auto;
+  }
+
+  .user-chip {
+    flex: 1 1 260px;
+    justify-content: flex-start;
+    min-width: 0;
+  }
+
+  .user-chip__meta {
+    min-width: 0;
+  }
+
+  .user-chip__meta strong,
+  .user-chip__meta small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .page {
@@ -1628,5 +1700,31 @@ textarea.input {
   .filters-layout {
     margin-top: 0;
     grid-template-columns: 1fr;
+  }
+
+  .profile-pill--title {
+    font-size: 1.5rem;
+    padding: 14px 18px;
+  }
+
+  .profile-card {
+    padding: 18px;
+  }
+
+  .management-strip {
+    gap: 8px;
+  }
+
+  .management-card__actions,
+  .management-form__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .management-card__actions .btn,
+  .management-form__actions .btn,
+  .management-card__actions a,
+  .management-form__actions a {
+    width: 100%;
   }
 }
