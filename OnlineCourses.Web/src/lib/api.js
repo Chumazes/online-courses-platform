@@ -26,6 +26,24 @@ function toQueryString(query = {}) {
   return raw ? `?${raw}` : "";
 }
 
+function extractValidationMessage(errors) {
+  if (!errors || typeof errors !== "object") {
+    return "";
+  }
+
+  for (const value of Object.values(errors)) {
+    if (Array.isArray(value) && value.length > 0) {
+      return String(value[0]);
+    }
+
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return "";
+}
+
 function extractMessage(payload, fallback = "Ошибка запроса") {
   if (!payload) {
     return fallback;
@@ -37,6 +55,19 @@ function extractMessage(payload, fallback = "Ошибка запроса") {
 
   if (typeof payload?.message === "string") {
     return payload.message;
+  }
+
+  const validationMessage = extractValidationMessage(payload?.errors);
+  if (validationMessage) {
+    return validationMessage;
+  }
+
+  if (typeof payload?.detail === "string" && payload.detail.trim()) {
+    return payload.detail.trim();
+  }
+
+  if (typeof payload?.title === "string" && payload.title.trim()) {
+    return payload.title.trim();
   }
 
   return fallback;
@@ -234,6 +265,10 @@ export const filesApi = {
 
 export function formatApiError(error, fallback = "Произошла ошибка.") {
   if (error instanceof ApiError) {
+    if (error.status === 400 && error.payload) {
+      return extractMessage(error.payload, fallback);
+    }
+
     if (error.status === 401) {
       return "Сессия истекла. Войди снова.";
     }

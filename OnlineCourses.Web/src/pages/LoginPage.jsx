@@ -4,6 +4,10 @@ import { ErrorBanner } from "../components/ErrorBanner";
 import { useAuth } from "../context/AuthContext";
 import { formatApiError } from "../lib/api";
 
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
 export function LoginPage() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
@@ -18,10 +22,29 @@ export function LoginPage() {
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
+
+    const normalizedEmail = email.trim();
+    const normalizedPassword = password.trim();
+
+    if (!normalizedEmail) {
+      setError("Введите email.");
+      return;
+    }
+
+    if (!isValidEmail(normalizedEmail)) {
+      setError("Введите корректный email.");
+      return;
+    }
+
+    if (!normalizedPassword) {
+      setError("Введите пароль.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      await signIn(email, password);
+      await signIn(normalizedEmail, password);
       navigate(from, { replace: true });
     } catch (err) {
       setError(formatApiError(err, "Не удалось войти в аккаунт."));
@@ -33,7 +56,7 @@ export function LoginPage() {
   return (
     <section className="auth-card">
       <h2>Вход</h2>
-      <p className="muted"></p>
+      <p className="muted" />
       <ErrorBanner message={error} />
 
       <form className="form" onSubmit={handleSubmit}>

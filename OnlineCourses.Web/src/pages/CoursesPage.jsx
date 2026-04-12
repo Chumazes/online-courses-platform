@@ -165,6 +165,10 @@ export function CoursesPage() {
     navigate(`/courses/${selectedCourseId}`);
   }
 
+  function openCourse(courseId) {
+    navigate(`/courses/${courseId}`);
+  }
+
   return (
     <section className="stack">
       <section className="panel catalog-head">
@@ -245,6 +249,7 @@ export function CoursesPage() {
                 className={`card course-card course-card--wide${selectedCourseId === course.courseId ? " course-card--selected" : ""}`}
                 key={course.courseId}
                 onClick={() => setSelectedCourseId(course.courseId)}
+                onDoubleClick={() => openCourse(course.courseId)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {
                     setSelectedCourseId(course.courseId);
