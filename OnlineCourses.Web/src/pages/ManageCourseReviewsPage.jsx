@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
 import { ErrorBanner } from "../components/ErrorBanner";
 import { coursesApi, filesApi, formatApiError, reviewsApi } from "../lib/api";
 import { formatDate } from "../lib/format";
 
 export function ManageCourseReviewsPage() {
-  const numericCourseId = Number(window.location.pathname.split("/")[3]);
+  const { courseId } = useParams();
+  const numericCourseId = Number(courseId);
   const [course, setCourse] = useState(null);
   const [rating, setRating] = useState(null);
   const [reviews, setReviews] = useState([]);

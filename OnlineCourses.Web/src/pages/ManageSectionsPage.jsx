@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { ErrorBanner } from "../components/ErrorBanner";
 import { coursesApi, formatApiError, sectionsApi } from "../lib/api";
 
@@ -182,9 +182,9 @@ export function ManageSectionsPage() {
                 <button className="btn btn--ghost btn--fit" onClick={() => startEdit(section)} type="button">
                   Редактировать
                 </button>
-                <a className="btn btn--chrome btn--fit" href={`/manage/sections/${section.sectionId}/lessons`}>
+                <Link className="btn btn--chrome btn--fit" to={`/manage/sections/${section.sectionId}/lessons`}>
                   Уроки
-                </a>
+                </Link>
                 <button className="btn btn--danger btn--fit" onClick={() => handleDelete(section.sectionId)} type="button">
                   Удалить
                 </button>
