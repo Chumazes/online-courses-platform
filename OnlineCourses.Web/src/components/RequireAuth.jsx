@@ -10,13 +10,12 @@ export function RequireAuth({ roles }) {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace state={{ from: location }} />;
+    return <Navigate replace state={{ from: location }} to="/login" />;
   }
 
   if (roles && !roles.includes(role)) {
-    return <Navigate to="/courses" replace />;
+    return <Navigate replace to="/catalog" />;
   }
 
   return <Outlet />;
 }
-

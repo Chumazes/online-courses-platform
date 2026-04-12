@@ -13,7 +13,7 @@ export function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const from = location.state?.from?.pathname ?? "/courses";
+  const from = location.state?.from?.pathname ?? "/catalog";
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -33,7 +33,7 @@ export function LoginPage() {
   return (
     <section className="auth-card">
       <h2>Вход</h2>
-      <p className="muted">Используй аккаунт student/teacher/admin для проверки ролей.</p>
+      <p className="muted">Используй student/teacher/admin аккаунты, чтобы проверить роли.</p>
       <ErrorBanner message={error} />
 
       <form className="form" onSubmit={handleSubmit}>
@@ -67,9 +67,8 @@ export function LoginPage() {
       </form>
 
       <p className="muted">
-        Нет аккаунта? <Link to="/register">Регистрация</Link>
+        Нет аккаунта? <Link to="/register">Регистрация</Link> • <Link to="/">Назад на главную</Link>
       </p>
     </section>
   );
 }
-
