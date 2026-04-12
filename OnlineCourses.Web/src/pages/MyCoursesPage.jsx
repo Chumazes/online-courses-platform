@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { ErrorBanner } from "../components/ErrorBanner";
 import { useAuth } from "../context/AuthContext";
-import { coursesApi, enrollmentsApi, formatApiError } from "../lib/api";
-import { formatMoney } from "../lib/format";
+import { enrollmentsApi, formatApiError } from "../lib/api";
+import { formatCourseStatus } from "../lib/format";
 
 export function MyCoursesPage() {
   const { role } = useAuth();
@@ -17,13 +17,8 @@ export function MyCoursesPage() {
     setIsLoading(true);
 
     try {
-      if (role === "student") {
-        const enrollments = await enrollmentsApi.getMy();
-        setItems(enrollments ?? []);
-      } else {
-        const courses = await coursesApi.getMy();
-        setItems(courses ?? []);
-      }
+      const enrollments = await enrollmentsApi.getMy();
+      setItems(enrollments ?? []);
     } catch (err) {
       setError(formatApiError(err, "Не удалось загрузить страницу."));
     } finally {
@@ -33,7 +28,7 @@ export function MyCoursesPage() {
 
   useEffect(() => {
     loadData();
-  }, [role]);
+  }, []);
 
   async function handleUnenroll(courseId) {
     setError("");
@@ -49,62 +44,70 @@ export function MyCoursesPage() {
     }
   }
 
+  if (role !== "student") {
+    return <Navigate replace to={role === "teacher" || role === "admin" ? "/dashboard" : "/catalog"} />;
+  }
+
   if (isLoading) {
     return <div className="page-state">Загружаем...</div>;
   }
 
   return (
     <section className="stack">
-      <h1>{role === "student" ? "Мои курсы" : "Мои курсы (преподаватель/админ)"}</h1>
+      <section className="panel">
+        <div className="catalog-head">
+          <div>
+            <h1>Мои курсы</h1>
+            <p className="muted">Личный кабинет студента: прогресс, активные записи и готовые маршруты обучения.</p>
+          </div>
+        </div>
+      </section>
+
       <ErrorBanner message={error} />
 
-      {items.length === 0 ? <div className="panel muted">Пока пусто.</div> : null}
+      {items.length === 0 ? <div className="panel panel--light">Вы пока не записаны ни на один курс.</div> : null}
 
-      {role === "student" ? (
-        <div className="stack">
-          {items.map((item) => (
-            <article className="panel" key={item.enrollmentId}>
+      <div className="my-courses-grid">
+        {items.map((item) => (
+          <article className="panel my-course-card" key={item.enrollmentId}>
+            <div className="panel-row">
               <h3>{item.courseTitle}</h3>
-              <p className="muted">
-                Статус: {item.status} | Прогресс: {item.overallProgress}%
-              </p>
-              <div className="card-actions">
-                <Link className="btn btn--ghost" to={`/courses/${item.courseId}`}>
-                  Открыть
-                </Link>
-                <button
-                  className="btn btn--danger"
-                  disabled={isBusyCourseId === item.courseId}
-                  onClick={() => handleUnenroll(item.courseId)}
-                  type="button"
-                >
-                  {isBusyCourseId === item.courseId ? "Обновляем..." : "Отписаться"}
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
-      ) : (
-        <div className="courses-grid">
-          {items.map((course) => (
-            <article className="card course-card" key={course.courseId}>
-              <p className="chip">{course.level}</p>
-              <h3>{course.title}</h3>
-              <p className="muted">{course.description}</p>
-              <p className="price">{formatMoney(course.price)}</p>
-              <div className="card-actions">
-                <Link className="btn btn--ghost" to={`/courses/${course.courseId}`}>
-                  Открыть
-                </Link>
-                <Link className="btn btn--primary" to="/manage/courses">
-                  Управлять
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
+              <span className="chip">{formatCourseStatus(item.status)}</span>
+            </div>
+
+            <p className="muted">Запись: {new Date(item.enrollmentDate).toLocaleDateString("ru-RU")}</p>
+            <p className="muted">Прогресс: {item.overallProgress}%</p>
+            <p className="muted">
+              {item.completedLessons ?? 0} из {item.totalLessons ?? 0} уроков завершено
+            </p>
+
+            <div className="progress-track">
+              <div className="progress-value" style={{ width: `${Math.min(100, Math.max(0, Number(item.overallProgress ?? 0)))}%` }} />
+            </div>
+
+            <div className="my-course-card__summary">
+              <span>Прогресс: {item.overallProgress}%</span>
+              <span>
+                {item.completedLessons ?? 0} из {item.totalLessons ?? 0} уроков завершено
+              </span>
+            </div>
+
+            <div className="card-actions">
+              <Link className="btn btn--primary" to={`/courses/${item.courseId}`}>
+                Открыть курс
+              </Link>
+              <button
+                className="btn btn--ghost"
+                disabled={isBusyCourseId === item.courseId}
+                onClick={() => handleUnenroll(item.courseId)}
+                type="button"
+              >
+                {isBusyCourseId === item.courseId ? "Обновляем..." : "Отписаться"}
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
     </section>
   );
 }
-

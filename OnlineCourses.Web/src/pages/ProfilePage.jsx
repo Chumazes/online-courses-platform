@@ -1,16 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ErrorBanner } from "../components/ErrorBanner";
 import { useAuth } from "../context/AuthContext";
-import { filesApi, formatApiError, authApi } from "../lib/api";
+import { authApi, filesApi, formatApiError } from "../lib/api";
 
 export function ProfilePage() {
-  const { user, refreshUser } = useAuth();
+  const { user, role, refreshUser } = useAuth();
+  const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [bio, setBio] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+
+  const canOpenDashboard = role === "teacher" || role === "admin";
+
+  const initials = useMemo(() => {
+    if (!user?.fullName) {
+      return "?";
+    }
+
+    return String(user.fullName)
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? "")
+      .join("");
+  }, [user?.fullName]);
 
   useEffect(() => {
     setFullName(user?.fullName ?? "");
@@ -57,44 +74,58 @@ export function ProfilePage() {
 
   return (
     <section className="stack">
-      <h1>Профиль</h1>
       <ErrorBanner message={error} />
       {success ? <div className="success-banner">{success}</div> : null}
 
-      <article className="panel">
-        <div className="profile-header">
-          <img
-            alt="Avatar"
-            className="avatar"
-            src={user?.avatarUrl ? filesApi.buildFileUrl(user.avatarUrl) : "https://placehold.co/120x120?text=Avatar"}
-          />
-          <div>
-            <p className="muted">Email: {user?.email}</p>
-            <p className="muted">Роль: {user?.role}</p>
-            <label className="btn btn--ghost btn--fit">
-              {isUploading ? "Загрузка..." : "Загрузить аватар"}
-              <input hidden onChange={handleAvatar} type="file" />
-            </label>
-          </div>
+      <section className="panel panel--light profile-shell">
+        <div className="profile-shell__sidebar">
+          {user?.avatarUrl ? (
+            <img alt="Avatar" className="profile-avatar" src={filesApi.buildFileUrl(user.avatarUrl)} />
+          ) : (
+            <div className="profile-avatar profile-avatar--fallback">{initials}</div>
+          )}
+
+          <div className="profile-pill profile-pill--title">{fullName || "Профиль"}</div>
+          <div className="profile-pill profile-pill--role">{user?.role ?? role}</div>
+
+          <label className="btn btn--chrome profile-shell__button">
+            {isUploading ? "Загрузка..." : "Загрузить аватар"}
+            <input hidden onChange={handleAvatar} type="file" />
+          </label>
+
+          {canOpenDashboard ? (
+            <button className="btn btn--ghost profile-shell__button" onClick={() => navigate("/dashboard")} type="button">
+              {role === "admin" ? "Открыть панель администратора" : "Открыть панель преподавателя"}
+            </button>
+          ) : null}
         </div>
-      </article>
 
-      <form className="panel form" onSubmit={handleSubmit}>
-        <label className="label">
-          Имя
-          <input className="input" onChange={(event) => setFullName(event.target.value)} type="text" value={fullName} />
-        </label>
+        <form className="profile-shell__content" onSubmit={handleSubmit}>
+          <div className="profile-card">
+            <h2>Карточка профиля</h2>
+            <div className="profile-card__grid">
+              <span>Email</span>
+              <strong>{user?.email}</strong>
+              <span>Роль</span>
+              <strong>{user?.role ?? role}</strong>
+            </div>
+          </div>
 
-        <label className="label">
-          Bio
-          <textarea className="input" onChange={(event) => setBio(event.target.value)} rows={5} value={bio} />
-        </label>
+          <label className="label">
+            Имя
+            <input className="input" onChange={(event) => setFullName(event.target.value)} type="text" value={fullName} />
+          </label>
 
-        <button className="btn btn--primary btn--fit" disabled={isSaving} type="submit">
-          {isSaving ? "Сохраняем..." : "Сохранить изменения"}
-        </button>
-      </form>
+          <label className="label">
+            О пользователе
+            <textarea className="input profile-bio" onChange={(event) => setBio(event.target.value)} rows={8} value={bio} />
+          </label>
+
+          <button className="btn btn--primary btn--fit" disabled={isSaving} type="submit">
+            {isSaving ? "Сохраняем..." : "Сохранить bio"}
+          </button>
+        </form>
+      </section>
     </section>
   );
 }
-
