@@ -43,7 +43,7 @@ export function ProfilePage() {
     try {
       await authApi.updateMe({ fullName, bio });
       await refreshUser();
-      setSuccess("Профиль обновлен.");
+      setSuccess("Профиль обновлён.");
     } catch (err) {
       setError(formatApiError(err, "Не удалось обновить профиль."));
     } finally {
@@ -64,7 +64,7 @@ export function ProfilePage() {
     try {
       await filesApi.uploadAvatar(file);
       await refreshUser();
-      setSuccess("Аватар обновлен.");
+      setSuccess("Аватар обновлён.");
     } catch (err) {
       setError(formatApiError(err, "Не удалось загрузить аватар."));
     } finally {
@@ -108,6 +108,26 @@ export function ProfilePage() {
               <strong>{user?.email}</strong>
               <span>Роль</span>
               <strong>{user?.role ?? role}</strong>
+            </div>
+          </div>
+
+          <div className="profile-card">
+            <h2>Рабочая связка</h2>
+            <p className="muted">Из профиля можно сразу перейти в каталог, панель или управление, без лишних возвратов по истории.</p>
+            <div className="card-actions">
+              <button className="btn btn--ghost btn--fit" onClick={() => navigate("/catalog")} type="button">
+                Открыть каталог
+              </button>
+              {canOpenDashboard ? (
+                <>
+                  <button className="btn btn--chrome btn--fit" onClick={() => navigate("/dashboard")} type="button">
+                    Перейти в панель
+                  </button>
+                  <button className="btn btn--ghost btn--fit" onClick={() => navigate("/manage/courses")} type="button">
+                    Открыть управление
+                  </button>
+                </>
+              ) : null}
             </div>
           </div>
 

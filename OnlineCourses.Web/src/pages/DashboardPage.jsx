@@ -96,6 +96,9 @@ export function DashboardPage() {
           </div>
 
           <div className="card-actions management-hero__actions">
+            <Link className="btn btn--ghost btn--fit" to="/profile">
+              Профиль
+            </Link>
             <Link className="btn btn--primary btn--fit" to="/manage/courses">
               Открыть управление
             </Link>
@@ -166,6 +169,9 @@ export function DashboardPage() {
             <h2>Курсы в работе</h2>
             <p className="muted">Ниже собраны курсы с быстрыми действиями без захода в лишние промежуточные экраны.</p>
           </div>
+          <Link className="btn btn--ghost btn--fit" to="/manage/courses">
+            Рабочая зона
+          </Link>
         </div>
 
         <div className="stack">
@@ -190,7 +196,7 @@ export function DashboardPage() {
                 {course.status === "draft"
                   ? "Это черновик: сначала проверь описание, статус и секции."
                   : Number(course.totalStudents ?? 0) > 0
-                    ? "Студенты уже есть, но отзывы пока нет."
+                    ? "Студенты уже есть, но отзывы пока не собраны."
                     : "Курс опубликован, но студентов пока нет. Есть смысл проверить карточку в каталоге."}
               </p>
 

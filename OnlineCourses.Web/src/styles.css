@@ -1208,6 +1208,10 @@ textarea.input {
   margin: 0 0 18px;
 }
 
+.profile-card .card-actions {
+  margin-top: 14px;
+}
+
 .profile-card__grid {
   border-radius: 20px;
   border: 1px solid #5c3880;
