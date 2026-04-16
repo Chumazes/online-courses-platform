@@ -8,6 +8,9 @@ namespace OnlineCourses.Data.Repositories.Implementations;
 public class UserRepository : IUserRepository
 {
     private readonly AppDbContext _context;
+
+    private static string NormalizeEmail(string email) =>
+        email.Trim().ToLowerInvariant();
     
     public UserRepository(AppDbContext context)
     {
@@ -16,7 +19,10 @@ public class UserRepository : IUserRepository
     
     public async Task<User?> GetUserByEmailAsync(string email)
     {
-        return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        var normalizedEmail = NormalizeEmail(email);
+
+        return await _context.Users.FirstOrDefaultAsync(u =>
+            u.Email.ToLower() == normalizedEmail);
     }
     
     public async Task<User?> GetUserByIdAsync(int id)
@@ -26,6 +32,7 @@ public class UserRepository : IUserRepository
     
     public async Task<User> CreateUserAsync(User user, string password)
     {
+        user.Email = NormalizeEmail(user.Email);
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);
         user.RegistrationDate = DateTime.UtcNow;
         user.CreatedAt = DateTime.UtcNow;
@@ -50,6 +57,9 @@ public class UserRepository : IUserRepository
     
     public async Task<bool> UserExistsAsync(string email)
     {
-        return await _context.Users.AnyAsync(u => u.Email == email);
+        var normalizedEmail = NormalizeEmail(email);
+
+        return await _context.Users.AnyAsync(u =>
+            u.Email.ToLower() == normalizedEmail);
     }
 }

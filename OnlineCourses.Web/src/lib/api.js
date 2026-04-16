@@ -265,12 +265,15 @@ export const filesApi = {
 
 export function formatApiError(error, fallback = "Произошла ошибка.") {
   if (error instanceof ApiError) {
-    if (error.status === 400 && error.payload) {
-      return extractMessage(error.payload, fallback);
+    if ((error.status === 400 || error.status === 401) && error.payload) {
+      const message = extractMessage(error.payload, "");
+      if (message && !/^unauthorized$/i.test(message)) {
+        return message;
+      }
     }
 
     if (error.status === 401) {
-      return "Сессия истекла. Войди снова.";
+      return "Сессия истекла, выполните вход снова.";
     }
 
     if (error.status === 403) {
