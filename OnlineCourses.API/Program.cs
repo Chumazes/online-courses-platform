@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using OnlineCourses.API.Infrastructure;
 using OnlineCourses.Data;
 using OnlineCourses.Data.Repositories.Implementations;
 using OnlineCourses.Data.Repositories.Interfaces;
@@ -29,8 +30,19 @@ try
     builder.Services.AddSwaggerGen();
 
     // Database
+    var databaseProvider = (builder.Configuration["DatabaseProvider"] ?? "Postgres").ToLowerInvariant();
     builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    {
+        if (databaseProvider == "sqlite")
+        {
+            var sqliteConnection = builder.Configuration.GetConnectionString("SqliteConnection")
+                ?? "Data Source=online-courses-dev.db";
+            options.UseSqlite(sqliteConnection);
+            return;
+        }
+
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    });
 
     // JWT Authentication
     var jwtSecret = builder.Configuration["JwtSettings:Secret"] ?? "super-secret-key-32-chars-long-for-jwt!";
@@ -88,6 +100,8 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
+
+    await DevelopmentDatabaseInitializer.InitializeAsync(app.Services, builder.Configuration);
 
     app.Run();
 }
