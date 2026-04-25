@@ -1,0 +1,294 @@
+{
+  "info": {
+    "name": "OnlineCourses API QA",
+    "description": "QA-коллекция для ручной проверки локального API OnlineCourses.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5064/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "courseId",
+      "value": "1"
+    },
+    {
+      "key": "sectionId",
+      "value": "1"
+    },
+    {
+      "key": "lessonId",
+      "value": "1"
+    },
+    {
+      "key": "reviewId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Авторизация - вход студента",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"student@local.dev\",\n  \"password\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/Auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["Auth", "login"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Login returns 200', function () { pm.response.to.have.status(200); });",
+              "const json = pm.response.json();",
+              "pm.collectionVariables.set('accessToken', json.accessToken);",
+              "pm.collectionVariables.set('refreshToken', json.refreshToken);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Авторизация - текущий пользователь",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/Auth/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["Auth", "me"]
+        }
+      }
+    },
+    {
+      "name": "Курсы - список",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/Courses?pageNumber=1&pageSize=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["Courses"],
+          "query": [
+            {
+              "key": "pageNumber",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "10"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Курсы - получить по ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/Courses/{{courseId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["Courses", "{{courseId}}"]
+        }
+      }
+    },
+    {
+      "name": "Курсы - категории",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/Courses/categories",
+          "host": ["{{baseUrl}}"],
+          "path": ["Courses", "categories"]
+        }
+      }
+    },
+    {
+      "name": "Записи на курсы - мои курсы",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/Enrollments/my",
+          "host": ["{{baseUrl}}"],
+          "path": ["Enrollments", "my"]
+        }
+      }
+    },
+    {
+      "name": "Записи на курсы - записаться",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"courseId\": {{courseId}}\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/Enrollments",
+          "host": ["{{baseUrl}}"],
+          "path": ["Enrollments"]
+        }
+      }
+    },
+    {
+      "name": "Разделы - по курсу",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/courses/{{courseId}}/sections",
+          "host": ["{{baseUrl}}"],
+          "path": ["courses", "{{courseId}}", "sections"]
+        }
+      }
+    },
+    {
+      "name": "Уроки - по разделу",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/sections/{{sectionId}}/lessons",
+          "host": ["{{baseUrl}}"],
+          "path": ["sections", "{{sectionId}}", "lessons"]
+        }
+      }
+    },
+    {
+      "name": "Прогресс - обновить",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"lessonId\": {{lessonId}},\n  \"isCompleted\": true,\n  \"watchTime\": 600\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/Progress/update",
+          "host": ["{{baseUrl}}"],
+          "path": ["Progress", "update"]
+        }
+      }
+    },
+    {
+      "name": "Прогресс - мой прогресс",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/Progress/my",
+          "host": ["{{baseUrl}}"],
+          "path": ["Progress", "my"]
+        }
+      }
+    },
+    {
+      "name": "Отзывы - отзывы курса",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/Reviews/course/{{courseId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["Reviews", "course", "{{courseId}}"]
+        }
+      }
+    },
+    {
+      "name": "Отзывы - рейтинг курса",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/Reviews/course/{{courseId}}/rating",
+          "host": ["{{baseUrl}}"],
+          "path": ["Reviews", "course", "{{courseId}}", "rating"]
+        }
+      }
+    },
+    {
+      "name": "Отзывы - создать отзыв",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"rating\": 5,\n  \"comment\": \"Хороший курс для проверки API\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/Reviews/course/{{courseId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["Reviews", "course", "{{courseId}}"]
+        }
+      }
+    }
+  ]
+}
