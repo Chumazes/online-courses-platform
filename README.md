@@ -1,6 +1,6 @@
 # OnlineCourses
 
-OnlineCourses - учебный проект платформы онлайн-курсов. Система состоит из ASP.NET Core WebAPI, слоя доступа к данным на Entity Framework Core, моделей, desktop-клиента WPF, web-клиента React/Vite и тестового проекта xUnit.
+OnlineCourses - учебный проект платформы онлайн-курсов. Система состоит из ASP.NET Core WebAPI, слоя доступа к данным на Entity Framework Core, общих моделей, WPF desktop-клиента, React/Vite web-клиента и тестового проекта.
 
 ## Стек
 
@@ -11,7 +11,7 @@ OnlineCourses - учебный проект платформы онлайн-ку
 - PostgreSQL как основной серверный провайдер
 - WPF desktop client
 - React + Vite web client
-- xUnit для тестов
+- xUnit + Moq + coverlet для автотестов
 - Swagger
 - JWT authentication
 - Serilog
@@ -25,7 +25,8 @@ OnlineCourses.Models   - сущности и DTO
 OnlineCourses.Client   - клиентская библиотека для вызовов API
 OnlineCourses.Desktop  - WPF-приложение
 OnlineCourses.Web      - React/Vite web-клиент
-OnlineCourses.Tests    - xUnit-тесты
+OnlineCourses.Tests    - xUnit + Moq тесты
+docs                   - QA-документация, тест-кейсы, чек-листы, Postman-коллекция
 ```
 
 ## Локальная база данных
@@ -60,9 +61,11 @@ admin@local.dev / 123456
 
 ## Запуск API
 
+Команды выполняются из корня проекта:
+
 ```powershell
-cd C:\OSTALNOE\kursovka\OnlineCourses.API
-dotnet run --launch-profile http
+cd online-courses-platform
+dotnet run --project OnlineCourses.API --launch-profile http
 ```
 
 Swagger:
@@ -77,12 +80,58 @@ http://localhost:5064/swagger
 http://localhost:5064/api
 ```
 
-## Запуск тестов
+## Запуск Desktop
+
+Команда выполняется из корня проекта:
 
 ```powershell
-cd C:\OSTALNOE\kursovka
+dotnet run --project OnlineCourses.Desktop
+```
+
+## Запуск React
+
+```powershell
+cd OnlineCourses.Web
+npm install
+npm run dev
+```
+
+## Запуск тестов
+
+Команда выполняется из корня проекта:
+
+```powershell
 dotnet test OnlineCourses.Tests\OnlineCourses.Tests.csproj
 ```
+
+## Проверка проекта
+
+```powershell
+dotnet build OnlineCourses.slnx --no-restore
+dotnet test OnlineCourses.Tests\OnlineCourses.Tests.csproj
+cd OnlineCourses.Web
+npm run build
+```
+
+## Логи
+
+API пишет логи в каталог:
+
+```text
+OnlineCourses.API/logs/api-.log
+```
+
+Реальные `.log` файлы не коммитятся в репозиторий, потому что они добавлены в `.gitignore`.
+
+## CI/CD
+
+В проекте настроен GitHub Actions workflow:
+
+```text
+.github/workflows/dotnet.yml
+```
+
+GitHub Actions запускает restore, build и test для backend/test project при push и pull request. Отдельный job проверяет React-клиент через `npm ci` и `npm run build`. Результаты автотестов сохраняются как `.trx` artifact.
 
 ## Основные сущности БД
 
@@ -100,4 +149,4 @@ dotnet test OnlineCourses.Tests\OnlineCourses.Tests.csproj
 
 ## Роль DevOps/QA
 
-В рамках DevOps/QA части подготовлены локальная SQLite БД, тестовые данные, проверка сборки и тестов, ER-диаграмма, описание нормализации БД, чек-листы тестирования и анализ CI/CD.
+В рамках DevOps/QA части подготовлены локальная SQLite БД, тестовые данные, автотесты xUnit + Moq, проверка сборки, ER-диаграмма, описание нормализации БД, чек-листы тестирования, тест-кейсы, баг-репорты, Postman-коллекция и CI/CD workflow.
