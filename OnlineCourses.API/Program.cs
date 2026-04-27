@@ -11,7 +11,7 @@ using OnlineCourses.Data.Repositories.Interfaces;
 using OnlineCourses.API.Services.Implementations;
 using OnlineCourses.API.Services.Interfaces;
 
-// Настройка Serilog
+// Serilog bootstrap logger
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateBootstrapLogger();
@@ -22,7 +22,7 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
-    // Замена стандартного логирования на Serilog
+    // Replace default logging with Serilog
     builder.Host.UseSerilog((context, services, configuration) => configuration
         .ReadFrom.Configuration(context.Configuration)
         .ReadFrom.Services(services));

@@ -34,7 +34,7 @@ jobs:
       run: dotnet build OnlineCourses.Tests/OnlineCourses.Tests.csproj --configuration Release --no-restore
     
     - name: Run tests
-      run: dotnet test OnlineCourses.Tests/OnlineCourses.Tests.csproj --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
+      run: dotnet test OnlineCourses.Tests/OnlineCourses.Tests.csproj --configuration Release --no-build --logger "trx;LogFileName=test-results.trx" --results-directory OnlineCourses.Tests/TestResults
 
     - name: Upload test results
       if: always()
