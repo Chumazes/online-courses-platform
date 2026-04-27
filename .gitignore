@@ -38,6 +38,3 @@ dist/
 npm-debug.log*
 
 uploads/
-OnlineCourses.API/*.db
-OnlineCourses.API/*.db-shm
-OnlineCourses.API/*.db-wal
