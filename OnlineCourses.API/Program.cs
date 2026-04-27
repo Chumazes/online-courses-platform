@@ -14,8 +14,7 @@ using OnlineCourses.API.Services.Interfaces;
 // Настройка Serilog
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
-    .WriteTo.File("logs/api-.log", rollingInterval: RollingInterval.Day)
-    .CreateLogger();
+    .CreateBootstrapLogger();
 
 try
 {
@@ -24,7 +23,9 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
     // Замена стандартного логирования на Serilog
-    builder.Host.UseSerilog();
+    builder.Host.UseSerilog((context, services, configuration) => configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services));
 
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();

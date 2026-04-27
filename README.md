@@ -113,15 +113,26 @@ cd OnlineCourses.Web
 npm run build
 ```
 
-## Логи
+## Логирование
 
-API пишет логи в каталог:
+В API настроен Serilog: вывод в консоль и запись в файл.
+
+Структура каталогов для логов:
 
 ```text
-OnlineCourses.API/logs/api-.log
+logs/
+  api/
+  desktop/
+  web/
 ```
 
-Реальные `.log` файлы не коммитятся в репозиторий, потому что они добавлены в `.gitignore`.
+API пишет файлы сюда:
+
+```text
+logs/api/api-.log
+```
+
+Каталоги `logs/api`, `logs/desktop` и `logs/web` остаются в репозитории через `.gitkeep`. Реальные `.log` файлы не коммитятся, потому что они добавлены в `.gitignore`.
 
 ## CI/CD
 

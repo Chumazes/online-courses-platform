@@ -43,6 +43,14 @@ jobs:
         name: test-results
         path: OnlineCourses.Tests/TestResults/test-results.trx
 
+    - name: Upload logs on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: logs
+        path: logs/**/*.log
+        if-no-files-found: ignore
+
   react:
     name: React build
     runs-on: ubuntu-latest

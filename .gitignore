@@ -22,7 +22,10 @@ build/
 TestResults/
 
 *.log
-logs/
+logs/**/*.log
+!logs/
+!logs/**/
+!logs/**/.gitkeep
 
 .vscode/
 .idea/
