@@ -1,4 +1,4 @@
-name: .NET CI
+name: CI
 
 on:
   push:
@@ -7,30 +7,63 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  dotnet:
+    name: .NET build and tests
+    runs-on: windows-latest
+
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
     
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
     
-    - name: Restore API only
-      run: |
-        dotnet restore OnlineCourses.API/OnlineCourses.API.csproj
-        dotnet restore OnlineCourses.Data/OnlineCourses.Data.csproj
-        dotnet restore OnlineCourses.Models/OnlineCourses.Models.csproj
-        dotnet restore OnlineCourses.Tests/OnlineCourses.Tests.csproj
+    - name: Restore
+      run: dotnet restore OnlineCourses.Tests/OnlineCourses.Tests.csproj
     
-    - name: Build API only
-      run: |
-        dotnet build OnlineCourses.API/OnlineCourses.API.csproj -c Release --no-restore
-        dotnet build OnlineCourses.Data/OnlineCourses.Data.csproj -c Release --no-restore
-        dotnet build OnlineCourses.Models/OnlineCourses.Models.csproj -c Release --no-restore
-        dotnet build OnlineCourses.Tests/OnlineCourses.Tests.csproj -c Release --no-restore
+    - name: Build API
+      run: dotnet build OnlineCourses.API/OnlineCourses.API.csproj --configuration Release --no-restore
+
+    - name: Build tests
+      run: dotnet build OnlineCourses.Tests/OnlineCourses.Tests.csproj --configuration Release --no-restore
     
-    - name: Test
-      run: dotnet test OnlineCourses.Tests/OnlineCourses.Tests.csproj -c Release --no-build --verbosity normal
+    - name: Run tests
+      run: dotnet test OnlineCourses.Tests/OnlineCourses.Tests.csproj --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: OnlineCourses.Tests/TestResults/test-results.trx
+
+  react:
+    name: React build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: OnlineCourses.Web
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: npm
+        cache-dependency-path: OnlineCourses.Web/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build React app
+      run: npm run build
