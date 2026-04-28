@@ -21,6 +21,11 @@ build/
 
 TestResults/
 
+*.db
+*.db-shm
+*.db-wal
+OnlineCourses.API/online-courses-dev.db
+
 *.log
 logs/**/*.log
 !logs/
