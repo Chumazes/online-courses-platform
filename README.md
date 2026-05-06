@@ -113,6 +113,28 @@ cd OnlineCourses.Web
 npm run build
 ```
 
+## Развертывание через Docker
+
+Для запуска проекта на сервере подготовлены Dockerfile для API и React-клиента, а также `docker-compose.yml` со стеком:
+
+- PostgreSQL;
+- ASP.NET Core API;
+- React/nginx web-клиент.
+
+Быстрый запуск:
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+docker compose ps
+```
+
+Подробная инструкция находится в файле:
+
+```text
+docs/deployment/DEPLOYMENT.md
+```
+
 ## Логирование
 
 В API настроен Serilog: вывод в консоль и запись в файл.
