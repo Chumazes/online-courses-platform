@@ -57,6 +57,14 @@ POSTGRES_PASSWORD=change-this-postgres-password
 JWT_SECRET=change-this-to-a-long-random-secret-at-least-32-characters
 ```
 
+Для демонстрационного запуска используется:
+
+```text
+ASPNETCORE_ENVIRONMENT=Development
+```
+
+Так Swagger доступен по адресу `/swagger`. Для реального production-сервера можно заменить значение на `Production`, но тогда Swagger будет отключен настройкой API.
+
 Для реального сервера также можно указать:
 
 ```text
