@@ -27,6 +27,18 @@ public class TestController : ControllerBase
             status = "online"
         });
     }
+
+    // GET: api/test/health
+    [HttpGet("health")]
+    [AllowAnonymous]
+    public IActionResult Health()
+    {
+        return Ok(new
+        {
+            status = "healthy",
+            timestamp = DateTime.UtcNow
+        });
+    }
     
     // GET: api/test/authorized
     [HttpGet("authorized")]
