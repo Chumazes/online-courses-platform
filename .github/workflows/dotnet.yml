@@ -75,3 +75,18 @@ jobs:
 
     - name: Build React app
       run: npm run build
+
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    needs: [dotnet, react]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Build API image
+      run: docker build -f OnlineCourses.API/Dockerfile -t online-courses-api:ci .
+
+    - name: Build React image
+      run: docker build -f OnlineCourses.Web/Dockerfile -t online-courses-web:ci OnlineCourses.Web
