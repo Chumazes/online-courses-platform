@@ -1937,17 +1937,40 @@ canvas {
     gap: 12px;
   }
 
-  .topbar__actions,
-  .topbar__nav-actions,
+  .topbar__actions {
+    display: grid;
+    gap: 8px;
+  }
+
+  .topbar__nav-actions:empty {
+    display: none;
+  }
+
+  .topbar__nav-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px;
+  }
+
   .topbar__user-actions {
-    flex-direction: column;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
   }
 
   .topbar__nav-actions .btn,
-  .topbar__user-actions .btn,
+  .topbar__user-actions .btn {
+    width: auto;
+  }
+
   .topbar__user-actions .user-chip {
-    width: 100%;
+    width: auto;
+    min-width: 0;
+    min-height: 54px;
+    flex: 0 0 auto;
+    border-radius: 16px;
+    padding: 6px 10px;
   }
 
   .btn,
@@ -2089,6 +2112,15 @@ canvas {
     padding-right: 10px;
   }
 
+  .topbar__user-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar__user-actions .btn,
+  .topbar__user-actions .user-chip {
+    width: 100%;
+  }
+
   .user-chip__avatar {
     width: 38px;
     height: 38px;
@@ -2159,6 +2191,18 @@ canvas {
 
   .brand-subtitle {
     display: none;
+  }
+
+  .topbar__content {
+    gap: 8px;
+  }
+
+  .user-chip__meta strong {
+    font-size: 0.9rem;
+  }
+
+  .user-chip__meta small {
+    font-size: 0.76rem;
   }
 
   .panel,
