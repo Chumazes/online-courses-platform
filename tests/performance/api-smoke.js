@@ -1,7 +1,7 @@
 import http from "k6/http";
 import { check, group, sleep } from "k6";
 
-const baseUrl = (__ENV.API_BASE_URL || "http://api:8080").replace(/\/+$/, "");
+const baseUrl = (__ENV.K6_API_BASE_URL || "http://api:8080").replace(/\/+$/, "");
 
 export const options = {
   vus: Number(__ENV.K6_VUS || 10),
@@ -22,7 +22,7 @@ export default function () {
       "health response is healthy": (r) => {
         try {
           return r.json("status") === "healthy";
-        } catch {
+        } catch (error) {
           return false;
         }
       }
@@ -37,7 +37,7 @@ export default function () {
       "courses response has items": (r) => {
         try {
           return Array.isArray(r.json("items"));
-        } catch {
+        } catch (error) {
           return false;
         }
       }
@@ -52,7 +52,7 @@ export default function () {
       "categories response is array": (r) => {
         try {
           return Array.isArray(r.json());
-        } catch {
+        } catch (error) {
           return false;
         }
       }

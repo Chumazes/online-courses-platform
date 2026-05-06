@@ -45,6 +45,12 @@ $env:K6_DURATION="1m"
 docker compose -f docker-compose.yml -f docker-compose.performance.yml run --rm k6
 ```
 
+Для смены адреса API внутри k6 используется отдельная переменная:
+
+```powershell
+$env:K6_API_BASE_URL="http://api:8080"
+```
+
 ## Критерии прохождения
 
 Тест считается успешным, если:
@@ -53,17 +59,11 @@ docker compose -f docker-compose.yml -f docker-compose.performance.yml run --rm 
 - 95% запросов быстрее 1000 ms;
 - больше 99% проверок успешны.
 
-## Запуск локально через установленный k6
+## Локальный запуск через установленный k6
 
 Если k6 установлен на машине:
 
 ```powershell
-k6 run tests/performance/api-smoke.js
-```
-
-Для локального API:
-
-```powershell
-$env:API_BASE_URL="http://localhost:8080"
+$env:K6_API_BASE_URL="http://localhost:8080"
 k6 run tests/performance/api-smoke.js
 ```
