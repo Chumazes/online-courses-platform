@@ -32,18 +32,18 @@ public static class DevelopmentDatabaseInitializer
 
     private static async Task SeedDevelopmentDataAsync(AppDbContext context, ILogger logger)
     {
-        var teacher = await EnsureUserAsync(context, "teacher@local.dev", "Demo Teacher", "teacher", "123456");
-        var student = await EnsureUserAsync(context, "student@local.dev", "Demo Student", "student", "123456");
-        await EnsureUserAsync(context, "admin@local.dev", "Demo Admin", "admin", "123456");
-        var secondStudent = await EnsureUserAsync(context, "student2@local.dev", "Second Student", "student", "123456");
+        var teacher = await EnsureUserAsync(context, "teacher@local.dev", "Иван Петров", "teacher", "123456");
+        var student = await EnsureUserAsync(context, "student@local.dev", "Анна Смирнова", "student", "123456");
+        await EnsureUserAsync(context, "admin@local.dev", "Администратор платформы", "admin", "123456");
+        var secondStudent = await EnsureUserAsync(context, "student2@local.dev", "Дмитрий Волков", "student", "123456");
 
-        var programming = await EnsureCategoryAsync(context, "Programming", "C#, ASP.NET Core, WPF and related courses.");
-        var qaDevops = await EnsureCategoryAsync(context, "QA and DevOps", "Testing, automation, CI/CD and release practices.");
+        var programming = await EnsureCategoryAsync(context, "Программирование", "C#, ASP.NET Core, WPF и практическая разработка.");
+        var qaDevops = await EnsureCategoryAsync(context, "QA и DevOps", "Тестирование, автоматизация, CI/CD и развертывание.");
 
         var apiCourse = await EnsureCourseAsync(
             context,
-            title: "ASP.NET Core Web API Basics",
-            description: "Build REST endpoints, JWT authentication, EF Core data access and Swagger documentation.",
+            title: "ASP.NET Core Web API с нуля",
+            description: "Практический курс по созданию REST API, JWT-авторизации, Entity Framework Core и Swagger-документации.",
             price: 2990,
             level: "beginner",
             status: "published",
@@ -53,8 +53,8 @@ public static class DevelopmentDatabaseInitializer
 
         var qaCourse = await EnsureCourseAsync(
             context,
-            title: "QA Automation for Online Courses API",
-            description: "Practice API test cases, smoke checks, regression scenarios and defect reports.",
+            title: "Автотесты и QA для REST API",
+            description: "Разбор smoke-проверок, тест-кейсов, Postman-коллекций, регрессионных сценариев и баг-репортов.",
             price: 1990,
             level: "intermediate",
             status: "published",
@@ -64,8 +64,8 @@ public static class DevelopmentDatabaseInitializer
 
         var wpfCourse = await EnsureCourseAsync(
             context,
-            title: "WPF Desktop Client Essentials",
-            description: "Connect a desktop client to the API, handle tokens, errors and async loading states.",
+            title: "WPF-клиент для учебной платформы",
+            description: "Создание настольного клиента, подключение к API, работа с токенами, ошибками и асинхронной загрузкой.",
             price: 1490,
             level: "beginner",
             status: "published",
@@ -75,30 +75,30 @@ public static class DevelopmentDatabaseInitializer
 
         await EnsureCourseLessonsAsync(context, apiCourse, new[]
         {
-            ("Project architecture", "Review API, Data, Models and Client projects.", "text", 1, true, (int?)null),
-            ("CRUD endpoints", "Create, read, update and delete courses through controllers.", "video", 2, true, 18),
-            ("JWT authentication", "Register, login, refresh and logout flows.", "text", 3, false, (int?)null),
-            ("Swagger demo", "Prepare endpoints for defense and manual QA.", "video", 4, false, 14)
+            ("Архитектура проекта", "Разбираем слои API, Data, Models и Client.", "text", 1, true, (int?)null),
+            ("CRUD-эндпоинты", "Создаем, читаем, обновляем и удаляем курсы через контроллеры.", "video", 2, true, 18),
+            ("JWT-авторизация", "Регистрация, вход, refresh token и выход из системы.", "text", 3, false, (int?)null),
+            ("Демонстрация Swagger", "Готовим эндпоинты к защите и ручной проверке.", "video", 4, false, 14)
         });
 
         await EnsureCourseLessonsAsync(context, qaCourse, new[]
         {
-            ("Smoke checklist", "Critical checks before every demo.", "text", 1, true, (int?)null),
-            ("Postman collection", "Organize requests for auth, courses, lessons and reviews.", "text", 2, false, (int?)null),
-            ("Bug report examples", "Write reproducible defects with expected and actual results.", "video", 3, false, 11)
+            ("Smoke-чеклист", "Критические проверки перед каждым демо.", "text", 1, true, (int?)null),
+            ("Postman-коллекция", "Организация запросов для авторизации, курсов, уроков и отзывов.", "text", 2, false, (int?)null),
+            ("Примеры баг-репортов", "Описываем воспроизводимые дефекты с ожидаемым и фактическим результатом.", "video", 3, false, 11)
         });
 
         await EnsureCourseLessonsAsync(context, wpfCourse, new[]
         {
-            ("Login screen", "Token storage and user state in the desktop client.", "text", 1, true, (int?)null),
-            ("Course catalog", "Load cards, categories and course details asynchronously.", "video", 2, false, 16)
+            ("Экран входа", "Хранение токенов и состояние пользователя в desktop-клиенте.", "text", 1, true, (int?)null),
+            ("Каталог курсов", "Асинхронная загрузка карточек, категорий и деталей курса.", "video", 2, false, 16)
         });
 
-        var csharp = await EnsureTagAsync(context, "csharp", "C# language");
-        var dotnet = await EnsureTagAsync(context, "dotnet", ".NET platform");
-        var testing = await EnsureTagAsync(context, "testing", "QA and test automation");
-        var devops = await EnsureTagAsync(context, "devops", "CI/CD and deployment");
-        var wpf = await EnsureTagAsync(context, "wpf", "Desktop client");
+        var csharp = await EnsureTagAsync(context, "csharp", "Язык программирования C#");
+        var dotnet = await EnsureTagAsync(context, "dotnet", "Платформа .NET");
+        var testing = await EnsureTagAsync(context, "testing", "QA и автоматизация тестирования");
+        var devops = await EnsureTagAsync(context, "devops", "CI/CD и развертывание");
+        var wpf = await EnsureTagAsync(context, "wpf", "Настольный клиент");
 
         await EnsureCourseTagAsync(context, apiCourse.CourseId, csharp.TagId);
         await EnsureCourseTagAsync(context, apiCourse.CourseId, dotnet.TagId);
@@ -113,9 +113,9 @@ public static class DevelopmentDatabaseInitializer
         await EnsureLessonProgressAsync(context, apiEnrollment, completedCount: 2);
         await EnsureLessonProgressAsync(context, qaEnrollment, completedCount: 1);
 
-        await EnsureReviewAsync(context, student.UserId, apiCourse.CourseId, 5, "Clear course for API defense preparation.", isApproved: true);
-        await EnsureReviewAsync(context, secondStudent.UserId, apiCourse.CourseId, 4, "Useful examples for local testing.", isApproved: true);
-        await EnsureReviewAsync(context, student.UserId, qaCourse.CourseId, 5, "Good QA checklist and regression ideas.", isApproved: true);
+        await EnsureReviewAsync(context, student.UserId, apiCourse.CourseId, 5, "Понятный курс для подготовки API к защите.", isApproved: true);
+        await EnsureReviewAsync(context, secondStudent.UserId, apiCourse.CourseId, 4, "Полезные примеры для локального тестирования.", isApproved: true);
+        await EnsureReviewAsync(context, student.UserId, qaCourse.CourseId, 5, "Хороший чеклист QA и идеи для регрессионных проверок.", isApproved: true);
 
         logger.LogInformation("Development database is ready with seeded demo data.");
     }
@@ -343,8 +343,8 @@ public static class DevelopmentDatabaseInitializer
         var basics = new Section
         {
             CourseId = course.CourseId,
-            Title = "Basics",
-            Description = "Core theory and first practical checks.",
+            Title = "Основы",
+            Description = "Базовая теория и первые практические проверки.",
             SectionOrder = 1,
             CreatedAt = DateTime.UtcNow
         };
@@ -352,8 +352,8 @@ public static class DevelopmentDatabaseInitializer
         var practice = new Section
         {
             CourseId = course.CourseId,
-            Title = "Practice",
-            Description = "Hands-on tasks for API and client testing.",
+            Title = "Практика",
+            Description = "Практические задания для проверки API и клиентского приложения.",
             SectionOrder = 2,
             CreatedAt = DateTime.UtcNow
         };
