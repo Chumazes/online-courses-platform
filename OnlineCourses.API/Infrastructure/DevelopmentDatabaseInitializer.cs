@@ -26,6 +26,7 @@ public static class DevelopmentDatabaseInitializer
         }
 
         await context.Database.MigrateAsync();
+        await EnsurePostgresLessonFileColumnsAsync(context, logger);
         await SeedDevelopmentDataAsync(context, logger);
     }
 
@@ -177,6 +178,44 @@ public static class DevelopmentDatabaseInitializer
             {
                 logger.LogInformation("SQLite Lessons table was updated with lesson file metadata columns.");
             }
+        }
+        finally
+        {
+            if (shouldClose)
+            {
+                await connection.CloseAsync();
+            }
+        }
+    }
+
+    private static async Task EnsurePostgresLessonFileColumnsAsync(AppDbContext context, ILogger logger)
+    {
+        var connection = context.Database.GetDbConnection();
+        var shouldClose = connection.State != ConnectionState.Open;
+
+        if (shouldClose)
+        {
+            await connection.OpenAsync();
+        }
+
+        try
+        {
+            var statements = new[]
+            {
+                "ALTER TABLE \"Lessons\" ADD COLUMN IF NOT EXISTS \"FileName\" text NULL;",
+                "ALTER TABLE \"Lessons\" ADD COLUMN IF NOT EXISTS \"FileUrl\" text NULL;",
+                "ALTER TABLE \"Lessons\" ADD COLUMN IF NOT EXISTS \"FileType\" text NULL;",
+                "ALTER TABLE \"Lessons\" ADD COLUMN IF NOT EXISTS \"FileSize\" bigint NULL;"
+            };
+
+            foreach (var statement in statements)
+            {
+                await using var command = connection.CreateCommand();
+                command.CommandText = statement;
+                await command.ExecuteNonQueryAsync();
+            }
+
+            logger.LogInformation("PostgreSQL Lessons table is ready with lesson file metadata columns.");
         }
         finally
         {
