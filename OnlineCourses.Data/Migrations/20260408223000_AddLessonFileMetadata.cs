@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace OnlineCourses.Data.Migrations
 {
+    [Migration("20260408223000_AddLessonFileMetadata")]
     public partial class AddLessonFileMetadata : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
