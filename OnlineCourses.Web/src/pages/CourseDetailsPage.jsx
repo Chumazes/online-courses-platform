@@ -323,7 +323,7 @@ export function CourseDetailsPage() {
                           </p>
                           <span className="lesson-link__hint">{lesson.content}</span>
                         </div>
-                        <Link className="btn btn--primary btn--fit" to={`/lessons/${lesson.lessonId}`}>
+                        <Link className="btn btn--primary btn--fit" to={`/lessons/${section.sectionId}/${lesson.lessonId}`}>
                           Открыть
                         </Link>
                       </div>
