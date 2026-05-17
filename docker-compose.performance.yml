@@ -1,0 +1,15 @@
+services:
+  k6:
+    image: grafana/k6:0.49.0
+    profiles:
+      - performance
+    environment:
+      K6_API_BASE_URL: ${K6_API_BASE_URL:-http://api:8080}
+      K6_VUS: ${K6_VUS:-10}
+      K6_DURATION: ${K6_DURATION:-30s}
+    volumes:
+      - ./tests/performance:/scripts:ro
+    command: run /scripts/api-smoke.js
+    depends_on:
+      api:
+        condition: service_healthy
