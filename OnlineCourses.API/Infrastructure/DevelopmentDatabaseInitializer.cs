@@ -21,14 +21,15 @@ public static class DevelopmentDatabaseInitializer
         {
             await context.Database.EnsureCreatedAsync();
             await EnsureSqliteLessonFileColumnsAsync(context, logger);
-            await SeedSqliteDevelopmentDataAsync(context, logger);
+            await SeedDevelopmentDataAsync(context, logger);
             return;
         }
 
         await context.Database.MigrateAsync();
+        await SeedDevelopmentDataAsync(context, logger);
     }
 
-    private static async Task SeedSqliteDevelopmentDataAsync(AppDbContext context, ILogger logger)
+    private static async Task SeedDevelopmentDataAsync(AppDbContext context, ILogger logger)
     {
         var teacher = await EnsureUserAsync(context, "teacher@local.dev", "Demo Teacher", "teacher", "123456");
         var student = await EnsureUserAsync(context, "student@local.dev", "Demo Student", "student", "123456");
@@ -115,7 +116,7 @@ public static class DevelopmentDatabaseInitializer
         await EnsureReviewAsync(context, secondStudent.UserId, apiCourse.CourseId, 4, "Useful examples for local testing.", isApproved: true);
         await EnsureReviewAsync(context, student.UserId, qaCourse.CourseId, 5, "Good QA checklist and regression ideas.", isApproved: true);
 
-        logger.LogInformation("SQLite development database is ready with seeded demo data.");
+        logger.LogInformation("Development database is ready with seeded demo data.");
     }
 
     private static async Task EnsureSqliteLessonFileColumnsAsync(AppDbContext context, ILogger logger)
